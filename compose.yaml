@@ -1,0 +1,29 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app  # Mount frontend source code
+      - /app/node_modules  # Exclude node_modules from being overwritten
+      - /app/.next  # Persist .next build files for hot reloads
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app  # Mount backend source code
+      - /app/node_modules  # Exclude node_modules from being overwritten
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+    ports:
+      - "5000:5000"
