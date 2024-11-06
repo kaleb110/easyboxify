@@ -1,17 +1,19 @@
+version: '3.8'
+
 services:
   frontend:
     build:
       context: ./frontend
-      target: dev
+      target: dev  # Use the development target from the frontend Dockerfile
       dockerfile: Dockerfile
     volumes:
-      - ./frontend:/app  # Mount frontend source code
-      - /app/node_modules  # Exclude node_modules from being overwritten
-      - /app/.next  # Persist .next build files for hot reloads
+      - ./frontend:/app  # Mount frontend source code for live reloads
+      - /app/node_modules  # Avoid overwriting node_modules from the host
+      - /app/.next  # Persist Next.js build files for hot reloading
     depends_on:
       - backend
     ports:
-      - "3000:3000"
+      - "3000:3000"  # Expose frontend app on port 3000
     environment:
       - NODE_ENV=development
 
@@ -20,10 +22,27 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     volumes:
-      - ./backend:/app  # Mount backend source code
-      - /app/node_modules  # Exclude node_modules from being overwritten
+      - ./backend:/app  # Mount backend source code for live reloads
+      - /app/node_modules  # Avoid overwriting node_modules from the host
     environment:
       - NODE_ENV=development
       - PORT=5000
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Expose backend app on port 5000
+
+  nginx:
+    image: nginx:latest  # Use the official Nginx image
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Mount your custom nginx.conf
+      - ./frontend:/usr/share/nginx/html  # Mount the frontend build folder to Nginx
+    ports:
+      - "80:80"  # Expose Nginx on port 80
+    depends_on:
+      - frontend  # Ensure frontend is up before Nginx
+      - backend  # Ensure backend is up before Nginx
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

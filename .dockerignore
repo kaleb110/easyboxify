@@ -1,0 +1,43 @@
+# Ignore node_modules directories (to avoid copying dependencies)
+node_modules
+**/node_modules
+
+# Ignore Dockerfile and .dockerignore itself
+Dockerfile
+.dockerignore
+
+# Ignore logs
+*.log
+
+# Ignore Next.js build output and .next cache
+.next
+out
+
+# Ignore environment files (keep secrets out of Docker image)
+.env
+
+# Ignore any temporary files and IDE-specific files
+.idea
+.vscode
+*.swp
+*.swo
+
+# Ignore git files
+.git
+.gitignore
+
+# Ignore coverage reports and test results
+coverage
+*.test.js
+*.spec.js
+
+# Ignore dependencies lock files (e.g., package-lock.json, if rebuilding in CI/CD)
+package-lock.json
+yarn.lock
+
+# Ignore build artifacts (for backend, if any)
+dist
+
+# Ignore public folder content (if not required in the image)
+frontend/public/*
+backend/public/*
