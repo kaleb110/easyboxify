@@ -3,24 +3,11 @@ import { Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FolderSection } from './folder-section'
 import { TagSection } from './tag-section'
+import { useBookmarkStore } from '@/store/bookmarkStore'
 
-interface SidebarItemsProps {
-  folders: { name: string; content: string }[]
-  tags: string[]
-  selectedContent: string
-  setSelectedContent: (content: string) => void
-  setFolders: React.Dispatch<React.SetStateAction<{ name: string; content: string }[]>>
-  setTags: React.Dispatch<React.SetStateAction<string[]>>
-}
+export function SidebarItems() {
+  const { selectedContent, setSelectedContent } = useBookmarkStore()
 
-export function SidebarItems({
-  folders,
-  tags,
-  selectedContent,
-  setSelectedContent,
-  setFolders,
-  setTags,
-}: SidebarItemsProps) {
   return (
     <nav className="space-y-2 p-2">
       <Button
@@ -31,18 +18,8 @@ export function SidebarItems({
         <Bookmark className="mr-2 h-4 w-4" />
         All Bookmarks
       </Button>
-      <FolderSection
-        folders={folders}
-        setFolders={setFolders}
-        selectedContent={selectedContent}
-        setSelectedContent={setSelectedContent}
-      />
-      <TagSection
-        tags={tags}
-        setTags={setTags}
-        selectedContent={selectedContent}
-        setSelectedContent={setSelectedContent}
-      />
+      <FolderSection />
+      <TagSection />
     </nav>
   )
 }

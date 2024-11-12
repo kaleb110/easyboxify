@@ -1,198 +1,178 @@
 'use client'
 
-import * as React from 'react'
-import { Bookmark, FolderClosed, Hash, Menu, Search, Settings, Plus } from 'lucide-react'
+import React, { useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarProvider,
-} from '@/components/ui/sidebar'
+import { useBookmarkStore } from '@/store/bookmarkStore'
 import { SidebarItems } from './sidebar-items'
-import { AddBookmarkModal, BookmarkType } from './add-bookmark-modal'
-import { BookmarkList } from './bookmark-list'
+import { AddBookmarkModal } from './add-bookmark-modal'
+import { BookmarkItem } from './bookmark-item'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { MoreHorizontal, Edit, Trash2 } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useToast } from '@/hooks/use-toast'
 
 export function BookmarkingAppComponent() {
-  const [selectedContent, setSelectedContent] = React.useState('All Bookmarks')
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
-  const [folders, setFolders] = React.useState([
-    { name: 'Work', content: 'Work content goes here' },
-    { name: 'Personal', content: 'Personal content goes here' },
-    { name: 'Learning', content: 'Learning content goes here' },
-  ])
-  const [tags, setTags] = React.useState(['Important', 'Read Later', 'Favorite'])
-  const [bookmarks, setBookmarks] = React.useState<BookmarkType[]>([])
-  const [editingBookmark, setEditingBookmark] = React.useState<BookmarkType | null>(null)
-  const [isAddBookmarkModalOpen, setIsAddBookmarkModalOpen] = React.useState(false)
+  const {
+    bookmarks,
+    selectedContent,
+    setIsAddBookmarkModalOpen,
+    setEditingBookmark,
+    deleteBookmark,
+    reorderBookmarks,
+    folders,
+    tags,
+    renameFolder,
+    renameTag,
+    deleteFolder,
+    deleteTag,
+    setSelectedContent,
+  } = useBookmarkStore()
 
-  const handleAddBookmark = (newBookmark: BookmarkType) => {
-    setBookmarks(prevBookmarks => [...prevBookmarks, newBookmark])
-    setIsAddBookmarkModalOpen(false)
-  }
+  const [searchTerm, setSearchTerm] = useState('')
+  const [editingName, setEditingName] = useState('')
+  const [isRenaming, setIsRenaming] = useState(false)
+  const { toast } = useToast()
 
-  const handleEditBookmark = (editedBookmark: BookmarkType) => {
-    setBookmarks(prevBookmarks =>
-      prevBookmarks.map(bookmark =>
-        bookmark.id === editedBookmark.id ? editedBookmark : bookmark
-      )
+  const filteredBookmarks = React.useMemo(() => {
+    let filtered = bookmarks
+    if (selectedContent !== 'All Bookmarks') {
+      const folder = folders.find(f => f.name === selectedContent)
+      if (folder) {
+        filtered = bookmarks.filter(bookmark => bookmark.folderId === folder.id)
+      } else {
+        const tag = tags.find(t => t.name === selectedContent)
+        if (tag) {
+          filtered = bookmarks.filter(bookmark => bookmark.tags.includes(tag.id))
+        }
+      }
+    }
+    return filtered.filter(bookmark =>
+      bookmark.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      bookmark.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      bookmark.notes.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    setEditingBookmark(null)
-    setIsAddBookmarkModalOpen(false)
-  }
-
-  const handleOpenEditModal = (bookmark: BookmarkType) => {
-    setEditingBookmark(bookmark)
-    setIsAddBookmarkModalOpen(true)
-  }
-
-  const handleDeleteBookmark = (id: string) => {
-    setBookmarks(prevBookmarks => prevBookmarks.filter(bookmark => bookmark.id !== id))
-  }
+  }, [selectedContent, bookmarks, folders, tags, searchTerm])
 
   const moveBookmark = (dragIndex: number, hoverIndex: number) => {
-    const dragBookmark = bookmarks[dragIndex]
-    setBookmarks(prevBookmarks => {
-      const newBookmarks = [...prevBookmarks]
-      newBookmarks.splice(dragIndex, 1)
-      newBookmarks.splice(hoverIndex, 0, dragBookmark)
-      return newBookmarks
-    })
+    reorderBookmarks(dragIndex, hoverIndex)
   }
 
-  const getIconForContent = (content: string) => {
-    if (content === 'All Bookmarks') return Bookmark
-    if (content.startsWith('Tag:')) return Hash
-    return FolderClosed
+  const handleRename = () => {
+    if (editingName.trim()) {
+      const folder = folders.find(f => f.name === selectedContent)
+      if (folder) {
+        renameFolder(folder.id, editingName.trim())
+      } else {
+        const tag = tags.find(t => t.name === selectedContent)
+        if (tag) {
+          renameTag(tag.id, editingName.trim())
+        }
+      }
+      setIsRenaming(false)
+    } else {
+      toast({
+        title: "Error",
+        description: "Name cannot be empty",
+        variant: "destructive",
+      })
+    }
   }
 
-  const SearchBar = () => {
-    return (
-      <div className="bg-background border-b border-border p-4 flex items-center space-x-2">
-        <div className="relative flex-1">
-          <Input
-            type="text"
-            placeholder="Search bookmarks..."
-            className="pl-8 pr-4 py-2 w-full"
-          />
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        </div>
-        {/* <Button variant="outline" size="icon" className="md:hidden">
-          <Search className="h-4 w-4" />
-          <span className="sr-only">Search</span>
-        </Button> */}
-      </div>
-    )
+  const handleDelete = () => {
+    const folder = folders.find(f => f.name === selectedContent)
+    if (folder) {
+      deleteFolder(folder.id)
+    } else {
+      const tag = tags.find(t => t.name === selectedContent)
+      if (tag) {
+        deleteTag(tag.id)
+      }
+    }
+    setSelectedContent('All Bookmarks')
   }
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <SidebarProvider>
-        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden md:flex-row w-full">
-          {/* Mobile header */}
-          <header className="bg-background p-4 flex items-center justify-between md:hidden border-b border-border">
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0">
-                <SidebarHeader className="p-4 border-b border-border">
-                  <div className="flex justify-between items-center">
-                    <Button variant="ghost" size="icon" onClick={() => setIsAddBookmarkModalOpen(true)}>
-                      <Settings className="h-5 w-5" />
-                      <span className="sr-only">Settings</span>
-                    </Button>
-                  </div>
-                </SidebarHeader>
-                <SidebarContent>
-                  <SidebarItems
-                    folders={folders}
-                    tags={tags}
-                    selectedContent={selectedContent}
-                    setSelectedContent={(content) => {
-                      setSelectedContent(content)
-                      setIsMobileMenuOpen(false)
-                    }}
-                    setFolders={setFolders}
-                    setTags={setTags}
-                  />
-                </SidebarContent>
-              </SheetContent>
-            </Sheet>
-            <SearchBar />
-
-          </header>
-
-          {/* Sidebar for larger screens */}
-          <Sidebar className="hidden md:block w-64 border-r border-border flex-shrink-0">
-            <SidebarHeader className="p-4 border-b border-border">
-              <div className="flex justify-between items-center">
-                <div className="flex space-x-2">
-                  <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                    <span className="sr-only">Settings</span>
-                  </Button>
-                </div>
-              </div>
-            </SidebarHeader>
-            <SidebarContent>
-              <SidebarItems
-                folders={folders}
-                tags={tags}
-                selectedContent={selectedContent}
-                setSelectedContent={setSelectedContent}
-                setFolders={setFolders}
-                setTags={setTags}
-              />
-            </SidebarContent>
-          </Sidebar>
-
-          {/* Main content area */}
-          <main className="flex-1 overflow-y-auto w-full flex flex-col">
-            <div className='max-md:hidden'>
-              <SearchBar />
-            </div>
-
-            {/* Title of selected content */}
-            <div className="bg-background border-b border-border p-4 flex justify-between items-center">
-              <div className='flex'>{React.createElement(getIconForContent(selectedContent), { className: "h-6 w-6 mr-2" })}
-                <h2 className="text-xl font-semibold">{selectedContent}</h2></div>
-
-              <Button variant="ghost" size="icon" onClick={() => setIsAddBookmarkModalOpen(true)}>
-                <Plus className="h-5 w-5" />
-                <span className="sr-only">Add bookmark</span>
-              </Button>
-            </div>
-
-            {/* Bookmarks list */}
-            <div className="flex-1 p-4 overflow-y-auto">
-              <BookmarkList
-                bookmarks={bookmarks}
-                onEditBookmark={handleOpenEditModal}
-                onDeleteBookmark={handleDeleteBookmark}
-                moveBookmark={moveBookmark}
-              />
-            </div>
-          </main>
-
-          <AddBookmarkModal
-            folders={folders}
-            onAddBookmark={handleAddBookmark}
-            editingBookmark={editingBookmark}
-            onEditBookmark={handleEditBookmark}
-            isOpen={isAddBookmarkModalOpen}
-            setIsOpen={setIsAddBookmarkModalOpen}
+      <div className="flex h-screen">
+        <aside className="w-64 bg-gray-100 p-4">
+          <SidebarItems />
+        </aside>
+        <main className="flex-1 p-4">
+          <Input
+            placeholder="Search bookmarks..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="mb-4"
           />
-        </div>
-      </SidebarProvider>
+          <div className="flex justify-between items-center mb-4">
+            {isRenaming ? (
+              <Input
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                onBlur={handleRename}
+                onKeyPress={(e) => e.key === 'Enter' && handleRename()}
+                autoFocus
+              />
+            ) : (
+              <h1 className="text-2xl font-bold">{selectedContent}</h1>
+            )}
+            {selectedContent !== 'All Bookmarks' && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onSelect={() => {
+                    setEditingName(selectedContent)
+                    setIsRenaming(true)
+                  }}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={handleDelete}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+          <Button
+            onClick={() => {
+              setEditingBookmark(null)
+              setIsAddBookmarkModalOpen(true)
+            }}
+            className="mb-4"
+          >
+            Add Bookmark
+          </Button>
+          <div className="space-y-4">
+            {filteredBookmarks.map((bookmark, index) => (
+              <BookmarkItem
+                key={bookmark.id}
+                bookmark={bookmark}
+                index={index}
+                moveBookmark={moveBookmark}
+                onEdit={(bookmark) => {
+                  setIsAddBookmarkModalOpen(true)
+                  setEditingBookmark(bookmark)
+                }}
+                onDelete={deleteBookmark}
+              />
+            ))}
+          </div>
+        </main>
+      </div>
+      <AddBookmarkModal />
     </DndProvider>
   )
 }
