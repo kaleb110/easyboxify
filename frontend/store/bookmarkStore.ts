@@ -1,5 +1,5 @@
-// store/bookmarkStore.ts
 import { create } from "zustand";
+import { v4 as uuidv4 } from "uuid";
 
 export interface Folder {
   id: string;
@@ -21,6 +21,9 @@ export interface Bookmark {
   notes: string;
 }
 
+const defaultFolders = ["Personal", "Work", "Learning"];
+const defaultTags = ["Important", "To-Read", "Favorite"];
+
 interface BookmarkStore {
   folders: Folder[];
   tags: Tag[];
@@ -28,8 +31,6 @@ interface BookmarkStore {
   selectedContent: string;
   isAddBookmarkModalOpen: boolean;
   editingBookmark: Bookmark | null;
-  editingFolderId: string | null;
-  editingTagId: string | null;
   addFolder: (name: string) => void;
   renameFolder: (id: string, newName: string) => void;
   deleteFolder: (id: string) => void;
@@ -43,49 +44,44 @@ interface BookmarkStore {
   setSelectedContent: (content: string) => void;
   setIsAddBookmarkModalOpen: (isOpen: boolean) => void;
   setEditingBookmark: (bookmark: Bookmark | null) => void;
-  setEditingFolderId: (id: string | null) => void;
-  setEditingTagId: (id: string | null) => void;
-  moveBookmark: (bookmarkId: string, targetFolderId: string | null) => void;
-  reorderBookmarks: (startIndex: number, endIndex: number) => void;
+  reorderBookmarks: (dragIndex: number, hoverIndex: number) => void;
 }
 
 export const useBookmarkStore = create<BookmarkStore>((set) => ({
-  folders: [
-    { id: "1", name: "Work", isCollapsed: false },
-    { id: "2", name: "Personal", isCollapsed: false },
-    { id: "3", name: "Learning", isCollapsed: false },
-  ],
-  tags: [
-    { id: "1", name: "Important" },
-    { id: "2", name: "Read Later" },
-    { id: "3", name: "Inspiration" },
-  ],
+  folders: defaultFolders.map((name) => ({
+    id: uuidv4(),
+    name,
+    isCollapsed: false,
+  })),
+  tags: defaultTags.map((name) => ({ id: uuidv4(), name })),
   bookmarks: [],
   selectedContent: "All Bookmarks",
   isAddBookmarkModalOpen: false,
   editingBookmark: null,
-  editingFolderId: null,
-  editingTagId: null,
+
   addFolder: (name) =>
     set((state) => ({
-      folders: [
-        ...state.folders,
-        { id: Date.now().toString(), name, isCollapsed: false },
-      ],
+      folders: [...state.folders, { id: uuidv4(), name, isCollapsed: false }],
     })),
+
   renameFolder: (id, newName) =>
     set((state) => ({
       folders: state.folders.map((folder) =>
         folder.id === id ? { ...folder, name: newName } : folder
       ),
+      selectedContent:
+        state.selectedContent === state.folders.find((f) => f.id === id)?.name
+          ? newName
+          : state.selectedContent,
     })),
+
   deleteFolder: (id) =>
     set((state) => ({
       folders: state.folders.filter((folder) => folder.id !== id),
-      bookmarks: state.bookmarks.map((bookmark) =>
-        bookmark.folderId === id ? { ...bookmark, folderId: null } : bookmark
-      ),
+      bookmarks: state.bookmarks.filter((bookmark) => bookmark.folderId !== id),
+      selectedContent: "All Bookmarks",
     })),
+
   toggleFolderCollapse: (id) =>
     set((state) => ({
       folders: state.folders.map((folder) =>
@@ -94,60 +90,62 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
           : folder
       ),
     })),
+
   addTag: (name) =>
     set((state) => ({
-      tags: [...state.tags, { id: Date.now().toString(), name }],
+      tags: [...state.tags, { id: uuidv4(), name }],
     })),
+
   renameTag: (id, newName) =>
     set((state) => ({
       tags: state.tags.map((tag) =>
         tag.id === id ? { ...tag, name: newName } : tag
       ),
+      selectedContent:
+        state.selectedContent === state.tags.find((t) => t.id === id)?.name
+          ? newName
+          : state.selectedContent,
     })),
+
   deleteTag: (id) =>
     set((state) => ({
       tags: state.tags.filter((tag) => tag.id !== id),
-      bookmarks: state.bookmarks.map((bookmark) => ({
-        ...bookmark,
-        tags: bookmark.tags.filter((tagId) => tagId !== id),
-      })),
+      bookmarks: state.bookmarks.filter(
+        (bookmark) => !bookmark.tags.includes(id)
+      ),
+      selectedContent: "All Bookmarks",
     })),
+
   addBookmark: (bookmark) =>
     set((state) => ({
-      bookmarks: [
-        ...state.bookmarks,
-        { ...bookmark, id: Date.now().toString() },
-      ],
+      bookmarks: [...state.bookmarks, { ...bookmark, id: uuidv4() }],
     })),
+
   editBookmark: (id, updatedBookmark) =>
     set((state) => ({
       bookmarks: state.bookmarks.map((bookmark) =>
         bookmark.id === id ? { ...bookmark, ...updatedBookmark } : bookmark
       ),
     })),
+
   deleteBookmark: (id) =>
     set((state) => ({
       bookmarks: state.bookmarks.filter((bookmark) => bookmark.id !== id),
     })),
+
   setSelectedContent: (content) => set({ selectedContent: content }),
+
   setIsAddBookmarkModalOpen: (isOpen) =>
     set({ isAddBookmarkModalOpen: isOpen }),
+
   setEditingBookmark: (bookmark) => set({ editingBookmark: bookmark }),
-  setEditingFolderId: (id) => set({ editingFolderId: id }),
-  setEditingTagId: (id) => set({ editingTagId: id }),
-  moveBookmark: (bookmarkId, targetFolderId) =>
-    set((state) => ({
-      bookmarks: state.bookmarks.map((bookmark) =>
-        bookmark.id === bookmarkId
-          ? { ...bookmark, folderId: targetFolderId }
-          : bookmark
-      ),
-    })),
-  reorderBookmarks: (startIndex, endIndex) =>
+
+  reorderBookmarks: (dragIndex, hoverIndex) =>
     set((state) => {
-      const newBookmarks = Array.from(state.bookmarks);
-      const [reorderedItem] = newBookmarks.splice(startIndex, 1);
-      newBookmarks.splice(endIndex, 0, reorderedItem);
+      const newBookmarks = [...state.bookmarks];
+      const draggedBookmark = newBookmarks[dragIndex];
+      newBookmarks.splice(dragIndex, 1);
+      newBookmarks.splice(hoverIndex, 0, draggedBookmark);
       return { bookmarks: newBookmarks };
     }),
 }));

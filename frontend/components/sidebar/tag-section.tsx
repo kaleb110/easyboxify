@@ -9,7 +9,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 
-export function TagSection() {
+export function TagSection({ onItemClick }: { onItemClick: () => void }) {
   const {
     tags,
     addTag,
@@ -75,6 +75,7 @@ export function TagSection() {
               onChange={(e) => setNewTagName(e.target.value)}
               onBlur={handleInputBlur}
               placeholder="New tag name"
+              required
               className="h-8 text-sm"
             />
           </form>
@@ -84,7 +85,10 @@ export function TagSection() {
             <Button
               variant="ghost"
               className="w-full justify-start pl-6 text-sm"
-              onClick={() => setSelectedContent(tag.name)}
+              onClick={() => {
+                setSelectedContent(`${tag.name}`)
+                onItemClick()
+              }}
             >
               <Tag className="mr-2 h-4 w-4" />
               {tag.name}

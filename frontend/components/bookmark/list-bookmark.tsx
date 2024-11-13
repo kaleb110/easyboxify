@@ -1,5 +1,5 @@
 import React from 'react'
-import { BookmarkItem } from './bookmark-item'
+import { BookmarkItem } from './item-bookmark'
 import { Bookmark } from '@/store/bookmarkStore'
 
 interface BookmarkListProps {

@@ -9,7 +9,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 
-export function FolderSection() {
+export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
   const {
     folders,
     addFolder,
@@ -76,6 +76,7 @@ export function FolderSection() {
               onChange={(e) => setNewFolderName(e.target.value)}
               onBlur={handleInputBlur}
               placeholder="New folder name"
+              required
               className="h-8 text-sm"
             />
           </form>
@@ -90,6 +91,7 @@ export function FolderSection() {
                   onClick={() => {
                     toggleFolderCollapse(folder.id)
                     setSelectedContent(folder.name)
+                    onItemClick()
                   }}
                 >
                   <FolderClosed className="mr-2 h-4 w-4" />
