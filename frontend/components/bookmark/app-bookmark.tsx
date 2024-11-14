@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useBookmarkStore } from '@/store/bookmarkStore'
@@ -9,15 +9,26 @@ import { SidebarItems } from '../sidebar/sidebar-items'
 import { BookmarkItem } from './item-bookmark'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { MoreHorizontal, Edit, Trash2, Plus, Menu, X } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2, Plus, Menu, X, Check } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import UserAvatar from '../custom/UserAvatar'
 import { ModeToggle } from '../theme/toggle'
+
 export default function BookmarkingAppComponent() {
   const {
     bookmarks,
@@ -40,6 +51,9 @@ export default function BookmarkingAppComponent() {
   const [isRenaming, setIsRenaming] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<{ type: 'folder' | 'tag', id: string, name: string } | null>(null)
+  const renameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -79,6 +93,12 @@ export default function BookmarkingAppComponent() {
   const startRenaming = () => {
     setEditingName(selectedContent)
     setIsRenaming(true)
+    setTimeout(() => {
+      if (renameInputRef.current) {
+        renameInputRef.current.focus()
+        renameInputRef.current.select()
+      }
+    }, 0)
   }
 
   const handleRename = () => {
@@ -97,17 +117,39 @@ export default function BookmarkingAppComponent() {
     setIsRenaming(false)
   }
 
-  const handleDelete = () => {
-    const folder = folders.find(f => f.name === selectedContent)
-    if (folder) {
-      deleteFolder(folder.id)
-    } else {
-      const tag = tags.find(t => t.name === selectedContent)
-      if (tag) {
-        deleteTag(tag.id)
-      }
+  const handleRenameInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Only apply the rename if the user didn't click on the save button
+    if (e.relatedTarget?.id !== 'save-rename-button') {
+      handleRename()
     }
-    setSelectedContent('All Bookmarks')
+  }
+
+  const handleCancelRename = () => {
+    setEditingName(selectedContent)
+    setIsRenaming(false)
+  }
+
+  const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleRename()
+    } else if (e.key === 'Escape') {
+      handleCancelRename()
+    }
+  }
+
+  const handleDelete = () => {
+    if (selectedContent !== 'All Bookmarks') {
+      const folder = folders.find(f => f.name === selectedContent)
+      if (folder) {
+        setItemToDelete({ type: 'folder', id: folder.id, name: folder.name })
+      } else {
+        const tag = tags.find(t => t.name === selectedContent)
+        if (tag) {
+          setItemToDelete({ type: 'tag', id: tag.id, name: tag.name })
+        }
+      }
+      setIsDeleteDialogOpen(true)
+    }
   }
 
   const closeSidebar = () => {
@@ -117,34 +159,35 @@ export default function BookmarkingAppComponent() {
   };
 
   const ContentNavBar = () => {
-    return <div className="flex justify-center items-center">
-      <Input
-        placeholder="Search bookmarks..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full max-w-sm"
-      />
-      <div className='flex gap-2'><Button
-        onClick={() => {
-          setEditingBookmark(null)
-          setIsAddBookmarkModalOpen(true)
-        }}
-        size="icon"
-        className="ml-2"
-      >
-        <Plus className="h-4 w-4" />
-
-
-      </Button>
-        <ModeToggle />
+    return (
+      <div className="flex justify-center items-center">
+        <Input
+          placeholder="Search bookmarks..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full max-w-sm"
+        />
+        <div className='flex gap-2'>
+          <Button
+            onClick={() => {
+              setEditingBookmark(null)
+              setIsAddBookmarkModalOpen(true)
+            }}
+            size="icon"
+            className="ml-2"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          <ModeToggle />
+        </div>
       </div>
-    </div>
+    )
   }
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col h-screen">
-        <header className="flex items-center justify-between gap-2 p-4  md:hidden bg-gray-100 dark:bg-gray-800">
+        <header className="flex items-center justify-between gap-2 p-4 md:hidden bg-gray-100 dark:bg-gray-800">
           <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)}>
             <Menu className="h-10 w-10" />
           </Button>
@@ -154,19 +197,17 @@ export default function BookmarkingAppComponent() {
           {/* Sidebar */}
           <aside
             className={`
-              fixed inset-y-0 left-0 z-50 w-3/4 max-w-xs  transition-transform duration-300 ease-in-out transform
+              fixed inset-y-0 left-0 z-50 w-3/4 max-w-xs transition-transform duration-300 ease-in-out transform
               ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
               md:relative md:translate-x-0 md:w-64
               flex flex-col h-full dark:bg-gray-800 bg-gray-100
             `}
           >
-            {/* TODO:insert avatar icon */}
             <div className="flex justify-between items-center pl-4 pr-2 pt-4 md:hidden">
               <UserAvatar />
               <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
                 <X className="h-8 w-8" />
               </Button>
-
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               <SidebarItems onItemClick={closeSidebar} />
@@ -187,19 +228,26 @@ export default function BookmarkingAppComponent() {
               <div className='max-sm:hidden'><ContentNavBar /></div>
               <div className="flex justify-between items-center mb-4">
                 {isRenaming ? (
-                  <form onSubmit={(e) => { e.preventDefault(); handleRename(); }}>
+                  <form onSubmit={(e) => { e.preventDefault(); handleRename(); }} className="flex items-center space-x-2">
                     <Input
+                      ref={renameInputRef}
                       value={editingName}
                       onChange={(e) => setEditingName(e.target.value)}
-                      onBlur={() => setIsRenaming(false)}
-                      autoFocus
+                      onBlur={handleRenameInputBlur}
+                      onKeyDown={handleRenameInputKeyDown}
                       className="max-w-sm"
                     />
+                    <Button type="submit" size="sm" id="save-rename-button">
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" onClick={handleCancelRename}>
+                      <X className="h-4 w-4" />
+                    </Button>
                   </form>
                 ) : (
                   <h1 className="text-2xl font-bold">{selectedContent}</h1>
                 )}
-                {selectedContent !== 'All Bookmarks' && (
+                {selectedContent !== 'All Bookmarks' && !isRenaming && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -241,6 +289,34 @@ export default function BookmarkingAppComponent() {
         </div>
       </div>
       <AddBookmarkModal />
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              {itemToDelete ? ` "${itemToDelete.name}" ${itemToDelete.type}` : ''} and remove all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (itemToDelete) {
+                if (itemToDelete.type === 'folder') {
+                  deleteFolder(itemToDelete.id)
+                } else if (itemToDelete.type === 'tag') {
+                  deleteTag(itemToDelete.id)
+                }
+                setSelectedContent('All Bookmarks')
+              }
+              setIsDeleteDialogOpen(false)
+              setItemToDelete(null)
+            }}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DndProvider>
   )
 }

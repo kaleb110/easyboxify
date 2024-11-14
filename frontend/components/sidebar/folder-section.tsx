@@ -19,6 +19,7 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
   const [newFolderName, setNewFolderName] = useState('')
   const [isAddingFolder, setIsAddingFolder] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  //const [errorMessage, setErrorMessage] = useState('') //Removed errorMessage state
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -30,10 +31,17 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
   const handleAddFolder = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (newFolderName.trim()) {
-      addFolder(newFolderName.trim())
-      setNewFolderName('')
-      setIsAddingFolder(false)
-      setSelectedContent(newFolderName.trim())
+      if (folders.some(folder => folder.name.toLowerCase() === newFolderName.trim().toLowerCase())) {
+        if (inputRef.current) {
+          inputRef.current.setCustomValidity('Folder name already exists')
+          inputRef.current.reportValidity()
+        }
+      } else {
+        addFolder(newFolderName.trim())
+        setNewFolderName('')
+        setIsAddingFolder(false)
+        setSelectedContent(newFolderName.trim())
+      }
     }
   }
 
@@ -45,9 +53,8 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
   }
 
   const handleInputBlur = () => {
-    if (!newFolderName.trim()) {
-      setIsAddingFolder(false)
-    }
+    setIsAddingFolder(false)
+    setNewFolderName('')
   }
 
   return (
@@ -73,12 +80,18 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
             <Input
               ref={inputRef}
               value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
+              onChange={(e) => {
+                setNewFolderName(e.target.value)
+                e.currentTarget.setCustomValidity('')
+              }}
               onBlur={handleInputBlur}
               placeholder="New folder name"
-              required
               className="h-8 text-sm"
+              required
             />
+            {/* {errorMessage && ( //Removed errorMessage display
+              <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+            )} */}
           </form>
         )}
         {folders.map((folder) => (

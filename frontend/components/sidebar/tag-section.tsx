@@ -18,6 +18,7 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
   const [newTagName, setNewTagName] = useState('')
   const [isAddingTag, setIsAddingTag] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  //const [errorMessage, setErrorMessage] = useState('') //Removed errorMessage state
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -29,10 +30,17 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
   const handleAddTag = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (newTagName.trim()) {
-      addTag(newTagName.trim())
-      setNewTagName('')
-      setIsAddingTag(false)
-      setSelectedContent(newTagName.trim())
+      if (tags.some(tag => tag.name.toLowerCase() === newTagName.trim().toLowerCase())) {
+        if (inputRef.current) {
+          inputRef.current.setCustomValidity('Tag name already exists')
+          inputRef.current.reportValidity()
+        }
+      } else {
+        addTag(newTagName.trim())
+        setNewTagName('')
+        setIsAddingTag(false)
+        setSelectedContent(newTagName.trim())
+      }
     }
   }
 
@@ -44,9 +52,8 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
   }
 
   const handleInputBlur = () => {
-    if (!newTagName.trim()) {
-      setIsAddingTag(false)
-    }
+    setIsAddingTag(false)
+    setNewTagName('')
   }
 
   return (
@@ -72,12 +79,18 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
             <Input
               ref={inputRef}
               value={newTagName}
-              onChange={(e) => setNewTagName(e.target.value)}
+              onChange={(e) => {
+                setNewTagName(e.target.value)
+                e.currentTarget.setCustomValidity('')
+              }}
               onBlur={handleInputBlur}
               placeholder="New tag name"
-              required
               className="h-8 text-sm"
+              required
             />
+            {/* {errorMessage && ( //Removed errorMessage display
+              <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+            )} */}
           </form>
         )}
         {tags.map((tag) => (
@@ -86,7 +99,7 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
               variant="ghost"
               className="w-full justify-start pl-6 text-sm"
               onClick={() => {
-                setSelectedContent(`${tag.name}`)
+                setSelectedContent(tag.name)
                 onItemClick()
               }}
             >
