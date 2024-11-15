@@ -224,7 +224,7 @@ export default function BookmarkingAppComponent() {
 
           {/* Main content */}
           <main className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-shrink-0 p-4">
+            <div className="flex-shrink-0 p-4 sticky top-0 z-10 bg-white dark:bg-gray-900">
               <div className='max-sm:hidden'><ContentNavBar /></div>
               <div className="flex justify-between items-center mb-4">
                 {isRenaming ? (

@@ -108,7 +108,7 @@ export function BookmarkItem({ bookmark, index, moveBookmark, onEdit, onDelete }
               <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.notes}</p>
             )}
             <div className="flex flex-wrap gap-2">
-              {bookmark.tags.map((tagId) => {
+              {bookmark.tags.map((tagId: string) => {
                 const tag = tags.find(t => t.id === tagId)
                 return tag ? (
                   <Badge key={tagId} variant="secondary" className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
