@@ -9,7 +9,7 @@ import { SidebarItems } from '../sidebar/sidebar-items'
 import { BookmarkItem } from './item-bookmark'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { MoreHorizontal, Edit, Trash2, Plus, Menu, X, Check } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2, Plus, Menu, X } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -117,23 +117,16 @@ export default function BookmarkingAppComponent() {
     setIsRenaming(false)
   }
 
-  const handleRenameInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Only apply the rename if the user didn't click on the save button
-    if (e.relatedTarget?.id !== 'save-rename-button') {
-      handleRename()
-    }
-  }
-
-  const handleCancelRename = () => {
-    setEditingName(selectedContent)
-    setIsRenaming(false)
+  const handleRenameInputBlur = () => {
+    handleRename()
   }
 
   const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleRename()
     } else if (e.key === 'Escape') {
-      handleCancelRename()
+      setIsRenaming(false)
+      setEditingName(selectedContent)
     }
   }
 
@@ -209,7 +202,7 @@ export default function BookmarkingAppComponent() {
                 <X className="h-8 w-8" />
               </Button>
             </div>
-            <div className="flex-1 overflow-y-auto p-2">
+            <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
               <SidebarItems onItemClick={closeSidebar} />
             </div>
           </aside>
@@ -224,11 +217,11 @@ export default function BookmarkingAppComponent() {
 
           {/* Main content */}
           <main className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-shrink-0 p-4 sticky top-0 z-10 bg-white dark:bg-gray-900">
+            <div className="flex-shrink-0 p-4">
               <div className='max-sm:hidden'><ContentNavBar /></div>
               <div className="flex justify-between items-center mb-4">
                 {isRenaming ? (
-                  <form onSubmit={(e) => { e.preventDefault(); handleRename(); }} className="flex items-center space-x-2">
+                  <form onSubmit={(e) => { e.preventDefault(); handleRename(); }}>
                     <Input
                       ref={renameInputRef}
                       value={editingName}
@@ -237,17 +230,11 @@ export default function BookmarkingAppComponent() {
                       onKeyDown={handleRenameInputKeyDown}
                       className="max-w-sm"
                     />
-                    <Button type="submit" size="sm" id="save-rename-button">
-                      <Check className="h-4 w-4" />
-                    </Button>
-                    <Button type="button" size="sm" variant="outline" onClick={handleCancelRename}>
-                      <X className="h-4 w-4" />
-                    </Button>
                   </form>
                 ) : (
                   <h1 className="text-2xl font-bold">{selectedContent}</h1>
                 )}
-                {selectedContent !== 'All Bookmarks' && !isRenaming && (
+                {selectedContent !== 'All Bookmarks' && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -268,8 +255,8 @@ export default function BookmarkingAppComponent() {
                 )}
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredBookmarks.map((bookmark, index) => (
                   <BookmarkItem
                     key={bookmark.id}
@@ -317,6 +304,19 @@ export default function BookmarkingAppComponent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: rgba(155, 155, 155, 0.5);
+          border-radius: 20px;
+          border: transparent;
+        }
+      `}</style>
     </DndProvider>
   )
 }
