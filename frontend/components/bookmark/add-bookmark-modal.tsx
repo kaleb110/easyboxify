@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -88,11 +89,11 @@ export function AddBookmarkModal() {
 
   return (
     <Dialog open={isAddBookmarkModalOpen} onOpenChange={setIsAddBookmarkModalOpen}>
-      <DialogContent className="sm:max-w-[425px] w-full h-full sm:h-auto max-h-screen sm:max-h-[85vh]">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{editingBookmark ? 'Edit Bookmark' : 'Add Bookmark'}</DialogTitle>
         </DialogHeader>
-        <div className="max-h-[calc(100vh-120px)] sm:max-h-[calc(85vh-120px)] overflow-y-auto">
+        <ScrollArea className="max-h-[60vh] pr-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="title">Title</Label>
@@ -179,13 +180,13 @@ export function AddBookmarkModal() {
                 onChange={(e) => setNotes(e.target.value)}
               />
             </div>
-            <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => setIsAddBookmarkModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">{editingBookmark ? 'Update' : 'Add'}</Button>
-            </div>
           </form>
+        </ScrollArea>
+        <div className="flex justify-end space-x-2 mt-4">
+          <Button type="button" variant="outline" onClick={() => setIsAddBookmarkModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button type="submit" onClick={handleSubmit}>{editingBookmark ? 'Update' : 'Add'}</Button>
         </div>
       </DialogContent>
     </Dialog>

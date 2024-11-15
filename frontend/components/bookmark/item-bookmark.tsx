@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
-import { Edit2, Trash2, GripVertical, MoreHorizontal } from 'lucide-react'
+import { Edit2, Trash2, GripVertical, MoreHorizontal, Globe, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useBookmarkStore } from '@/store/bookmarkStore'
@@ -67,7 +67,7 @@ export function BookmarkItem({ bookmark, index, moveBookmark, onEdit, onDelete }
       const hoverMiddleY =
         (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
       const clientOffset = monitor.getClientOffset()
-      const hoverClientY = clientOffset ? clientOffset.y - hoverBoundingRect.top : 0
+      const hoverClientY = (clientOffset?.y || 0) - hoverBoundingRect.top
 
       if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
         return
@@ -101,30 +101,36 @@ export function BookmarkItem({ bookmark, index, moveBookmark, onEdit, onDelete }
         ref={ref}
         style={{ opacity }}
         data-handler-id={handlerId}
-        className="group mb-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800"
+        className="group mb-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
       >
         <div className="p-4 flex items-start space-x-4">
-          <div className="cursor-move hidden md:block">
+          <div className="cursor-move flex items-center">
             <GripVertical className="h-6 w-6 text-gray-400" />
           </div>
           <div className="flex-grow space-y-2">
-            <a
-              href={bookmark.url}
-              className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {bookmark.title}
-            </a>
+            <div className="flex items-center space-x-2">
+              <Globe className="h-4 w-4 text-blue-500" />
+              <a
+                href={bookmark.url}
+                className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {bookmark.title}
+              </a>
+            </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.url}</p>
             {bookmark.notes && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.notes}</p>
+              <div className="flex items-center space-x-2">
+                <FileText className="h-4 w-4 text-gray-400" />
+                <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.notes}</p>
+              </div>
             )}
             <div className="flex flex-wrap gap-2">
               {bookmark.tags.map((tagId) => {
                 const tag = tags.find(t => t.id === tagId)
                 return tag ? (
-                  <Badge key={tagId} variant="secondary" className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                  <Badge key={tagId} variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                     {tag.name}
                   </Badge>
                 ) : null
@@ -137,7 +143,7 @@ export function BookmarkItem({ bookmark, index, moveBookmark, onEdit, onDelete }
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  className="ml-2"
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -147,7 +153,7 @@ export function BookmarkItem({ bookmark, index, moveBookmark, onEdit, onDelete }
                   <Edit2 className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)}>
+                <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 dark:text-red-400">
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
