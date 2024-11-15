@@ -1,6 +1,6 @@
 import React from 'react'
 import { BookmarkItem } from './item-bookmark'
-import { Bookmark } from '@/store/bookmarkStore'
+import { Bookmark } from '@/types/store'
 
 interface BookmarkListProps {
   bookmarks: Bookmark[]
