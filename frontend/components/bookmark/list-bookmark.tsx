@@ -1,17 +1,17 @@
 import React from 'react'
-import { BookmarkType } from './add-bookmark-modal'
-import { BookmarkItem } from './bookmark-item'
+import { BookmarkItem } from './item-bookmark'
+import { Bookmark } from '@/store/bookmarkStore'
 
 interface BookmarkListProps {
-  bookmarks: BookmarkType[]
-  onEditBookmark: (bookmark: BookmarkType) => void
+  bookmarks: Bookmark[]
+  onEditBookmark: (bookmark: Bookmark) => void
   onDeleteBookmark: (id: string) => void
   moveBookmark: (dragIndex: number, hoverIndex: number) => void
 }
 
 export function BookmarkList({ bookmarks, onEditBookmark, onDeleteBookmark, moveBookmark }: BookmarkListProps) {
   return (
-    <ul className="space-y-4">
+    <div className="space-y-4">
       {bookmarks.map((bookmark, index) => (
         <BookmarkItem
           key={bookmark.id}
@@ -22,6 +22,6 @@ export function BookmarkList({ bookmarks, onEditBookmark, onDeleteBookmark, move
           moveBookmark={moveBookmark}
         />
       ))}
-    </ul>
+    </div>
   )
 }
