@@ -10,7 +10,7 @@ import { BookmarkItem } from './item-bookmark'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { MoreHorizontal, Edit, Trash2, Plus, Menu, Search, X } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2, Plus, Menu,  Search } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -125,8 +125,8 @@ export default function BookmarkingAppComponent() {
     }
   }
 
-  const closeSidebar = () => {
-    if (isMobile) {
+  const closeSidebar = (action?: string) => {
+    if (isMobile && action !== 'add') {
       setIsSidebarOpen(false);
     }
   };
@@ -160,7 +160,7 @@ export default function BookmarkingAppComponent() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex h-screen bg-background">
+      <div className="flex h-screen bg-background overflow-hidden" style={{ touchAction: 'pan-y' }}>
         <aside
           className={`
             fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out transform
@@ -169,12 +169,6 @@ export default function BookmarkingAppComponent() {
             bg-card border-r border-border
           `}
         >
-          <div className="flex justify-between items-center p-4 md:hidden">
-            <h2 className="font-semibold">Menu</h2>
-            <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
-              <X className="h-6 w-6" />
-            </Button>
-          </div>
           <ScrollArea className="h-full">
             <div className="p-4">
               <SidebarItems onItemClick={closeSidebar} />
@@ -189,7 +183,7 @@ export default function BookmarkingAppComponent() {
           />
         )}
 
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 flex flex-col">
           <header className="flex items-center justify-between p-4 border-b border-border">
             <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="md:hidden">
               <Menu className="h-6 w-6" />
