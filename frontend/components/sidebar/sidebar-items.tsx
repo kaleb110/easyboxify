@@ -23,7 +23,7 @@ export function SidebarItems({ onItemClick }: { onItemClick: (action: string) =>
           All Bookmarks
         </Button>
         <FolderSection onItemClick={onItemClick} />
-        <TagSection onItemClick={onItemClick} />
+        <TagSection />
       </div>
     </div>
   )
