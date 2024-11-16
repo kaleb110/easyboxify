@@ -46,12 +46,16 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
   }
 
   const handleAddButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     if (isCollapsed) {
-      setIsCollapsed(false)
+      setIsCollapsed(false);
     }
-    setIsAddingFolder(true)
-  }
+    setIsAddingFolder(true); // or setIsAddingTag(true) for tag-section.tsx
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+  };
 
   const handleInputBlur = () => {
     setNewFolderName('')

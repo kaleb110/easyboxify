@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useBookmarkStore } from '@/store/bookmarkStore'
@@ -54,6 +54,7 @@ export default function BookmarkingAppComponent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<{ type: 'folder' | 'tag', id: string, name: string } | null>(null)
+  const sidebarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -65,6 +66,19 @@ export default function BookmarkingAppComponent() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && isMobile) {
+        setIsSidebarOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMobile])
 
   const filteredBookmarks = React.useMemo(() => {
     let filtered = bookmarks
@@ -163,6 +177,7 @@ export default function BookmarkingAppComponent() {
     <DndProvider backend={HTML5Backend}>
       <div className="flex h-screen bg-background overflow-hidden" style={{ touchAction: 'pan-y' }}>
         <aside
+          ref={sidebarRef}
           className={`
             fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out transform
             ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -176,7 +191,7 @@ export default function BookmarkingAppComponent() {
               <X className="h-6 w-6" />
             </Button>
           </div>
-          <ScrollArea className="flex-grow overflow-y-auto">
+          <ScrollArea className="flex-grow overflow-y-auto custom-scrollbar">
             <div className="p-4">
               <SidebarItems onItemClick={closeSidebar} />
             </div>

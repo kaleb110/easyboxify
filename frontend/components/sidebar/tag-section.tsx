@@ -45,12 +45,16 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
   }
 
   const handleAddButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isCollapsed) {
-      setIsCollapsed(false)
-    }
-    setIsAddingTag(true)
+  e.preventDefault();
+  e.stopPropagation();
+  if (isCollapsed) {
+    setIsCollapsed(false);
   }
+  setIsAddingTag(true); // or setIsAddingTag(true) for tag-section.tsx
+  setTimeout(() => {
+    inputRef.current?.focus();
+  }, 100);
+};
 
   const handleInputBlur = () => {
     setNewTagName('')
