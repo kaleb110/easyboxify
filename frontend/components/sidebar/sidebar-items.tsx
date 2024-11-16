@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { FolderSection } from './folder-section'
 import { TagSection } from './tag-section'
 import { useBookmarkStore } from '@/store/bookmarkStore'
-import UserAvatar from '../custom/UserAvatar'
 
 export function SidebarItems({ onItemClick }: { onItemClick: () => void }) {
   const { setSelectedContent } = useBookmarkStore()
@@ -25,9 +24,6 @@ export function SidebarItems({ onItemClick }: { onItemClick: () => void }) {
         </Button>
         <FolderSection onItemClick={onItemClick} />
         <TagSection onItemClick={onItemClick} />
-      </div>
-      <div className="mt-auto pt-4 border-t">
-        <UserAvatar />
       </div>
     </div>
   )
