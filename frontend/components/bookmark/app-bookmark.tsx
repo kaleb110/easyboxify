@@ -204,26 +204,36 @@ export default function BookmarkingAppComponent() {
     flex flex-col max-h-screen bg-card border-r border-border
   `}
           >
+            {/* Sticky Close Button */}
             <div className="flex-shrink-0 p-4 md:hidden sticky top-0 z-10 bg-card">
               <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
                 <X className="h-6 w-6" />
               </Button>
             </div>
+
+            {/* Sidebar Scroll Area */}
             <ScrollArea className="flex-grow overflow-y-auto">
               <div className="p-4">
                 <SidebarItems onItemClick={closeSidebar} />
               </div>
             </ScrollArea>
+
+            {/* User Avatar and Footer */}
             <div className="flex-shrink-0 p-4 border-t">
               <UserAvatar />
             </div>
           </aside>
 
-          {/* Overlay */}
+          {/* Overlay for Mobile */}
           {isMobile && isSidebarOpen && (
             <div
               className="fixed inset-0 bg-black bg-opacity-50 z-40"
-              onClick={() => setIsSidebarOpen(false)} // Only close when clicking outside the sidebar (on the overlay)
+              onClick={(e) => {
+                // Close sidebar only when clicking outside the sidebar (on the overlay)
+                if (e.target === e.currentTarget) {
+                  setIsSidebarOpen(false)
+                }
+              }}
             />
           )}
 
