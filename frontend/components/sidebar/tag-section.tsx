@@ -9,7 +9,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 
-export function TagSection({ onItemClick }: { onItemClick: () => void }) {
+export function TagSection({ onItemClick }: { onItemClick: (action: string) => void }) {
   const {
     tags,
     addTag,
@@ -103,7 +103,7 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
               className="w-full justify-start py-1 px-2 text-sm hover:bg-accent hover:text-accent-foreground"
               onClick={() => {
                 setSelectedContent(tag.name)
-                onItemClick()
+                onItemClick('select')
               }}
             >
               <Tag className="mr-2 h-4 w-4 text-emerald-400" />
