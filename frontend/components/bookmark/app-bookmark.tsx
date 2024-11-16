@@ -224,18 +224,14 @@ export default function BookmarkingAppComponent() {
             </div>
           </aside>
 
-          {/* Overlay for Mobile */}
+          {/* Overlay with Blur effect */}
           {isMobile && isSidebarOpen && (
             <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40"
-              onClick={(e) => {
-                // Close sidebar only when clicking outside the sidebar (on the overlay)
-                if (e.target === e.currentTarget) {
-                  setIsSidebarOpen(false)
-                }
-              }}
+              className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"
+              onClick={(e) => e.stopPropagation()} // Prevent sidebar close when clicking outside
             />
           )}
+
 
 
           {/* Main content */}
