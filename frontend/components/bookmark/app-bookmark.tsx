@@ -198,18 +198,18 @@ export default function BookmarkingAppComponent() {
           {/* Sidebar */}
           <aside
             className={`
-              fixed inset-y-0 left-0 z-50 w-3/4 max-w-xs transition-transform duration-300 ease-in-out transform
-              ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-              md:relative md:translate-x-0 md:w-64
-              flex flex-col max-h-screen bg-card border-r border-border
-            `}
+    fixed inset-y-0 left-0 z-50 w-3/4 max-w-xs transition-transform duration-300 ease-in-out transform
+    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+    md:relative md:translate-x-0 md:w-64
+    flex flex-col max-h-screen bg-card border-r border-border
+  `}
           >
-            <div className="flex-shrink-0 p-4 md:hidden">
+            <div className="flex-shrink-0 p-4 md:hidden sticky top-0 z-10 bg-card">
               <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
                 <X className="h-6 w-6" />
               </Button>
             </div>
-            <ScrollArea className="flex-grow">
+            <ScrollArea className="flex-grow overflow-y-auto">
               <div className="p-4">
                 <SidebarItems onItemClick={closeSidebar} />
               </div>
@@ -223,9 +223,10 @@ export default function BookmarkingAppComponent() {
           {isMobile && isSidebarOpen && (
             <div
               className="fixed inset-0 bg-black bg-opacity-50 z-40"
-              onClick={() => setIsSidebarOpen(false)}
+              onClick={() => setIsSidebarOpen(false)} // Only close when clicking outside the sidebar (on the overlay)
             />
           )}
+
 
           {/* Main content */}
           <main className="flex-1 flex flex-col overflow-hidden" style={{ isolation: 'isolate' }}>
