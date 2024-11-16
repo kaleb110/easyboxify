@@ -9,8 +9,7 @@ import { SidebarItems } from '../sidebar/sidebar-items'
 import { BookmarkItem } from './item-bookmark'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { MoreHorizontal, Edit, Trash2, Plus, Menu, X, Search } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2, Plus, Menu, X, Check, Search } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,8 +26,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { ModeToggle } from '../theme/toggle'
 import UserAvatar from '../custom/UserAvatar'
+import { ModeToggle } from '../theme/toggle'
 
 export default function BookmarkingAppComponent() {
   const {
@@ -54,9 +53,7 @@ export default function BookmarkingAppComponent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<{ type: 'folder' | 'tag', id: string, name: string } | null>(null)
-  const [isAddingItem, setIsAddingItem] = useState(false)
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false)
-  const sidebarRef = useRef<HTMLDivElement>(null)
+  const renameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -68,35 +65,6 @@ export default function BookmarkingAppComponent() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  useEffect(() => {
-    const handleKeyboardOpen = () => {
-      const keyboardVisible = window.screen.height - window.innerHeight > 150
-      setIsKeyboardOpen(keyboardVisible)
-    }
-
-    window.addEventListener('resize', handleKeyboardOpen)
-    return () => window.removeEventListener('resize', handleKeyboardOpen)
-  }, [])
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target as Node) &&
-        isMobile &&
-        !isAddingItem &&
-        !isKeyboardOpen
-      ) {
-        setIsSidebarOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isMobile, isAddingItem, isKeyboardOpen])
 
   const filteredBookmarks = React.useMemo(() => {
     let filtered = bookmarks
@@ -125,6 +93,12 @@ export default function BookmarkingAppComponent() {
   const startRenaming = () => {
     setEditingName(selectedContent)
     setIsRenaming(true)
+    setTimeout(() => {
+      if (renameInputRef.current) {
+        renameInputRef.current.focus()
+        renameInputRef.current.select()
+      }
+    }, 0)
   }
 
   const handleRename = () => {
@@ -143,6 +117,26 @@ export default function BookmarkingAppComponent() {
     setIsRenaming(false)
   }
 
+  const handleRenameInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Only apply the rename if the user didn't click on the save button
+    if (e.relatedTarget?.id !== 'save-rename-button') {
+      handleRename()
+    }
+  }
+
+  const handleCancelRename = () => {
+    setEditingName(selectedContent)
+    setIsRenaming(false)
+  }
+
+  const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleRename()
+    } else if (e.key === 'Escape') {
+      handleCancelRename()
+    }
+  }
+
   const handleDelete = () => {
     if (selectedContent !== 'All Bookmarks') {
       const folder = folders.find(f => f.name === selectedContent)
@@ -158,26 +152,19 @@ export default function BookmarkingAppComponent() {
     }
   }
 
-  const handleSidebarAction = (action: string) => {
-    if (action === 'add') {
-      setIsAddingItem(true)
-    } else {
-      setIsAddingItem(false)
-      if (isMobile && !isKeyboardOpen) {
-        setIsSidebarOpen(false)
-      }
+  const closeSidebar = () => {
+    if (isMobile) {
+      setIsSidebarOpen(false);
     }
-  }
+  };
 
   const ContentNavBar = () => (
-    <div className="flex justify-between items-center w-full">
+    <div className="flex justify-between items-center w-full mb-4">
       <div className="relative flex-1 max-w-sm">
         <Input
           placeholder="Search bookmarks..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          onFocus={() => setIsKeyboardOpen(true)} // Keep sidebar open while typing
-          onBlur={() => setIsKeyboardOpen(false)}  // Allow sidebar to close after typing
           className="pl-10 pr-4 py-2 w-full"
         />
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -198,143 +185,143 @@ export default function BookmarkingAppComponent() {
     </div>
   )
 
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex h-screen bg-background overflow-hidden" style={{ touchAction: 'pan-y' }}>
-        <aside
-          ref={sidebarRef}
-          className={`
-            fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out transform
-            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-            md:relative md:translate-x-0
-            bg-card border-r border-border flex flex-col
-          `}
-        >
-          <div className="flex justify-between items-center p-4 md:hidden">
-            <h2 className="font-semibold">Menu</h2>
-            <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
-              <X className="h-6 w-6" />
-            </Button>
-          </div>
-          <ScrollArea className="flex-grow overflow-y-auto custom-scrollbar">
-            <div className="p-4">
-              <SidebarItems onItemClick={handleSidebarAction} />
+      <div className="flex flex-col h-screen">
+        <header className="flex items-center justify-between gap-2 p-4 md:hidden bg-gray-100 dark:bg-gray-800">
+          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)}>
+            <Menu className="h-10 w-10" />
+          </Button>
+          <ContentNavBar />
+        </header>
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar */}
+          <aside
+            className={`
+              fixed inset-y-0 left-0 z-50 w-3/4 max-w-xs transition-transform duration-300 ease-in-out transform
+              ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+              md:relative md:translate-x-0 md:w-64
+              flex flex-col h-full dark:bg-gray-800 bg-gray-100
+            `}
+          >
+            <div className="flex justify-between items-center pl-4 pr-2 pt-4 md:hidden">
+              <h1>menu</h1>
+              <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
+                <X className="h-8 w-8" />
+              </Button>
             </div>
-          </ScrollArea>
-          <div className="p-4 border-t">
-            <UserAvatar />
-          </div>
-        </aside>
+            <div className="flex-1 overflow-y-auto p-2">
+              <SidebarItems onItemClick={closeSidebar} />
+            </div>
+            <div className="mt-auto p-4 border-t">
+              <UserAvatar />
+            </div>
+          </aside>
 
-        {isMobile && isSidebarOpen && !isKeyboardOpen && (
-          <div
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
-            onClick={() => !isAddingItem && setIsSidebarOpen(false)}
-          />
-        )}
+          {/* Overlay */}
+          {isMobile && isSidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 z-40"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
 
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <header className="flex items-center justify-between p-4 border-b border-border">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsSidebarOpen(true)}
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
-            <ContentNavBar />
-          </header>
-
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
-            {selectedContent && (
-              <div className="p-4">
+          {/* Main content */}
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-shrink-0 px-4">
+              <div className='max-sm:hidden'><ContentNavBar /></div>
+              <div className="flex justify-between items-center mb-4">
                 {isRenaming ? (
-                  <div className="flex items-center mb-4">
+                  <form onSubmit={(e) => { e.preventDefault(); handleRename(); }} className="flex items-center space-x-2 flex-1 mr-2">
                     <Input
+                      ref={renameInputRef}
                       value={editingName}
                       onChange={(e) => setEditingName(e.target.value)}
-                      onBlur={handleRename}
-                      autoFocus
-                      className="mr-2"
+                      onBlur={handleRenameInputBlur}
+                      onKeyDown={handleRenameInputKeyDown}
+                      className="max-w-sm"
                     />
-                    <Button variant="ghost" size="sm" onClick={handleRename}>
-                      Save
+                    <Button type="submit" size="sm" id="save-rename-button">
+                      <Check className="h-4 w-4" />
                     </Button>
-                  </div>
+                    <Button type="button" size="sm" variant="outline" onClick={handleCancelRename}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </form>
                 ) : (
-                  <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-semibold">{selectedContent}</h1>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-5 w-5" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={startRenaming}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Rename
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDelete}>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                  <h1 className="text-2xl font-bold">{selectedContent}</h1>
                 )}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredBookmarks.map((bookmark, index) => (
-                    <BookmarkItem
-                      key={bookmark.id}
-                      bookmark={bookmark}
-                      index={index}
-                      moveBookmark={moveBookmark}
-                      onEdit={(bookmark) => {
-                        setIsAddBookmarkModalOpen(true)
-                        setEditingBookmark(bookmark)
-                      }}
-                      onDelete={deleteBookmark}
-                    />
-                  ))}
-                </div>
+                {selectedContent !== 'All Bookmarks' && !isRenaming && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onSelect={startRenaming}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={handleDelete} className="text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
-            )}
-          </div>
-        </main>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredBookmarks.map((bookmark, index) => (
+                  <BookmarkItem
+                    key={bookmark.id}
+                    bookmark={bookmark}
+                    index={index}
+                    moveBookmark={moveBookmark}
+                    onEdit={(bookmark) => {
+                      setIsAddBookmarkModalOpen(true)
+                      setEditingBookmark(bookmark)
+                    }}
+                    onDelete={deleteBookmark}
+                  />
+                ))}
+              </div>
+            </div>
+          </main>
+        </div>
       </div>
-
-      {isDeleteDialogOpen && itemToDelete && (
-        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete {itemToDelete.type}</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete {itemToDelete.name}? This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => {
-                  if (itemToDelete.type === 'folder') {
-                    deleteFolder(itemToDelete.id)
-                  } else {
-                    deleteTag(itemToDelete.id)
-                  }
-                  setIsDeleteDialogOpen(false)
-                  setItemToDelete(null)
-                }}
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-
       <AddBookmarkModal />
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              {itemToDelete ? ` "${itemToDelete.name}" ${itemToDelete.type}` : ''} and remove all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (itemToDelete) {
+                if (itemToDelete.type === 'folder') {
+                  deleteFolder(itemToDelete.id)
+                } else if (itemToDelete.type === 'tag') {
+                  deleteTag(itemToDelete.id)
+                }
+                setSelectedContent('All Bookmarks')
+              }
+              setIsDeleteDialogOpen(false)
+              setItemToDelete(null)
+            }}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DndProvider>
   )
 }
