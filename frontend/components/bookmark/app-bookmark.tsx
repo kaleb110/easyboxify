@@ -55,6 +55,7 @@ export default function BookmarkingAppComponent() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<{ type: 'folder' | 'tag', id: string, name: string } | null>(null)
   const [isAddingItem, setIsAddingItem] = useState(false)
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -69,8 +70,21 @@ export default function BookmarkingAppComponent() {
   }, [])
 
   useEffect(() => {
+    const handleKeyboardOpen = () => {
+      if (window.screen.height - window.innerHeight > 150) {
+        setIsKeyboardOpen(true)
+      } else {
+        setIsKeyboardOpen(false)
+      }
+    }
+
+    window.addEventListener('resize', handleKeyboardOpen)
+    return () => window.removeEventListener('resize', handleKeyboardOpen)
+  }, [])
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && isMobile && !isAddingItem) {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && isMobile && !isAddingItem && !isKeyboardOpen) {
         setIsSidebarOpen(false)
       }
     }
@@ -79,7 +93,7 @@ export default function BookmarkingAppComponent() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isMobile, isAddingItem])
+  }, [isMobile, isAddingItem, isKeyboardOpen])
 
   const filteredBookmarks = React.useMemo(() => {
     let filtered = bookmarks
@@ -145,7 +159,10 @@ export default function BookmarkingAppComponent() {
     if (action === 'add') {
       setIsAddingItem(true)
     } else {
-      setIsSidebarOpen(false)
+      setIsAddingItem(false)
+      if (isMobile && !isKeyboardOpen) {
+        setIsSidebarOpen(false)
+      }
     }
   }
 
@@ -194,7 +211,7 @@ export default function BookmarkingAppComponent() {
               <X className="h-6 w-6" />
             </Button>
           </div>
-          <ScrollArea className="flex-grow overflow-y-auto">
+          <ScrollArea className="flex-grow overflow-y-auto custom-scrollbar">
             <div className="p-4">
               <SidebarItems onItemClick={handleSidebarAction} />
             </div>
@@ -204,7 +221,7 @@ export default function BookmarkingAppComponent() {
           </div>
         </aside>
 
-        {isMobile && isSidebarOpen && (
+        {isMobile && isSidebarOpen && !isKeyboardOpen && (
           <div
             className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
             onClick={() => !isAddingItem && setIsSidebarOpen(false)}
