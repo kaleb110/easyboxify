@@ -202,6 +202,7 @@ export default function BookmarkingAppComponent() {
     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
     md:relative md:translate-x-0 md:w-64
     flex flex-col bg-card border-r border-border
+    overflow-y-auto max-h-screen // Ensures sidebar content can scroll independently
   `}
           >
             {/* Sticky Close Button */}
