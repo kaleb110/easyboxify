@@ -10,7 +10,7 @@ import { BookmarkItem } from './item-bookmark'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { MoreHorizontal, Edit, Trash2, Plus, Menu,  Search } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2, Plus, Menu, X, Search } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -125,8 +125,8 @@ export default function BookmarkingAppComponent() {
     }
   }
 
-  const closeSidebar = (action?: string) => {
-    if (isMobile && action !== 'add') {
+  const closeSidebar = () => {
+    if (isMobile) {
       setIsSidebarOpen(false);
     }
   };
@@ -169,7 +169,13 @@ export default function BookmarkingAppComponent() {
             bg-card border-r border-border
           `}
         >
-          <ScrollArea className="h-full">
+          <div className="flex justify-between items-center p-4 md:hidden">
+            <h2 className="font-semibold">Menu</h2>
+            <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
+              <X className="h-6 w-6" />
+            </Button>
+          </div>
+          <ScrollArea className="h-[calc(100vh-4rem)] md:h-full">
             <div className="p-4">
               <SidebarItems onItemClick={closeSidebar} />
             </div>
@@ -183,7 +189,7 @@ export default function BookmarkingAppComponent() {
           />
         )}
 
-        <main className="flex-1 flex flex-col">
+        <main className={`flex-1 flex flex-col ${isMobile && isSidebarOpen ? 'overflow-hidden' : 'overflow-auto'}`}>
           <header className="flex items-center justify-between p-4 border-b border-border">
             <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="md:hidden">
               <Menu className="h-6 w-6" />
