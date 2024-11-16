@@ -19,7 +19,7 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
   const [newFolderName, setNewFolderName] = useState('')
   const [isAddingFolder, setIsAddingFolder] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [isInputFocused, setIsInputFocused] = useState(false) // New state
+  const [preventCollapse, setPreventCollapse] = useState(false) // New flag to prevent collapsing
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -54,17 +54,17 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
   }
 
   const handleInputBlur = () => {
-    setIsAddingFolder(false)
     setNewFolderName('')
-    setIsInputFocused(false) // Update focus state
+    setIsAddingFolder(false)
+    setPreventCollapse(false) // Allow collapsing after input blur
   }
 
   return (
     <Collapsible
       defaultOpen
-      open={!isCollapsed}
+      open={!isCollapsed || preventCollapse} // Prevent collapse when input is focused
       onOpenChange={(open) => {
-        if (!isInputFocused) setIsCollapsed(!open) // Respect focus state
+        if (!preventCollapse) setIsCollapsed(!open) // Only change collapse state if allowed
       }}
     >
       <div className="flex items-center justify-between py-2">
@@ -89,7 +89,7 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
                 setNewFolderName(e.target.value)
                 e.currentTarget.setCustomValidity('')
               }}
-              onFocus={() => setIsInputFocused(true)} // Update focus state
+              onFocus={() => setPreventCollapse(true)} // Prevent collapsing when input is focused
               onBlur={handleInputBlur}
               placeholder="New folder name"
               className="h-8 text-sm"

@@ -18,7 +18,7 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
   const [newTagName, setNewTagName] = useState('')
   const [isAddingTag, setIsAddingTag] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [isInputFocused, setIsInputFocused] = useState(false) // New state
+  const [preventCollapse, setPreventCollapse] = useState(false) // New flag to prevent collapsing
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -53,17 +53,17 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
   }
 
   const handleInputBlur = () => {
-    setIsAddingTag(false)
     setNewTagName('')
-    setIsInputFocused(false) // Update focus state
+    setIsAddingTag(false)
+    setPreventCollapse(false) // Allow collapsing after input blur
   }
 
   return (
     <Collapsible
       defaultOpen
-      open={!isCollapsed}
+      open={!isCollapsed || preventCollapse} // Prevent collapse when input is focused
       onOpenChange={(open) => {
-        if (!isInputFocused) setIsCollapsed(!open) // Respect focus state
+        if (!preventCollapse) setIsCollapsed(!open) // Only change collapse state if allowed
       }}
     >
       <div className="flex items-center justify-between py-2">
@@ -88,7 +88,7 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
                 setNewTagName(e.target.value)
                 e.currentTarget.setCustomValidity('')
               }}
-              onFocus={() => setIsInputFocused(true)} // Update focus state
+              onFocus={() => setPreventCollapse(true)} // Prevent collapsing when input is focused
               onBlur={handleInputBlur}
               placeholder="New tag name"
               className="h-8 text-sm"
