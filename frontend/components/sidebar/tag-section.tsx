@@ -18,6 +18,7 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
   const [newTagName, setNewTagName] = useState('')
   const [isAddingTag, setIsAddingTag] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isInputFocused, setIsInputFocused] = useState(false) // New state
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -54,13 +55,16 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
   const handleInputBlur = () => {
     setIsAddingTag(false)
     setNewTagName('')
+    setIsInputFocused(false) // Update focus state
   }
 
   return (
     <Collapsible
       defaultOpen
       open={!isCollapsed}
-      onOpenChange={(open) => setIsCollapsed(!open)}
+      onOpenChange={(open) => {
+        if (!isInputFocused) setIsCollapsed(!open) // Respect focus state
+      }}
     >
       <div className="flex items-center justify-between py-2">
         <CollapsibleTrigger asChild>
@@ -84,6 +88,7 @@ export function TagSection({ onItemClick }: { onItemClick: () => void }) {
                 setNewTagName(e.target.value)
                 e.currentTarget.setCustomValidity('')
               }}
+              onFocus={() => setIsInputFocused(true)} // Update focus state
               onBlur={handleInputBlur}
               placeholder="New tag name"
               className="h-8 text-sm"
