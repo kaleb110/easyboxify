@@ -9,7 +9,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 
-export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
+export function FolderSection({ onItemClick }: { onItemClick: (action: string) => void }) {
   const {
     folders,
     addFolder,
@@ -19,7 +19,6 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
   const [newFolderName, setNewFolderName] = useState('')
   const [isAddingFolder, setIsAddingFolder] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [preventCollapse, setPreventCollapse] = useState(false) // New flag to prevent collapsing
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -41,35 +40,31 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
         setNewFolderName('')
         setIsAddingFolder(false)
         setSelectedContent(newFolderName.trim())
+        onItemClick('select')
       }
     }
   }
 
   const handleAddButtonClick = (e: React.MouseEvent) => {
-    e.preventDefault();
     e.stopPropagation();
     if (isCollapsed) {
-      setIsCollapsed(false);
+      setIsCollapsed(false)
     }
-    setIsAddingFolder(true); // or setIsAddingTag(true) for tag-section.tsx
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-  };
+    setIsAddingFolder(true)
+    onItemClick('add')
+  }
 
   const handleInputBlur = () => {
-    setNewFolderName('')
     setIsAddingFolder(false)
-    setPreventCollapse(false) // Allow collapsing after input blur
+    setNewFolderName('')
+    onItemClick('select')
   }
 
   return (
     <Collapsible
       defaultOpen
-      open={!isCollapsed || preventCollapse} // Prevent collapse when input is focused
-      onOpenChange={(open) => {
-        if (!preventCollapse) setIsCollapsed(!open) // Only change collapse state if allowed
-      }}
+      open={!isCollapsed}
+      onOpenChange={(open) => setIsCollapsed(!open)}
     >
       <div className="flex items-center justify-between py-2">
         <CollapsibleTrigger asChild>
@@ -93,7 +88,6 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
                 setNewFolderName(e.target.value)
                 e.currentTarget.setCustomValidity('')
               }}
-              onFocus={() => setPreventCollapse(true)} // Prevent collapsing when input is focused
               onBlur={handleInputBlur}
               placeholder="New folder name"
               className="h-8 text-sm"
@@ -111,7 +105,7 @@ export function FolderSection({ onItemClick }: { onItemClick: () => void }) {
                   onClick={() => {
                     toggleFolderCollapse(folder.id)
                     setSelectedContent(folder.name)
-                    onItemClick()
+                    onItemClick('select')
                   }}
                 >
                   <FolderClosed className="mr-2 h-4 w-4 text-indigo-400" />

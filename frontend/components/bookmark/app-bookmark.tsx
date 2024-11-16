@@ -54,6 +54,7 @@ export default function BookmarkingAppComponent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<{ type: 'folder' | 'tag', id: string, name: string } | null>(null)
+  const [isAddingItem, setIsAddingItem] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function BookmarkingAppComponent() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && isMobile) {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && isMobile && !isAddingItem) {
         setIsSidebarOpen(false)
       }
     }
@@ -78,7 +79,7 @@ export default function BookmarkingAppComponent() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isMobile])
+  }, [isMobile, isAddingItem])
 
   const filteredBookmarks = React.useMemo(() => {
     let filtered = bookmarks
@@ -140,11 +141,13 @@ export default function BookmarkingAppComponent() {
     }
   }
 
-  const closeSidebar = () => {
-    if (isMobile) {
-      setIsSidebarOpen(false);
+  const handleSidebarAction = (action: string) => {
+    if (action === 'add') {
+      setIsAddingItem(true)
+    } else {
+      setIsSidebarOpen(false)
     }
-  };
+  }
 
   const ContentNavBar = () => (
     <div className="flex justify-between items-center w-full">
@@ -191,9 +194,9 @@ export default function BookmarkingAppComponent() {
               <X className="h-6 w-6" />
             </Button>
           </div>
-          <ScrollArea className="flex-grow overflow-y-auto custom-scrollbar">
+          <ScrollArea className="flex-grow overflow-y-auto">
             <div className="p-4">
-              <SidebarItems onItemClick={closeSidebar} />
+              <SidebarItems onItemClick={handleSidebarAction} />
             </div>
           </ScrollArea>
           <div className="p-4 border-t">
@@ -204,11 +207,11 @@ export default function BookmarkingAppComponent() {
         {isMobile && isSidebarOpen && (
           <div
             className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={() => !isAddingItem && setIsSidebarOpen(false)}
           />
         )}
 
-        <main className={`flex-1 flex flex-col ${isMobile && isSidebarOpen ? 'overflow-hidden' : ''}`}>
+        <main className="flex-1 flex flex-col overflow-hidden">
           <header className="flex items-center justify-between p-4 border-b border-border">
             <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="md:hidden">
               <Menu className="h-6 w-6" />
