@@ -28,6 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { ModeToggle } from '../theme/toggle'
+import UserAvatar from '../custom/UserAvatar'
 
 export default function BookmarkingAppComponent() {
   const {
@@ -166,7 +167,7 @@ export default function BookmarkingAppComponent() {
             fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out transform
             ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             md:relative md:translate-x-0
-            bg-card border-r border-border
+            bg-card border-r border-border flex flex-col
           `}
         >
           <div className="flex justify-between items-center p-4 md:hidden">
@@ -175,11 +176,14 @@ export default function BookmarkingAppComponent() {
               <X className="h-6 w-6" />
             </Button>
           </div>
-          <ScrollArea className="h-[calc(100vh-4rem)] md:h-full">
+          <ScrollArea className="flex-grow overflow-y-auto">
             <div className="p-4">
               <SidebarItems onItemClick={closeSidebar} />
             </div>
           </ScrollArea>
+          <div className="p-4 border-t">
+            <UserAvatar />
+          </div>
         </aside>
 
         {isMobile && isSidebarOpen && (
@@ -189,7 +193,7 @@ export default function BookmarkingAppComponent() {
           />
         )}
 
-        <main className={`flex-1 flex flex-col ${isMobile && isSidebarOpen ? 'overflow-hidden' : 'overflow-auto'}`}>
+        <main className={`flex-1 flex flex-col ${isMobile && isSidebarOpen ? 'overflow-hidden' : ''}`}>
           <header className="flex items-center justify-between p-4 border-b border-border">
             <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="md:hidden">
               <Menu className="h-6 w-6" />
