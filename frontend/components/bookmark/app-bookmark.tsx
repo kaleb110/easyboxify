@@ -201,7 +201,7 @@ export default function BookmarkingAppComponent() {
               fixed inset-y-0 left-0 z-50 w-3/4 max-w-xs transition-transform duration-300 ease-in-out transform
               ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
               md:relative md:translate-x-0 md:w-64
-              flex flex-col h-screen bg-card border-r border-border
+              flex flex-col max-h-screen bg-card border-r border-border
             `}
           >
             <div className="flex-shrink-0 p-4 md:hidden">
