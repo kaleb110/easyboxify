@@ -1,12 +1,12 @@
 import React from 'react'
+import { BookOpen } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { FolderSection } from './folder-section'
 import { TagSection } from './tag-section'
-import { Button } from '@/components/ui/button'
-import { BookOpen } from 'lucide-react'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import UserAvatar from '../custom/UserAvatar'
 
-export function SidebarItems({ onItemClick }: { onItemClick: (action?: string) => void }) {
+export function SidebarItems({ onItemClick }: { onItemClick: () => void }) {
   const { setSelectedContent } = useBookmarkStore()
 
   return (
