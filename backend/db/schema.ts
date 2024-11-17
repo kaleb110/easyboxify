@@ -1,9 +1,12 @@
-import { integer, pgTable, varchar } from 'drizzle-orm/pg-core';
+import { integer, pgTable, varchar, boolean, timestamp } from "drizzle-orm/pg-core";
 
 // Define the schema for the 'users' table
-export const usersTable = pgTable('users', {
+export const User = pgTable("User", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }).notNull(),
-  age: integer().notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
+  password: varchar().notNull(),
+  role: varchar().notNull().default("user"),
+  verified: boolean().default(false),
+  resetToken: varchar({ length: 255 }), // Make this nullable
+  resetTokenExpiry: timestamp(),        // Make this nullable
 });

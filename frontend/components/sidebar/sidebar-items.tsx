@@ -1,34 +1,48 @@
+'use client'
+
 import React from 'react'
+import { BookOpen } from 'lucide-react'
 import { FolderSection } from './folder-section'
 import { TagSection } from './tag-section'
-import { Button } from '@/components/ui/button'
-import { Bookmark } from 'lucide-react'
 import { useBookmarkStore } from '@/store/bookmarkStore'
-import UserAvatar from '../custom/UserAvatar'
-export function SidebarItems({ onItemClick }: { onItemClick: () => void }) {
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar"
+
+interface SidebarItemsProps {
+  onItemClick: () => void
+}
+
+export function SidebarItems({ onItemClick }: SidebarItemsProps) {
   const { setSelectedContent } = useBookmarkStore()
 
+  const handleItemClick = (content: string) => {
+    setSelectedContent(content)
+    onItemClick()
+  }
+
   return (
-    <div className="space-y-1 flex flex-col justify-start">
-      <div className='max-sm:hidden pl-2'>
-        <UserAvatar />
-      </div>
-      <Button
-        variant="ghost"
-        className="w-full justify-start"
-        onClick={() => {
-          setSelectedContent('All Bookmarks')
-          onItemClick()
-        }}
-      >
-        <Bookmark className="mr-2 h-4 w-4" />
-        All Bookmarks
-      </Button>
+    <div className="flex flex-col h-full">
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => handleItemClick('All Bookmarks')}
+              >
+                <BookOpen className="mr-2 h-5 w-5 text-blue-500" />
+                All Bookmarks
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
       <FolderSection onItemClick={onItemClick} />
       <TagSection onItemClick={onItemClick} />
     </div>
   )
 }
-
-// 
-// 
