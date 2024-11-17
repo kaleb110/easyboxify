@@ -16,7 +16,11 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 
-export function TagSection({ onItemClick }: { onItemClick: (action: string) => void }) {
+interface TagSectionProps {
+  onItemClick: () => void
+}
+
+export function TagSection({ onItemClick }: TagSectionProps) {
   const {
     tags,
     addTag,
@@ -42,7 +46,7 @@ export function TagSection({ onItemClick }: { onItemClick: (action: string) => v
     setNewTagName('')
     setIsAddingTag(false)
     setSelectedContent(nameInput.value.trim())
-    onItemClick('select')
+    onItemClick()
   }
 
   const handleAddButtonClick = (e: React.MouseEvent) => {
@@ -80,7 +84,7 @@ export function TagSection({ onItemClick }: { onItemClick: (action: string) => v
                 className="w-full justify-start py-1 px-2 text-sm hover:bg-accent hover:text-accent-foreground"
                 onClick={() => {
                   setSelectedContent(tag.name)
-                  onItemClick('select')
+                  onItemClick()
                 }}
               >
                 <Tag className="mr-2 h-4 w-4 text-emerald-400" />
