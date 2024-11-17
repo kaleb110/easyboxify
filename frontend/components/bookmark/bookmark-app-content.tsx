@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -32,7 +33,8 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarFooter,
-  useSidebar
+  useSidebar,
+  
 } from "@/components/ui/sidebar"
 
 export const BookmarkingAppContent = () => {

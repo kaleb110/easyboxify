@@ -24,6 +24,7 @@ import { PasswordInput } from '@/components/ui/password-input'
 import axiosClient from '@/util/axiosClient'
 import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
+import { useToast } from '@/hooks/use-toast'
 // Schema for password validation
 const formSchema = z
   .object({
@@ -39,6 +40,7 @@ const formSchema = z
   })
 
 export default function ResetPasswordPreview() {
+  const {toast} = useToast()
   const router = useRouter()
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -59,10 +61,20 @@ export default function ResetPasswordPreview() {
         newPassword,
         token
       })
+      toast({
+        title: 'Success!',
+        description: 'Password reset successful!',
+        variant: 'default',  // You can customize the variant or use the default one
+      })
       console.log("Password reset successful!", response)
 
-      router.push("/user")
+      router.push("/auth/login")
     } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to rest password!',
+        variant: 'destructive',
+      })
       console.error('Failed to reset password. The token might be expired.', error)
     }
   }

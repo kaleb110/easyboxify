@@ -1,4 +1,7 @@
-import React from 'react'
+// components/UserAvatar.tsx
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,15 +9,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-
-import { User, Settings, HelpCircle, LogOut } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from '@/components/ui/dropdown-menu';
+import { User, Settings, HelpCircle, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const UserAvatar = () => {
-  const userName = 'John Doe' // Replace with actual user name
-  const userEmail = 'john.doe@example.com' // Replace with actual user email
+  const { Logout } = useAuthStore();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    Logout(); // This will clear the authentication state and token
+    router.replace('/auth/login'); // Redirect to login page after logout
+  };
+
+  const userName = 'John Doe'; // Replace with actual user name
+  const userEmail = 'john.doe@example.com'; // Replace with actual user email
 
   return (
     <DropdownMenu>
@@ -50,11 +60,11 @@ const UserAvatar = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-red-600">
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          <span onClick={handleLogout}>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
+  );
+};
 
-export default UserAvatar
+export default UserAvatar;
