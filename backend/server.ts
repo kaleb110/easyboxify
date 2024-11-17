@@ -3,7 +3,7 @@ import { PORT } from "./config/config"
 import cors from "cors"
 import dotenv from "dotenv"
 import router from "./routes/route"
-import authRouter from "./auth/auth"
+import authRouter from "./auth/authRouter"
 import { Application } from "express"
 
 dotenv.config()
