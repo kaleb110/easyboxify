@@ -1,5 +1,4 @@
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
+const jwt = require("jsonwebtoken")
 import dotenv from "dotenv";
 dotenv.config();
 

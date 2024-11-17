@@ -24,7 +24,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import axiosClient from '@/util/axiosClient'
-
+import { useToast } from '@/hooks/use-toast'
 // Define validation schema using Zod
 const formSchema = z
   .object({
@@ -42,6 +42,7 @@ const formSchema = z
   })
 
 export default function RegisterPreview() {
+  const { toast } = useToast()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,8 +64,19 @@ export default function RegisterPreview() {
         role
       })
 
+      toast({
+        title: 'Success!',
+        description: 'Registration successful!',
+        variant: 'default',  // You can customize the variant or use the default one
+      })
+
       console.log("Registration successful! Check your email to verify your account.", response)
     } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Registration failed!',
+        variant: 'destructive',
+      })
       console.error('Registration failed', error)
     }
   }

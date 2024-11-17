@@ -34,7 +34,7 @@ const registerHandler = async (req: Request, res: Response) => {
       process.env.JWT_SECRET_KEY,
       { expiresIn: "1h" }
     );
-    const verificationLink = `${process.env.BASE_URL}/auth/verify-email?token=${token}`;
+    const verificationLink = `${process.env.BASE_URL}/auth/login?token=${token}`;
 
     await sendVerificationEmail(email, verificationLink);
 

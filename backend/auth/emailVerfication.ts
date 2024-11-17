@@ -5,7 +5,7 @@ import { User } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 const verifyEmailHandler = async (req: Request, res: Response) => {
-  const { token } = req.query;
+  const { token } = req.body;
 
   try {
     const decoded = jwt.verify(token as string, process.env.JWT_SECRET_KEY);

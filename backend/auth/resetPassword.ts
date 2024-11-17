@@ -23,7 +23,7 @@ export const requestPasswordResetHandler = async (
     if (!user) return res.status(400).send("User not found");
 
     // Generate reset token using utility function
-    const token = generateToken({ userId: user.id }, "15m");
+    const token = generateToken({ userId: user.id }, "20m");
 
     // Update the user record with the reset token and its expiry
     await db
@@ -35,7 +35,7 @@ export const requestPasswordResetHandler = async (
       .where(eq(User.id, user.id));
 
     // Send the password reset email with the generated link
-    const resetLink = `${process.env.BASE_URL}/reset-password?token=${token}`;
+    const resetLink = `${process.env.BASE_URL}/auth/reset?token=${token}`;
     await sendPasswordResetEmail(email, resetLink);
 
     res.send("Password reset email sent. Check your email for instructions.");

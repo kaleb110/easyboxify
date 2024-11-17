@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-
 import {
   Form,
   FormControl,
@@ -24,7 +23,10 @@ import {
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import axiosClient from '@/util/axiosClient'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useToast } from '@/hooks/use-toast'
+import { useEffect, useState } from 'react'
+import { useAuthStore } from '@/store/useAuthStore'
 // Improved schema with additional validation rules
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -35,7 +37,11 @@ const formSchema = z.object({
 })
 
 export default function LoginPreview() {
+  const { setIsAuthenticated } = useAuthStore()
+  const { toast } = useToast()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const [verificationMessage, setVerificationMessage] = useState('')
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,10 +50,9 @@ export default function LoginPreview() {
     },
   })
 
+  // Function to handle login form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      // Assuming an async login function
-      // Assuming an async registration function
       const { email, password } = values
       console.log(values)
       const response = await axiosClient.post("/auth/login", {
@@ -55,15 +60,63 @@ export default function LoginPreview() {
         password
       })
 
-      const {token} = response.data
+      const { token } = response.data
 
       localStorage.setItem("authToken", token)
-      router.push("/user")
-      console.log("Login successfull.", response)
+
+      toast({
+        title: 'Success!',
+        description: 'Login successful.',
+        variant: 'default', // Customize the variant if needed
+      })
+
+      setIsAuthenticated(true)
+      router.push("/")
+      console.log("Login successful.", response)
     } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Login failed!',
+        variant: 'destructive',
+      })
       console.error('Login failed', error)
     }
   }
+
+  // Check if there is a token in the URL for email verification
+  useEffect(() => {
+    const token = searchParams.get('token')
+
+    if (token) {
+      const verifyEmail = async () => {
+        try {
+          // Make the verification request to the backend
+          await axiosClient.post('/auth/verify-email', { token })
+          setVerificationMessage('Email verified successfully! You can now log in.')
+
+          // Show success message
+          toast({
+            title: 'Email Verified',
+            description: 'Email verified successfully! You can now log in.',
+            variant: 'default',
+          })
+
+        } catch (error) {
+          // In case of error, show the error message
+          setVerificationMessage('Verification failed. Please try again.')
+
+          toast({
+            title: 'Verification Error',
+            description: 'Verification failed. Please try again.',
+            variant: 'destructive',
+          })
+        }
+      }
+
+      // Call the verification function
+      verifyEmail()
+    }
+  }, [searchParams, toast])
 
   return (
     <div className="flex flex-col min-h-[50vh] h-full w-full items-center justify-center px-4">
@@ -75,10 +128,13 @@ export default function LoginPreview() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {verificationMessage && (
+            <div className="mb-4 text-center text-sm text-green-600">
+              {verificationMessage}
+            </div>
+          )}
           <Form {...form}>
-            <form onSubmit={
-              form.handleSubmit(onSubmit)
-            } className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid gap-4">
                 <FormField
                   control={form.control}
