@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { AddBookmarkModal } from './add-bookmark-modal'
 import { SidebarItems } from '../sidebar/sidebar-items'
@@ -8,7 +8,7 @@ import { BookmarkItem } from './item-bookmark'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { MoreHorizontal, Edit, Trash2, Plus, Menu, Search } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2, Plus, Menu, Search, X } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +32,6 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarFooter,
-  SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar"
 
@@ -53,13 +52,26 @@ export const BookmarkingAppContent = () => {
     setSelectedContent,
   } = useBookmarkStore()
 
-  const { setOpen } = useSidebar()
-
+  const { open, setOpen } = useSidebar()
+  const [isMobile, setIsMobile] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [editingName, setEditingName] = useState('')
   const [isRenaming, setIsRenaming] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<{ type: 'folder' | 'tag', id: string, name: string } | null>(null)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+      if (!mobile) {
+        setOpen(true)
+      }
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [setOpen])
 
   const filteredBookmarks = React.useMemo(() => {
     let filtered = bookmarks
@@ -122,7 +134,13 @@ export const BookmarkingAppContent = () => {
   }
 
   const handleSidebarItemClick = () => {
-    setOpen(false)
+    if (isMobile) {
+      setOpen(false)
+    }
+  }
+
+  const toggleSidebar = () => {
+    setOpen(!open)
   }
 
   const ContentNavBar = () => (
@@ -154,9 +172,16 @@ export const BookmarkingAppContent = () => {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ touchAction: 'pan-y' }}>
-      <Sidebar className="border-r border-border bg-background">
+      <Sidebar className="border-r border-border bg-background" open={open} onOpenChange={setOpen}>
         <SidebarHeader className="p-4">
-          <h2 className="text-lg font-semibold">Bookmarks</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-semibold">Bookmarks</h2>
+            {isMobile && (
+              <Button variant="ghost" size="icon" onClick={toggleSidebar} className="hover:bg-transparent">
+                <X className="h-6 w-6" />
+              </Button>
+            )}
+          </div>
         </SidebarHeader>
         <SidebarContent>
           <ScrollArea className="flex-grow overflow-y-auto h-[calc(100vh-8rem)]">
@@ -172,11 +197,11 @@ export const BookmarkingAppContent = () => {
 
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="flex items-center justify-between p-4 border-b border-border">
-          <SidebarTrigger>
-            <Button variant="ghost" size="icon" className="md:hidden">
+          {isMobile && (
+            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
               <Menu className="h-6 w-6" />
             </Button>
-          </SidebarTrigger>
+          )}
           <ContentNavBar />
         </header>
         <div className="flex-1 overflow-auto p-4">
@@ -214,7 +239,7 @@ export const BookmarkingAppContent = () => {
               </DropdownMenu>
             )}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredBookmarks.map((bookmark, index) => (
               <BookmarkItem
                 key={bookmark.id}
