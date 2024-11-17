@@ -1,0 +1,50 @@
+import { Request, Response } from "express";
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken")
+import { db } from "../db";
+import { User } from "../db/schema";
+import { eq } from "drizzle-orm";
+import { sendVerificationEmail } from "./sendEmail";
+
+const registerHandler = async (req: Request, res: Response) => {
+  try {
+    const { email, password, role } = req.body;
+
+    if (!email || !password || !role) {
+      return res.status(400).send("Email, password, and role are required");
+    }
+
+    const existingUserResult = await db
+      .select()
+      .from(User)
+      .where(eq(User.email, email))
+      .limit(1);
+    if (existingUserResult.length) {
+      return res.status(400).send("User already exists");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const [user] = await db
+      .insert(User)
+      .values({ email, password: hashedPassword, role })
+      .returning();
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+    const verificationLink = `${process.env.BASE_URL}/auth/verify-email?token=${token}`;
+
+    await sendVerificationEmail(email, verificationLink);
+
+    res.send(
+      "Registration successful. Check your email to verify your account."
+    );
+  } catch (error) {
+    console.error("Error during registration:", error.message);
+    res.status(500).send("An error occurred during registration");
+  }
+};
+
+export default registerHandler;
