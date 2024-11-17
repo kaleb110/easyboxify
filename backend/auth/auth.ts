@@ -1,18 +1,25 @@
-import nodemailer from 'nodemailer';
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+const nodemailer = require("nodemailer")
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 import express from "express";
 import { google } from "googleapis";
 import { db } from "../db";
 import { User } from "../db/schema";
 import { eq } from "drizzle-orm";
+import dotenv from "dotenv"
+dotenv.config()
 
 const authRouter = express.Router();
 
 // Registration endpoint
 authRouter.post("/register", async (req, res) => {
   try {
+    console.log("Request Body:", req.body); // Add this line to check the request body content
     const { email, password, role } = req.body;
+
+    if (!email || !password || !role) {
+      return res.status(400).send("Email, password, and role are required");
+    }
 
     // Check if the user already exists
     const existingUserResult = await db
@@ -57,6 +64,8 @@ authRouter.post("/register", async (req, res) => {
       "Registration successful. Check your email to verify your account."
     );
   } catch (error) {
+    console.error("Error during registration:", error.message);
+    if (error.stack) console.error("Stack trace:", error.stack);
     res.status(500).send("An error occurred during registration");
   }
 });
@@ -85,6 +94,7 @@ authRouter.get("/verify-email", async (req, res) => {
       .where(eq(User.id, decoded.userId));
     res.send("Email verified successfully");
   } catch (error) {
+    console.error("Error", error.message)
     res.status(400).send("Invalid or expired token");
   }
 });
@@ -127,6 +137,67 @@ authRouter.post("/login", async (req, res) => {
     res.status(500).send("An error occurred during login");
   }
 });
+
+authRouter.post("/request-reset-password", async (req, res) => {
+  const { email } = req.body;
+
+  // Check if the user exists
+  const userResult = await db
+    .select()
+    .from(User)
+    .where(eq(User.email, email))
+    .limit(1);
+  const user = userResult[0];
+
+  if (!user) return res.status(400).send("user not found");
+
+  // Generate a password reset token
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY, {
+    expiresIn: "15m",
+  });
+
+  // Save the token in the database (you can create a separate table or store it in the user record)
+  await db
+    .update(User)
+    .set({
+      resetToken: token,
+      resetTokenExpiry: new Date(Date.now() + 15 * 60 * 1000),
+    })
+    .where(eq(User.id, user.id));
+
+  // Send reset email
+  const resetLink = `${process.env.BASE_URL}/reset-password?token=${token}`;
+  await sendPasswordResetEmail(email, resetLink);
+
+  res.send("Password reset email sent. Check your email for instructions.");
+})
+
+// Endpoint to reset the password
+authRouter.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const userResult = await db.select().from(User).where(eq(User.id, decoded.userId)).limit(1);
+    const user = userResult[0];
+
+    if (!user || user.resetToken !== token || new Date() > new Date(user.resetTokenExpiry)) {
+      return res.status(400).send("Invalid or expired reset token");
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password in the database and invalidate the reset token
+    await db.update(User).set({ password: hashedPassword, resetToken: null, resetTokenExpiry: null }).where(eq(User.id, user.id));
+
+    res.send("Password reset successful. You can now log in with your new password.");
+  } catch (error) {
+    res.status(400).send("Invalid or expired reset token");
+  }
+});
+
 
 // protected route
 authRouter.get("/admin", (req, res) => {
@@ -187,5 +258,39 @@ async function sendVerificationEmail(email: string, link: string) {
   // Send the email
   await transporter.sendMail(mailOptions);
 }
+
+// Function to send password reset email
+async function sendPasswordResetEmail(email: string, link: string) {
+  const OAuth2Client = new google.auth.OAuth2(
+    process.env.CLIENT_ID,
+    process.env.CLIENT_SECRET,
+    process.env.REDIRECT_URI
+  );
+
+  OAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
+  const accessToken = await OAuth2Client.getAccessToken();
+
+  let transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      type: "OAuth2",
+      user: process.env.EMAIL_USER,
+      clientId: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET,
+      refreshToken: process.env.REFRESH_TOKEN,
+      accessToken: accessToken.token,
+    },
+  });
+
+  let mailOptions = {
+    from: `Your App <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Password Reset Request",
+    html: `<p>Click the link below to reset your password:</p><a href="${link}">${link}</a>`,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
 
 export default authRouter;

@@ -15,6 +15,20 @@
       "when": 1731744210899,
       "tag": "0001_redundant_wolverine",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731788396869,
+      "tag": "0002_hesitant_vargas",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731788701700,
+      "tag": "0003_acoustic_beyonder",
+      "breakpoints": true
     }
   ]
 }
