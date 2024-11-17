@@ -16,7 +16,11 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 
-export function FolderSection({ onItemClick }: { onItemClick: (action: string) => void }) {
+interface FolderSectionProps {
+  onItemClick: () => void
+}
+
+export function FolderSection({ onItemClick }: FolderSectionProps) {
   const {
     folders,
     addFolder,
@@ -43,7 +47,7 @@ export function FolderSection({ onItemClick }: { onItemClick: (action: string) =
     setNewFolderName('')
     setIsAddingFolder(false)
     setSelectedContent(nameInput.value.trim())
-    onItemClick('select')
+    onItemClick()
   }
 
   const handleAddButtonClick = (e: React.MouseEvent) => {
@@ -84,7 +88,7 @@ export function FolderSection({ onItemClick }: { onItemClick: (action: string) =
                     onClick={() => {
                       toggleFolderCollapse(folder.id)
                       setSelectedContent(folder.name)
-                      onItemClick('select')
+                      onItemClick()
                     }}
                   >
                     <FolderClosed className="mr-2 h-4 w-4 text-indigo-400" />
