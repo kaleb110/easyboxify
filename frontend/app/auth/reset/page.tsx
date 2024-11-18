@@ -25,6 +25,8 @@ import axiosClient from '@/util/axiosClient'
 import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
 import { useToast } from '@/hooks/use-toast'
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 // Schema for password validation
 const formSchema = z
   .object({
@@ -40,7 +42,8 @@ const formSchema = z
   })
 
 export default function ResetPasswordPreview() {
-  const {toast} = useToast()
+  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -53,6 +56,7 @@ export default function ResetPasswordPreview() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
     try {
       // Assuming an async reset password function
       console.log(values)
@@ -76,6 +80,8 @@ export default function ResetPasswordPreview() {
         variant: 'destructive',
       })
       console.error('Failed to reset password. The token might be expired.', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -134,8 +140,14 @@ export default function ResetPasswordPreview() {
                   )}
                 />
 
-                <Button type="submit" className="w-full">
-                  Reset Password
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    </>
+                  ) : (
+                    'Reset Password'
+                  )}
                 </Button>
               </div>
             </form>

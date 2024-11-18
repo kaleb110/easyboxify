@@ -5,6 +5,9 @@ import { db } from "../db";
 import { User } from "../db/schema";
 import { eq } from "drizzle-orm";
 
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const TOKEN_EXPIRATION = "1h"
+
 const loginHandler = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -24,8 +27,8 @@ const loginHandler = async (req: Request, res: Response) => {
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "1h" }
+      JWT_SECRET_KEY,
+      { expiresIn: TOKEN_EXPIRATION }
     );
 
     res.send({ token });
