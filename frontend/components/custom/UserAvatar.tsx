@@ -1,3 +1,4 @@
+"use client"
 // components/UserAvatar.tsx
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -60,7 +61,7 @@ const UserAvatar = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-red-600">
           <LogOut className="mr-2 h-4 w-4" />
-          <span onClick={handleLogout}>Log out</span>
+          <button onClick={handleLogout}>Log out</button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

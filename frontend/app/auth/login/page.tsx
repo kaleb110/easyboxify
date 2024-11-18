@@ -27,7 +27,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useToast } from '@/hooks/use-toast'
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/useAuthStore'
-// Improved schema with additional validation rules
+import { Loader2 } from 'lucide-react'
+
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   password: z
@@ -41,7 +42,7 @@ export default function LoginPreview() {
   const { toast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [verificationMessage, setVerificationMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,51 +51,62 @@ export default function LoginPreview() {
     },
   })
 
-  // Function to handle login form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
     try {
-      const { email, password } = values
-      console.log(values)
+      const { email, password } = values;
+      console.log('Submitting login form...', values);
+
+      // Log before API call
+      console.log('Sending login request...');
+
       const response = await axiosClient.post("/auth/login", {
         email,
-        password
-      })
+        password,
+      });
 
-      const { token } = response.data
+      console.log('Login response received:', response);
 
-      localStorage.setItem("authToken", token)
+      const { token } = response.data;
+
+      // Set token in localStorage
+      console.log('Setting authToken in localStorage...');
+      localStorage.setItem("authToken", token);
+
+      // Set authenticated state
+      console.log('Updating isAuthenticated state...');
+      setIsAuthenticated(true);
 
       toast({
         title: 'Success!',
         description: 'Login successful.',
-        variant: 'default', // Customize the variant if needed
-      })
+        variant: 'default',
+      });
 
-      setIsAuthenticated(true)
-      router.push("/")
-      console.log("Login successful.", response)
+      // Now redirect to the home page
+      console.log('Redirecting to /...');
+      router.push("/");
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Login failed!',
         variant: 'destructive',
-      })
-      console.error('Login failed', error)
+      });
+      console.error('Login failed', error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
-  // Check if there is a token in the URL for email verification
+
   useEffect(() => {
     const token = searchParams.get('token')
 
     if (token) {
       const verifyEmail = async () => {
         try {
-          // Make the verification request to the backend
           await axiosClient.post('/auth/verify-email', { token })
-          setVerificationMessage('Email verified successfully! You can now log in.')
 
-          // Show success message
           toast({
             title: 'Email Verified',
             description: 'Email verified successfully! You can now log in.',
@@ -102,18 +114,16 @@ export default function LoginPreview() {
           })
 
         } catch (error) {
-          // In case of error, show the error message
-          setVerificationMessage('Verification failed. Please try again.')
 
           toast({
             title: 'Verification Error',
             description: 'Verification failed. Please try again.',
             variant: 'destructive',
           })
+          console.log("Verification failed. Please try again.", error)
         }
       }
 
-      // Call the verification function
       verifyEmail()
     }
   }, [searchParams, toast])
@@ -128,11 +138,6 @@ export default function LoginPreview() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {verificationMessage && (
-            <div className="mb-4 text-center text-sm text-green-600">
-              {verificationMessage}
-            </div>
-          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid gap-4">
@@ -181,8 +186,14 @@ export default function LoginPreview() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    </>
+                  ) : (
+                    'Login'
+                  )}
                 </Button>
               </div>
             </form>

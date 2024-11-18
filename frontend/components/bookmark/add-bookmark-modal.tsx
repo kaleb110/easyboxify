@@ -31,15 +31,16 @@ export function AddBookmarkModal() {
 
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
-  const [folderId, setFolderId] = useState('')
+  const [folderId, setFolderId] = useState<string | null>(null)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [notes, setNotes] = useState('')
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
     if (editingBookmark) {
       setTitle(editingBookmark.title)
       setUrl(editingBookmark.url)
-      setFolderId(editingBookmark.folderId || '')
+      setFolderId(editingBookmark.folderId)
       setSelectedTags(editingBookmark.tags)
       setNotes(editingBookmark.notes)
     } else {
@@ -52,6 +53,7 @@ export function AddBookmarkModal() {
     setUrl('')
     setNotes('')
     setSelectedTags([])
+    setErrors({})
 
     const selectedFolder = folders.find(folder => folder.name === selectedContent)
     const selectedTag = tags.find(tag => tag.name === selectedContent)
@@ -59,19 +61,47 @@ export function AddBookmarkModal() {
     if (selectedFolder) {
       setFolderId(selectedFolder.id)
     } else if (selectedTag) {
-      setFolderId('')
+      setFolderId(null)
       setSelectedTags([selectedTag.id])
     } else {
-      setFolderId('')
+      setFolderId(null)
+    }
+  }
+
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {}
+
+    if (!title.trim()) {
+      newErrors.title = 'Title is required'
+    }
+
+    if (!url.trim()) {
+      newErrors.url = 'URL is required'
+    } else if (!isValidUrl(url)) {
+      newErrors.url = 'Please enter a valid URL'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url)
+      return true
+    } catch {
+      return false
     }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validateForm()) return
+
     const bookmarkData = {
       title,
       url,
-      folderId: folderId || null,
+      folderId,
       tags: selectedTags,
       notes,
     }
@@ -102,7 +132,14 @@ export function AddBookmarkModal() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
+                aria-invalid={!!errors.title}
+                aria-describedby={errors.title ? "title-error" : undefined}
               />
+              {errors.title && (
+                <p id="title-error" className="text-sm text-red-500 mt-1">
+                  {errors.title}
+                </p>
+              )}
             </div>
             <div>
               <Label htmlFor="url">URL</Label>
@@ -112,12 +149,19 @@ export function AddBookmarkModal() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 required
+                aria-invalid={!!errors.url}
+                aria-describedby={errors.url ? "url-error" : undefined}
               />
+              {errors.url && (
+                <p id="url-error" className="text-sm text-red-500 mt-1">
+                  {errors.url}
+                </p>
+              )}
             </div>
-            {!selectedContent || selectedContent === 'All Bookmarks' ? (
+            {(!selectedContent || selectedContent === 'All Bookmarks') && (
               <div>
                 <Label htmlFor="folder">Folder</Label>
-                <Select value={folderId} onValueChange={setFolderId}>
+                <Select value={folderId || ''} onValueChange={(value) => setFolderId(value || null)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a folder" />
                   </SelectTrigger>
@@ -130,7 +174,7 @@ export function AddBookmarkModal() {
                   </SelectContent>
                 </Select>
               </div>
-            ) : null}
+            )}
             <div>
               <Label htmlFor="tags">Tags</Label>
               <Select

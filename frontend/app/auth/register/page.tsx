@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 
 import {
   Form,
@@ -25,6 +27,7 @@ import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import axiosClient from '@/util/axiosClient'
 import { useToast } from '@/hooks/use-toast'
+
 // Define validation schema using Zod
 const formSchema = z
   .object({
@@ -43,6 +46,7 @@ const formSchema = z
 
 export default function RegisterPreview() {
   const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,9 +58,9 @@ export default function RegisterPreview() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
     try {
-      // Assuming an async registration function
-      const {email, password, role} = values
+      const { email, password, role } = values
       console.log(values)
       const response = await axiosClient.post("/auth/register", {
         email,
@@ -67,7 +71,7 @@ export default function RegisterPreview() {
       toast({
         title: 'Success!',
         description: 'Registration successful!',
-        variant: 'default',  // You can customize the variant or use the default one
+        variant: 'default',
       })
 
       console.log("Registration successful! Check your email to verify your account.", response)
@@ -78,6 +82,8 @@ export default function RegisterPreview() {
         variant: 'destructive',
       })
       console.error('Registration failed', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -92,12 +98,8 @@ export default function RegisterPreview() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={
-              form.handleSubmit(onSubmit)
-            } className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid gap-4">
-
-                {/* Email Field */}
                 <FormField
                   control={form.control}
                   name="email"
@@ -118,7 +120,6 @@ export default function RegisterPreview() {
                   )}
                 />
 
-                {/* Password Field */}
                 <FormField
                   control={form.control}
                   name="password"
@@ -138,7 +139,6 @@ export default function RegisterPreview() {
                   )}
                 />
 
-                {/* Confirm Password Field */}
                 <FormField
                   control={form.control}
                   name="confirmPassword"
@@ -160,8 +160,14 @@ export default function RegisterPreview() {
                   )}
                 />
 
-                <Button type="submit" className="w-full">
-                  Register
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    </>
+                  ) : (
+                    'Register'
+                  )}
                 </Button>
               </div>
             </form>

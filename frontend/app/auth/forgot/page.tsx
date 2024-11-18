@@ -23,13 +23,16 @@ import {
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
 import axiosClient from '@/util/axiosClient'
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 // Schema for email validation
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
 })
 
 export default function ForgetPasswordPreview() {
-  const {toast} = useToast()
+  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,6 +41,7 @@ export default function ForgetPasswordPreview() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
     try {
       // Assuming a function to send reset email
       console.log(values)
@@ -59,6 +63,8 @@ export default function ForgetPasswordPreview() {
         description: 'Failed to send reset instructions. Please try again later.',
         variant: 'destructive',
       })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -95,8 +101,14 @@ export default function ForgetPasswordPreview() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">
-                  Send Reset Link
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    </>
+                  ) : (
+                    'Send Reset Link'
+                  )}
                 </Button>
               </div>
             </form>
