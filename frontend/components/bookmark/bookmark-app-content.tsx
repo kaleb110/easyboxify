@@ -41,7 +41,6 @@ import {
   SidebarFooter,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-
 export const BookmarkingAppContent = () => {
   const {
     bookmarks,
@@ -49,7 +48,6 @@ export const BookmarkingAppContent = () => {
     setIsAddBookmarkModalOpen,
     setEditingBookmark,
     deleteBookmark,
-    reorderBookmarks,
     folders,
     tags,
     renameFolder,
@@ -60,7 +58,7 @@ export const BookmarkingAppContent = () => {
   } = useBookmarkStore()
 
   const [isMobile, setIsMobile] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [editingName, setEditingName] = useState('')
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
@@ -72,12 +70,15 @@ export const BookmarkingAppContent = () => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768
       setIsMobile(mobile)
-      setSidebarOpen(!mobile)
+      if (!mobile) {
+        setSidebarOpen(true)
+      }
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  }, [setSidebarOpen])
+
 
   const filteredBookmarks = React.useMemo(() => {
     let filtered = bookmarks
@@ -98,10 +99,6 @@ export const BookmarkingAppContent = () => {
       bookmark.notes.toLowerCase().includes(searchTerm.toLowerCase())
     )
   }, [selectedContent, bookmarks, folders, tags, searchTerm])
-
-  const moveBookmark = (dragIndex: number, hoverIndex: number) => {
-    reorderBookmarks(dragIndex, hoverIndex)
-  }
 
   const startRenaming = () => {
     setEditingName(selectedContent)
@@ -154,7 +151,8 @@ export const BookmarkingAppContent = () => {
   }
 
   const toggleSidebar = () => {
-    setSidebarOpen(prev => !prev)
+    console.log(!sidebarOpen)
+    setSidebarOpen(!sidebarOpen)
   }
 
   const ContentNavBar = () => (
@@ -190,8 +188,8 @@ export const BookmarkingAppContent = () => {
   )
 
   return (
-    <SidebarProvider open={sidebarOpen} onOpenChange={toggleSidebar}>
-      <div className="flex h-screen overflow-hidden" style={{ touchAction: 'pan-y' }}>
+    <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
+      <div className="flex h-screen overflow-hidden w-full" style={{ touchAction: 'pan-y' }}>
         <Sidebar className="border-r border-border bg-background" >
           <SidebarHeader className="p-4">
             <div className="flex justify-between items-center">
@@ -242,13 +240,11 @@ export const BookmarkingAppContent = () => {
                 </DropdownMenu>
               )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredBookmarks.map((bookmark, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
+              {filteredBookmarks.map((bookmark) => (
                 <BookmarkItem
                   key={bookmark.id}
                   bookmark={bookmark}
-                  index={index}
-                  moveBookmark={moveBookmark}
                   onEdit={(bookmark) => {
                     setIsAddBookmarkModalOpen(true)
                     setEditingBookmark(bookmark)

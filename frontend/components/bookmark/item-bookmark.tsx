@@ -1,6 +1,5 @@
-import React, { useRef } from 'react'
-import { useDrag, useDrop } from 'react-dnd'
-import { Edit2, Trash2, GripVertical, MoreHorizontal, Globe, FileText } from 'lucide-react'
+import React from 'react'
+import { Edit2, Trash2, MoreHorizontal, Globe, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useBookmarkStore } from '@/store/bookmarkStore'
@@ -24,89 +23,18 @@ import {
 
 interface BookmarkItemProps {
   bookmark: Bookmark
-  index: number
-  moveBookmark: (dragIndex: number, hoverIndex: number) => void
   onEdit: (bookmark: Bookmark) => void
   onDelete: (id: string) => void
 }
 
-interface DragItem {
-  index: number
-  id: string
-  type: string
-}
-
-export function BookmarkItem({ bookmark, index, moveBookmark, onEdit, onDelete }: BookmarkItemProps) {
-  const ref = useRef<HTMLDivElement>(null)
+export function BookmarkItem({ bookmark, onEdit, onDelete }: BookmarkItemProps) {
   const { tags } = useBookmarkStore()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
 
-  const [{ handlerId }, drop] = useDrop<
-    DragItem,
-    void,
-    { handlerId: string | symbol | null }
-  >({
-    accept: 'bookmark',
-    collect(monitor) {
-      return {
-        handlerId: monitor.getHandlerId(),
-      }
-    },
-    hover(item: DragItem, monitor) {
-      if (!ref.current) {
-        return
-      }
-      const dragIndex = item.index
-      const hoverIndex = index
-
-      if (dragIndex === hoverIndex) {
-        return
-      }
-
-      const hoverBoundingRect = ref.current?.getBoundingClientRect()
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
-      const clientOffset = monitor.getClientOffset()
-      const hoverClientY = (clientOffset?.y || 0) - hoverBoundingRect.top
-
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        return
-      }
-
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        return
-      }
-
-      moveBookmark(dragIndex, hoverIndex)
-      item.index = hoverIndex
-    },
-  })
-
-  const [{ isDragging }, drag] = useDrag({
-    type: 'bookmark',
-    item: () => {
-      return { id: bookmark.id, index }
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  })
-
-  const opacity = isDragging ? 0.4 : 1
-  drag(drop(ref))
-
   return (
     <>
-      <div
-        ref={ref}
-        style={{ opacity }}
-        data-handler-id={handlerId}
-        className="group mb-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
-      >
-        <div className="p-4 flex items-start space-x-4">
-          <div className="cursor-move flex items-center">
-            <GripVertical className="h-6 w-6 text-gray-400" />
-          </div>
+      <div className="group p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800">
+        <div className="flex items-start space-x-4">
           <div className="flex-grow space-y-2">
             <div className="flex items-center space-x-2">
               <Globe className="h-4 w-4 text-blue-500" />
