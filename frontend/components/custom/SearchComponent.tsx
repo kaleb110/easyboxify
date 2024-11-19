@@ -4,13 +4,16 @@ import React, { useRef, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Search, X } from 'lucide-react';
-
+import { useBookmarkStore } from '@/store/bookmarkStore';
+import { ModeToggle } from '../theme/toggle';
+import { Plus } from 'lucide-react';
 interface SearchProps {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
 }
 
 const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSearchTerm }) => {
+  const { setIsAddBookmarkModalOpen, setEditingBookmark} = useBookmarkStore()
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus the input on the initial render
@@ -23,7 +26,8 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
   console.log('SearchComponent rerendered'); // Debug to check rerender
 
   return (
-    <div className="relative flex-1 max-w-sm">
+    <>
+      <div className="relative flex-1 max-w-sm">
       <Input
         ref={inputRef}
         placeholder="Search bookmarks..."
@@ -42,7 +46,22 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
           <X className="h-4 w-4" />
         </Button>
       )}
-    </div>
+      </div>
+      <div className='flex gap-2 ml-4'>
+        <Button
+          onClick={() => {
+            setEditingBookmark(null)
+            setIsAddBookmarkModalOpen(true)
+          }}
+          size="icon"
+          variant="outline"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+        <ModeToggle />
+      </div>
+    </>
+    
   );
 });
 
