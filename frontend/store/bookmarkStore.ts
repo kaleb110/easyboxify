@@ -17,6 +17,19 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
   isAddBookmarkModalOpen: false,
   editingBookmark: null,
 
+  isMobile: false,
+  searchTerm: "",
+  editingName: "",
+  isRenameDialogOpen: false,
+  isDeleteDialogOpen: false,
+
+  // State setters
+  setIsMobile: (isMobile) => set({ isMobile }),
+  setSearchTerm: (term) => set({ searchTerm: term }),
+  setEditingName: (name) => set({ editingName: name }),
+  setIsRenameDialogOpen: (isOpen) => set({ isRenameDialogOpen: isOpen }),
+  setIsDeleteDialogOpen: (isOpen) => set({ isDeleteDialogOpen: isOpen }),
+
   addFolder: (name) =>
     set((state) => ({
       folders: [...state.folders, { id: uuidv4(), name, isCollapsed: false }],

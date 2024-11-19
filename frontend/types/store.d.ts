@@ -25,6 +25,19 @@ interface BookmarkStore {
   selectedContent: string;
   isAddBookmarkModalOpen: boolean;
   editingBookmark: Bookmark | null;
+
+  isMobile: boolean;
+  searchTerm: string;
+  editingName: string;
+  isRenameDialogOpen: boolean;
+  isDeleteDialogOpen: boolean;
+
+  setIsMobile: (isMobile: boolean) => void;
+  setSearchTerm: (term: string) => void;
+  setEditingName: (name: string) => void;
+  setIsRenameDialogOpen: (isOpen: boolean) => void;
+  setIsDeleteDialogOpen: (isOpen: boolean) => void;
+  
   addFolder: (name: string) => void;
   renameFolder: (id: string, newName: string) => void;
   deleteFolder: (id: string) => void;
