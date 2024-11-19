@@ -1,6 +1,3 @@
-// components/ProtectedRoute.tsx
-"use client"; // Required when using hooks with Next.js
-
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
@@ -12,20 +9,18 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/auth/login');
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated, router]);
+    // Delay checking until auth state is fully initialized
+    setIsInitialized(true);
+  }, []);
 
-  // Display a loading state if authentication status is not ready
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (isInitialized && !isAuthenticated) {
+      router.replace('/auth/login');
+    }
+  }, [isAuthenticated, isInitialized, router]);
 
   return <>{children}</>;
 };
