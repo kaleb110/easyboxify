@@ -14,11 +14,12 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      isAuthenticated: false,
+      isAuthenticated:
+        typeof window !== "undefined" && !!localStorage.getItem("authToken"),
       setIsAuthenticated: (auth) => set({ isAuthenticated: auth }),
       Logout: () => {
-        set({ isAuthenticated: false });
         localStorage.removeItem("authToken");
+        set({ isAuthenticated: false });
       },
       checkAuth: () => {
         // Check if there's a token in localStorage
@@ -36,9 +37,15 @@ export const useAuthStore = create<AuthState>()(
 
 // Custom hook to initialize authentication state on app load
 export const useAuthInit = () => {
-  const { checkAuth } = useAuthStore();
+  const { setIsAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    // Check if token is available on load
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, [setIsAuthenticated]);
 };
