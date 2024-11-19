@@ -6,20 +6,17 @@ interface BookmarkListProps {
   bookmarks: Bookmark[]
   onEditBookmark: (bookmark: Bookmark) => void
   onDeleteBookmark: (id: string) => void
-  moveBookmark: (dragIndex: number, hoverIndex: number) => void
 }
 
-export function BookmarkList({ bookmarks, onEditBookmark, onDeleteBookmark, moveBookmark }: BookmarkListProps) {
+export function BookmarkList({ bookmarks, onEditBookmark, onDeleteBookmark }: BookmarkListProps) {
   return (
     <div className="space-y-4">
-      {bookmarks.map((bookmark, index) => (
+      {bookmarks.map((bookmark) => (
         <BookmarkItem
           key={bookmark.id}
-          index={index}
           bookmark={bookmark}
           onEdit={onEditBookmark}
           onDelete={onDeleteBookmark}
-          moveBookmark={moveBookmark}
         />
       ))}
     </div>
