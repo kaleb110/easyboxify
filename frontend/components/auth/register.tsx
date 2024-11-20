@@ -31,6 +31,9 @@ import { useToast } from '@/hooks/use-toast'
 // Define validation schema using Zod
 const formSchema = z
   .object({
+    name: z
+      .string()
+      .min(2, { message: 'Name must be at least 2 characters long' }),
     email: z.string().email({ message: 'Invalid email address' }),
     password: z
       .string()
@@ -50,6 +53,7 @@ export default function RegisterPreview() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -60,9 +64,10 @@ export default function RegisterPreview() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     try {
-      const { email, password, role } = values
+      const { name, email, password, role } = values
       console.log(values)
       const response = await axiosClient.post("/auth/register", {
+        name,
         email,
         password,
         role
@@ -100,6 +105,21 @@ export default function RegisterPreview() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid gap-4">
+                {/* Name Field */}
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="grid gap-2">
+                      <FormLabel htmlFor="name">Full Name</FormLabel>
+                      <FormControl>
+                        <Input id="name" placeholder="John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="email"
