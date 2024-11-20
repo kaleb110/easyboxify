@@ -29,6 +29,20 @@
       "when": 1731788701700,
       "tag": "0003_acoustic_beyonder",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1732085015130,
+      "tag": "0004_fat_sauron",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1732085286604,
+      "tag": "0005_true_revanche",
+      "breakpoints": true
     }
   ]
 }

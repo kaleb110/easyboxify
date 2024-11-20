@@ -109,14 +109,5 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
   setIsAddBookmarkModalOpen: (isOpen) =>
     set({ isAddBookmarkModalOpen: isOpen }),
 
-  setEditingBookmark: (bookmark) => set({ editingBookmark: bookmark }),
-
-  reorderBookmarks: (dragIndex, hoverIndex) =>
-    set((state) => {
-      const newBookmarks = [...state.bookmarks];
-      const draggedBookmark = newBookmarks[dragIndex];
-      newBookmarks.splice(dragIndex, 1);
-      newBookmarks.splice(hoverIndex, 0, draggedBookmark);
-      return { bookmarks: newBookmarks };
-    }),
+  setEditingBookmark: (bookmark) => set({ editingBookmark: bookmark })
 }));

@@ -51,5 +51,4 @@ interface BookmarkStore {
   setSelectedContent: (content: string) => void;
   setIsAddBookmarkModalOpen: (isOpen: boolean) => void;
   setEditingBookmark: (bookmark: Bookmark | null) => void;
-  reorderBookmarks: (dragIndex: number, hoverIndex: number) => void;
 }

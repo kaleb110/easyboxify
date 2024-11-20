@@ -8,10 +8,10 @@ import { sendVerificationEmail } from "./sendEmail";
 
 const registerHandler = async (req: Request, res: Response) => {
   try {
-    const { email, password, role } = req.body;
+    const { name, email, password, role } = req.body;
 
-    if (!email || !password || !role) {
-      return res.status(400).send("Email, password, and role are required");
+    if (!name || !email || !password || !role) {
+      return res.status(400).send("Name, Email, password, and role are required");
     }
 
     const existingUserResult = await db
@@ -27,7 +27,7 @@ const registerHandler = async (req: Request, res: Response) => {
 
     const [user] = await db
       .insert(User)
-      .values({ email, password: hashedPassword, role })
+      .values({ name, email, password: hashedPassword, role })
       .returning();
     const token = jwt.sign(
       { userId: user.id, role: user.role },
