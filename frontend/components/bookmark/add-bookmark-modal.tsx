@@ -119,8 +119,7 @@ export function AddBookmarkModal() {
       folderId: folderId || null,
       tags: selectedTags
         .filter(tagId => tagId !== undefined && tagId !== null && tagId !== ""), // Remove invalid values
-      description,
-      userId: 18
+      description
     }
 
     try {

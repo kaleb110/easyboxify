@@ -1,3 +1,4 @@
+import { authenticate } from './../middleware/authMiddleware';
 import { Router } from "express";
 import {
   getAllFolders,
@@ -8,10 +9,9 @@ import {
 } from "../controller/foldersController";
 const router = Router();
 
-
 router.get("/", getAllFolders);
 router.get("/:id", getFolder);
-router.post("/", createNewFolder);
+router.post("/", authenticate, createNewFolder);
 router.put("/:id", updateExistingFolder);
 router.delete("/:id", removeFolder);
 

@@ -1,6 +1,6 @@
-import { generateToken, verifyToken } from './../util/authUtils';
+import { generateToken, verifyToken } from "./../util/authUtils";
 import { Request, Response } from "express";
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
 import { db } from "../db";
 import { User } from "../db/schema";
 import { eq } from "drizzle-orm";

@@ -19,11 +19,12 @@ export const getFolder = async (req: Request, res: Response) => {
 };
 
 export const createNewFolder = async (req: Request, res: Response) => {
-  const { userId, name } = req.body;
+  const  userId  = req.userId;
+  const { name } = req.body;
 
-  // if (!userId) {
-  //   return res.status(400).send("User ID not found");
-  // }
+  if (!userId) {
+    return res.status(400).send("User ID not found");
+  }
 
   try {
     const folder = await createFolder({ userId, name }); // Call the service to create the folder
@@ -41,16 +42,14 @@ export const updateExistingFolder = async (req: Request, res: Response) => {
 
 export const removeFolder = async (req: Request, res: Response) => {
   const { id } = req.params;
-  
+
   try {
     // Delete folder and associated bookmarks
     await deleteFolderById(Number(id));
 
-    res
-      .status(200)
-      .json({
-        message: "Folder and associated bookmarks deleted successfully",
-      });
+    res.status(200).json({
+      message: "Folder and associated bookmarks deleted successfully",
+    });
   } catch (error) {
     console.error("Error deleting folder and associated bookmarks:", error);
     res.status(500).json({ message: "Failed to delete folder" });

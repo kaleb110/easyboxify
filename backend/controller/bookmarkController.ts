@@ -20,9 +20,18 @@ export const getBookmark = async (req: Request, res: Response) => {
 };
 
 export const createNewBookmark = async (req: Request, res: Response) => {
-  const bookmark = await createBookmark(req.body);
-  console.log(bookmark);
-  res.status(201).json(bookmark);
+  const userId = req.userId;
+
+  if (!userId) {
+    return res.status(400).send("User ID not found");
+  }
+
+  try {
+    const bookmark = await createBookmark({ userId, ...req.body }); 
+    res.status(201).json(bookmark); 
+  } catch (error) {
+    res.status(500).send("Error creating folder");
+  }
 };
 
 export const updateExistingBookmark = async (req: Request, res: Response) => {

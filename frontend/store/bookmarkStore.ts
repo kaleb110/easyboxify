@@ -89,8 +89,7 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
 
   addFolder: async (name) => {
     try {
-      const userId = 18;
-      const response = await axiosClient.post("/api/folders", { name, userId });
+      const response = await axiosClient.post("/api/folders", { name });
       if (response.status >= 200 && response.status < 300) {
         const newFolder = response.data[0]; // Assuming the backend returns the full folder object
 
@@ -135,8 +134,7 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
 
   addTag: async (name) => {
     try {
-      const userId = 18;
-      const response = await axiosClient.post("/api/tags", { name, userId });
+      const response = await axiosClient.post("/api/tags", { name });
       if (response.status >= 200 && response.status < 300) {
         const newTag = response.data[0]; // Assuming the backend returns the full tag object
         set((state) => ({

@@ -25,7 +25,6 @@ export const getBookmarks = async () => {
     .leftJoin(Tag, eq(BookmarkTag.tagId, Tag.id))
     .orderBy(Bookmark.createdAt);
 
-
   // Organize bookmarks and their tags
   const bookmarksMap = new Map<number, any>();
 
@@ -41,7 +40,6 @@ export const getBookmarks = async () => {
   // Convert map to array
   return Array.from(bookmarksMap.values());
 };
-
 
 export const getBookmarkById = async (id: number) => {
   const result = await db

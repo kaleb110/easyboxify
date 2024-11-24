@@ -19,8 +19,19 @@ export const getTag = async (req: Request, res: Response) => {
 };
 
 export const createNewTag = async (req: Request, res: Response) => {
-  const tag = await createTag(req.body);
-  res.status(201).json(tag);
+  const userId = req.userId;
+  const { name } = req.body;
+
+  if (!userId) {
+    return res.status(400).send("User ID not found");
+  }
+
+  try {
+    const tag = await createTag({ userId, name }); // Call the service to create the folder
+    res.status(201).json(tag); // Respond with the created tag
+  } catch (error) {
+    res.status(500).send("Error creating folder");
+  }
 };
 
 export const updateExistingTag = async (req: Request, res: Response) => {

@@ -6,7 +6,9 @@ import { User } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
-const TOKEN_EXPIRATION = "1h"
+const ACCESS_TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN
+const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
 const loginHandler = async (req: Request, res: Response) => {
   try {
@@ -25,13 +27,29 @@ const loginHandler = async (req: Request, res: Response) => {
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) return res.status(400).send("Invalid password");
 
-    const token = jwt.sign(
+    // generate access token
+    const accessToken = jwt.sign(
       { userId: user.id, role: user.role },
       JWT_SECRET_KEY,
-      { expiresIn: TOKEN_EXPIRATION }
+      { expiresIn: ACCESS_TOKEN_EXPIRATION }
     );
 
-    res.send({ token });
+    // generate refresh token
+    const refreshToken = jwt.sign(
+      { userId: user.id, role: user.role },
+      REFRESH_TOKEN_SECRET,
+      { expiresIn: REFRESH_TOKEN_EXPIRATION }
+    );
+
+    // Store refresh token in HttpOnly cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Secure in production
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    });
+
+    res.send({ token: accessToken });
   } catch (error) {
     res.status(500).send("An error occurred during login");
   }
