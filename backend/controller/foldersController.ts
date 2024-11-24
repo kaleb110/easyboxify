@@ -4,7 +4,7 @@ import {
   getFolderById,
   createFolder,
   updateFolder,
-  deleteFolder,
+  deleteFolderById,
 } from "../service/folderServices";
 
 export const getAllFolders = async (req: Request, res: Response) => {
@@ -40,7 +40,19 @@ export const updateExistingFolder = async (req: Request, res: Response) => {
 };
 
 export const removeFolder = async (req: Request, res: Response) => {
-  const folder = await deleteFolder(Number(req.params.id));
-  if (!folder) return res.status(404).send("Folder not found");
-  res.json(folder);
+  const { id } = req.params;
+  
+  try {
+    // Delete folder and associated bookmarks
+    await deleteFolderById(Number(id));
+
+    res
+      .status(200)
+      .json({
+        message: "Folder and associated bookmarks deleted successfully",
+      });
+  } catch (error) {
+    console.error("Error deleting folder and associated bookmarks:", error);
+    res.status(500).json({ message: "Failed to delete folder" });
+  }
 };

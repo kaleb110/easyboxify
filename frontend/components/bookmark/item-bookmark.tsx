@@ -58,8 +58,8 @@ export function BookmarkItem({ bookmark, onEdit, onDelete }: BookmarkItemProps) 
             <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.url}</p>
             {bookmark.description && (
               <div className="flex items-center space-x-2">
-                <FileText className="h-4 w-4 text-gray-400" />
-                <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.description}</p>
+                <div><FileText className="h-4 w-4 text-gray-400" /></div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.description.slice(0, 60)}</p>
               </div>
             )}
             <div className="flex flex-wrap gap-2">

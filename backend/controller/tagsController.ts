@@ -4,7 +4,7 @@ import {
   getTagById,
   createTag,
   updateTag,
-  deleteTag,
+  deleteTagById,
 } from "../service/tagServices";
 
 export const getAllTags = async (req: Request, res: Response) => {
@@ -30,7 +30,19 @@ export const updateExistingTag = async (req: Request, res: Response) => {
 };
 
 export const removeTag = async (req: Request, res: Response) => {
-  const tag = await deleteTag(Number(req.params.id));
-  if (!tag) return res.status(404).send("Tag not found");
-  res.json(tag);
+  const { id } = req.params;
+
+  try {
+    // Delete tag and associated bookmarks
+    await deleteTagById(Number(id));
+
+    res
+      .status(200)
+      .json({
+        message: "Tag deleted and associated bookmarks removed successfully",
+      });
+  } catch (error) {
+    console.error("Error deleting tag and associated bookmarks:", error);
+    res.status(500).json({ message: "Failed to delete tag" });
+  }
 };
