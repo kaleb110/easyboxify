@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from 'react'
 import { Tag, Plus, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -15,6 +16,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
+import { useEffect } from 'react'
 
 interface TagSectionProps {
   onItemClick: () => void
@@ -24,11 +26,20 @@ export function TagSection({ onItemClick }: TagSectionProps) {
   const {
     tags,
     addTag,
+    fetchTags,
     setSelectedContent,
   } = useBookmarkStore()
   const [newTagName, setNewTagName] = useState('')
   const [isAddingTag, setIsAddingTag] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchTags()
+    }
+
+    fetchData()
+  }, [])
 
   const handleAddTag = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

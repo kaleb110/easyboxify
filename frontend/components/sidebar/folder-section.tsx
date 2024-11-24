@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from 'react'
 import { FolderClosed, Plus, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -15,6 +16,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
+import { useEffect } from 'react'
 
 interface FolderSectionProps {
   onItemClick: () => void
@@ -23,6 +25,7 @@ interface FolderSectionProps {
 export function FolderSection({ onItemClick }: FolderSectionProps) {
   const {
     folders,
+    fetchFolders,
     addFolder,
     setSelectedContent,
     toggleFolderCollapse,
@@ -31,6 +34,16 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
   const [isAddingFolder, setIsAddingFolder] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
 
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchFolders()
+    }
+    
+    fetchData()
+    
+  }, [])
+  
+  console.log(folders);
   const handleAddFolder = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = e.currentTarget

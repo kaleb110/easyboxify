@@ -1,33 +1,36 @@
-import { integer, pgTable, varchar, boolean, timestamp } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgTable,
+  varchar,
+  boolean,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 // Define the schema for the 'users' table
 export const User = pgTable("User", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({length: 20}).notNull().default("John Doe"),
+  name: varchar({ length: 20 }).notNull().default("John Doe"),
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar().notNull(),
   role: varchar().notNull().default("user"),
   verified: boolean().default(false),
-  resetToken: varchar({ length: 255 }), 
-  resetTokenExpiry: timestamp(),        
+  resetToken: varchar({ length: 255 }),
+  resetTokenExpiry: timestamp(),
 });
 
 // Define the relationship for the 'User' table
 export const userRelations = relations(User, ({ many }) => ({
-  folders: many(Folder),  // A user can have many folders
-  tags: many(Tag),         // A user can have many tags
+  folders: many(Folder), // A user can have many folders
+  tags: many(Tag), // A user can have many tags
   bookmarks: many(Bookmark), // A user can have many bookmarks
 }));
 
 // Folder Table
-export const Folder = pgTable(
-  "Folder",
-  {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar({ length: 100 }).notNull(),
-    userId: integer().notNull(),
-  }
-);
+export const Folder = pgTable("Folder", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 100 }).notNull(),
+  userId: integer().notNull(),
+});
 
 // Define the relationship for the 'Folder' table
 export const folderRelations = relations(Folder, ({ one, many }) => ({
@@ -37,7 +40,6 @@ export const folderRelations = relations(Folder, ({ one, many }) => ({
   }), // Each folder belongs to one user
   bookmarks: many(Bookmark), // A folder can have many bookmarks
 }));
-
 
 export const Tag = pgTable("Tag", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

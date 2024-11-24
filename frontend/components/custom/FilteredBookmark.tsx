@@ -1,3 +1,4 @@
+"use client"
 import React from 'react'
 import { useMemo } from 'react'
 import { useBookmarkStore } from '@/store/bookmarkStore'
@@ -16,33 +17,38 @@ interface FilterProps {
 }
 
 const FilteredBookmark: React.FC<FilterProps> = ({ setItemToDelete }) => {
+  
+  
   const { selectedContent, bookmarks, searchTerm, folders, tags, setIsAddBookmarkModalOpen,
     setEditingBookmark, deleteBookmark,
     setEditingName,
     setIsDeleteDialogOpen,
     setIsRenameDialogOpen,
   } = useBookmarkStore()
+
+
+  
   const filteredBookmarks = useMemo(() => {
-    let filtered = bookmarks
+    let filtered = bookmarks;
     if (selectedContent !== 'All Bookmarks') {
-      const folder = folders.find(f => f.name === selectedContent)
+      const folder = folders.find((f) => f.name === selectedContent);
       if (folder) {
-        filtered = bookmarks.filter(bookmark => bookmark.folderId === folder.id)
+        filtered = bookmarks.filter((bookmark) => bookmark.folderId === folder.id);
       } else {
-        const tag = tags.find(t => t.name === selectedContent)
+        const tag = tags.find((t) => t.name === selectedContent);
         if (tag) {
-          filtered = bookmarks.filter(bookmark => bookmark.tags.includes(tag.id))
+          // Use `some` to check if any tag in the bookmark matches the selected tag
+          filtered = bookmarks.filter((bookmark) =>
+            bookmark.tags.some((bookmarkTag) => bookmarkTag?.id === tag?.id)
+          );
         }
       }
     }
 
-    return filtered.filter(bookmark =>
-      bookmark.title.toLowerCase().includes(searchTerm.toLowerCase())
-      // ||
-      // bookmark.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      // bookmark.notes.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [selectedContent, bookmarks, folders, tags, searchTerm])
+    return filtered.filter((bookmark) =>
+      bookmark?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [selectedContent, bookmarks, folders, tags, searchTerm]);
 
   const startRenaming = () => {
     setEditingName(selectedContent)

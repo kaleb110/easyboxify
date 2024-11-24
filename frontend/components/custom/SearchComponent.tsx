@@ -5,7 +5,6 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Search, X } from 'lucide-react';
 import { useBookmarkStore } from '@/store/bookmarkStore';
-import { ModeToggle } from '../theme/toggle';
 import { Plus } from 'lucide-react';
 interface SearchProps {
   searchTerm: string;
@@ -58,7 +57,6 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
         >
           <Plus className="h-4 w-4" />
         </Button>
-        <ModeToggle />
       </div>
     </>
     

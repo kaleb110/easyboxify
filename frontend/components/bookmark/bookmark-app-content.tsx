@@ -17,11 +17,13 @@ export const BookmarkingAppContent = () => {
   // Log to check component rerenders
   console.log('BookmarkingAppContent rerendered');
 
+
   const {
     isMobile,
     searchTerm,
-    setSearchTerm,
+    setSearchTerm
   } = useBookmarkStore()
+
 
   const { open, setOpen } = useSidebar()
   const [itemToDelete, setItemToDelete] = useState<{ type: 'folder' | 'tag', id: string, name: string } | null>(null)

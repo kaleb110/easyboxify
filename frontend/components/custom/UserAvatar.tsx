@@ -1,8 +1,9 @@
 "use client"
-// components/UserAvatar.tsx
+
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useTheme } from "next-themes"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,14 +11,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from '@/components/ui/dropdown-menu';
-import { User, Settings, HelpCircle, LogOut } from 'lucide-react';
+import { User, Settings, HelpCircle, LogOut, Moon, Sun, Laptop } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const UserAvatar = () => {
   const { Logout } = useAuthStore();
   const router = useRouter();
+  const { theme, setTheme } = useTheme()
 
   const handleLogout = () => {
     Logout(); // This will clear the authentication state and token
@@ -46,22 +53,51 @@ const UserAvatar = () => {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className=" cursor-pointer">
+        <DropdownMenuItem>
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className=" cursor-pointer">
+        <DropdownMenuItem>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className=" cursor-pointer">
+        <DropdownMenuItem>
           <HelpCircle className="mr-2 h-4 w-4" />
           <span>Help & Support</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            {theme === 'dark' ? (
+              <Moon className="mr-2 h-4 w-4" />
+            ) : theme === 'light' ? (
+              <Sun className="mr-2 h-4 w-4" />
+            ) : (
+              <Laptop className="mr-2 h-4 w-4" />
+            )}
+            <span>Theme</span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+              <DropdownMenuRadioItem value="light">
+                <Sun className="mr-2 h-4 w-4" />
+                Light
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dark">
+                <Moon className="mr-2 h-4 w-4" />
+                Dark
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="system">
+                <Laptop className="mr-2 h-4 w-4" />
+                System
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
         <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
-          <button >Log out</button>
+          <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

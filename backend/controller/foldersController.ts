@@ -19,8 +19,18 @@ export const getFolder = async (req: Request, res: Response) => {
 };
 
 export const createNewFolder = async (req: Request, res: Response) => {
-  const folder = await createFolder(req.body);
-  res.status(201).json(folder);
+  const { userId, name } = req.body;
+
+  // if (!userId) {
+  //   return res.status(400).send("User ID not found");
+  // }
+
+  try {
+    const folder = await createFolder({ userId, name }); // Call the service to create the folder
+    res.status(201).json(folder); // Respond with the created folder
+  } catch (error) {
+    res.status(500).send("Error creating folder");
+  }
 };
 
 export const updateExistingFolder = async (req: Request, res: Response) => {

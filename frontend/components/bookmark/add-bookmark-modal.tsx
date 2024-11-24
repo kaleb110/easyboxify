@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { Bookmark, X } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,7 @@ export function AddBookmarkModal() {
   const {
     isAddBookmarkModalOpen,
     setIsAddBookmarkModalOpen,
+    fetchBookmark,
     addBookmark,
     editBookmark,
     editingBookmark,
@@ -33,25 +34,36 @@ export function AddBookmarkModal() {
   const [url, setUrl] = useState('')
   const [folderId, setFolderId] = useState<string | null>(null)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [notes, setNotes] = useState('')
+  const [description, setDescription] = useState('')
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
+  // Fetch bookmarks when the component mounts
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchBookmark()
+    }
+
+    fetchData()
+  }, [])
+
+  // Populate form fields when editingBookmark is available
   useEffect(() => {
     if (editingBookmark) {
       setTitle(editingBookmark.title)
       setUrl(editingBookmark.url)
-      setFolderId(editingBookmark.folderId)
-      setSelectedTags(editingBookmark.tags)
-      setNotes(editingBookmark.notes)
+      setFolderId(editingBookmark.folderId?.toString() || null)
+      setSelectedTags(editingBookmark.tags.map((tag) => tag.id.toString()))
+      setDescription(editingBookmark.description || '') // Ensure proper field is used
     } else {
       resetForm()
     }
   }, [editingBookmark, isAddBookmarkModalOpen, selectedContent])
 
+  // Reset form fields to default
   const resetForm = () => {
     setTitle('')
     setUrl('')
-    setNotes('')
+    setDescription('')
     setSelectedTags([])
     setErrors({})
 
@@ -59,15 +71,16 @@ export function AddBookmarkModal() {
     const selectedTag = tags.find(tag => tag.name === selectedContent)
 
     if (selectedFolder) {
-      setFolderId(selectedFolder.id)
+      setFolderId(selectedFolder.id.toString())
     } else if (selectedTag) {
       setFolderId(null)
-      setSelectedTags([selectedTag.id])
+      setSelectedTags([selectedTag.id.toString()]) // Set ID directly
     } else {
       setFolderId(null)
     }
   }
 
+  // Form validation
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {}
 
@@ -85,6 +98,7 @@ export function AddBookmarkModal() {
     return Object.keys(newErrors).length === 0
   }
 
+  // URL validation helper
   const isValidUrl = (url: string): boolean => {
     try {
       new URL(url)
@@ -94,28 +108,42 @@ export function AddBookmarkModal() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Form submission handler
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateForm()) return
 
     const bookmarkData = {
       title,
       url,
-      folderId,
-      tags: selectedTags,
-      notes,
+      folderId: folderId || null,
+      tags: selectedTags
+        .filter(tagId => tagId !== undefined && tagId !== null && tagId !== ""), // Remove invalid values
+      description,
+      userId: 18
     }
 
-    if (editingBookmark) {
-      editBookmark(editingBookmark.id, bookmarkData)
-    } else {
-      addBookmark(bookmarkData)
-    }
+    try {
+      if (editingBookmark) {
+        // Edit existing bookmark
+        await editBookmark(editingBookmark.id, bookmarkData)
+      } else {
+        // Add a new bookmark
+        await addBookmark(bookmarkData)
+      }
 
-    setIsAddBookmarkModalOpen(false)
+      // Fetch bookmarks again after modification
+      await fetchBookmark()
+
+      // Close the modal after successful operation
+      setIsAddBookmarkModalOpen(false)
+    } catch (error) {
+      console.error('Error handling bookmark submission:', error)
+    }
   }
 
-  const availableTags = tags.filter(tag => !selectedTags.includes(tag.id))
+  // Get the list of available tags that aren't already selected
+  const availableTags = tags.filter(tag => !selectedTags.includes(tag.id.toString()))
 
   return (
     <Dialog open={isAddBookmarkModalOpen} onOpenChange={setIsAddBookmarkModalOpen}>
@@ -167,7 +195,7 @@ export function AddBookmarkModal() {
                   </SelectTrigger>
                   <SelectContent>
                     {folders.map((folder) => (
-                      <SelectItem key={folder.id} value={folder.id}>
+                      <SelectItem key={folder.id} value={folder.id.toString()}>
                         {folder.name}
                       </SelectItem>
                     ))}
@@ -181,7 +209,7 @@ export function AddBookmarkModal() {
                 value={availableTags.length > 0 ? "" : "no-tags"}
                 onValueChange={(value) => {
                   if (value !== "no-tags") {
-                    setSelectedTags(prev => [...prev, value])
+                    setSelectedTags(prev => [...prev, value]) // Store only ID
                   }
                 }}
               >
@@ -191,7 +219,7 @@ export function AddBookmarkModal() {
                 <SelectContent>
                   {availableTags.length > 0 ? (
                     availableTags.map((tag) => (
-                      <SelectItem key={tag.id} value={tag.id}>
+                      <SelectItem key={tag.id} value={tag.id.toString()}>
                         {tag.name}
                       </SelectItem>
                     ))
@@ -202,7 +230,7 @@ export function AddBookmarkModal() {
               </Select>
               <div className="mt-2 flex flex-wrap gap-2">
                 {selectedTags.map((tagId) => {
-                  const tag = tags.find((t) => t.id === tagId);
+                  const tag = tags.find((t) => t.id.toString() === tagId);
                   return tag ? (
                     <Button
                       key={tag.id}
@@ -220,8 +248,8 @@ export function AddBookmarkModal() {
               <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
           </form>

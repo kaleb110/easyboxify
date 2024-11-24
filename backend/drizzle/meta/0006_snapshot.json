@@ -1,0 +1,239 @@
+{
+  "id": "05b8eea8-d36e-48f7-89fd-2032672637c3",
+  "prevId": "4dfe4e92-bb1a-403a-8bf2-2c7bfcf85474",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.Bookmark": {
+      "name": "Bookmark",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "folderId": {
+          "name": "folderId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.BookmarkTag": {
+      "name": "BookmarkTag",
+      "schema": "",
+      "columns": {
+        "bookmarkId": {
+          "name": "bookmarkId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tagId": {
+          "name": "tagId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Folder": {
+      "name": "Folder",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Tag": {
+      "name": "Tag",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.User": {
+      "name": "User",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'John Doe'"
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'user'"
+        },
+        "verified": {
+          "name": "verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "resetToken": {
+          "name": "resetToken",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resetTokenExpiry": {
+          "name": "resetTokenExpiry",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "User_email_unique": {
+          "name": "User_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
