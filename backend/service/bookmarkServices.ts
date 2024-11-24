@@ -12,9 +12,9 @@ const allBookmarkColumns = {
   userId: Bookmark.userId,
   folderId: Bookmark.folderId,
 };
-
+// Fetch bookmarks with associated tags, sorted by creation date
 export const getBookmarks = async () => {
-  // Fetch bookmarks with their associated tags
+  // Fetch bookmarks with their associated tags, ordered by createdAt (descending)
   const bookmarksWithTags = await db
     .select({
       bookmark: Bookmark,
@@ -22,7 +22,9 @@ export const getBookmarks = async () => {
     })
     .from(Bookmark)
     .leftJoin(BookmarkTag, eq(Bookmark.id, BookmarkTag.bookmarkId))
-    .leftJoin(Tag, eq(BookmarkTag.tagId, Tag.id));
+    .leftJoin(Tag, eq(BookmarkTag.tagId, Tag.id))
+    .orderBy(Bookmark.createdAt);
+
 
   // Organize bookmarks and their tags
   const bookmarksMap = new Map<number, any>();
@@ -39,6 +41,7 @@ export const getBookmarks = async () => {
   // Convert map to array
   return Array.from(bookmarksMap.values());
 };
+
 
 export const getBookmarkById = async (id: number) => {
   const result = await db

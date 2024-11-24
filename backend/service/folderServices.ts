@@ -1,6 +1,6 @@
 import { db } from "../db/index";
-import { Folder } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { Folder, Bookmark, BookmarkTag } from "../db/schema";
+import { eq, inArray } from "drizzle-orm";
 // Utility to get all columns from the Folder table
 const allFolderColumns = {
   id: Folder.id,
@@ -23,5 +23,26 @@ export const updateFolder = async (id: number, folderData: any) =>
     .where(eq(Folder.id, id))
     .returning(allFolderColumns);
 
-export const deleteFolder = async (id: number) =>
-  db.delete(Folder).where(eq(Folder.id, id)).returning(allFolderColumns);
+// Delete bookmarks associated with a folder
+export const deleteBookmarksByFolderId = async (folderId: number) => {
+  // Delete associated tags for bookmarks in the folder
+  await db.delete(BookmarkTag)
+    .where(inArray(BookmarkTag.bookmarkId, 
+      db.select({ id: Bookmark.id })
+        .from(Bookmark)
+        .where(eq(Bookmark.folderId, folderId))
+    ));
+
+  // Delete bookmarks in the folder
+  await db.delete(Bookmark)
+    .where(eq(Bookmark.folderId, folderId));
+};
+
+// Delete a folder and all its associated bookmarks
+export const deleteFolderById = async (folderId: number) => {
+  // Delete associated bookmarks first
+  await deleteBookmarksByFolderId(folderId);
+
+  // Delete the folder itself
+  await db.delete(Folder).where(eq(Folder.id, folderId));
+};
