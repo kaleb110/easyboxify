@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+const jwt = require("jsonwebtoken")
 
 // Middleware to verify JWT and extract user information
 export const authenticate = (
@@ -12,7 +12,7 @@ export const authenticate = (
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    req.user = decoded; // Attach user information to the request object
+    req.userId = decoded.userId; // Attach user information to the request object
     next();
   } catch (err) {
     res.status(400).send("Invalid Token");

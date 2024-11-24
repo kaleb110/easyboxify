@@ -1,28 +1,25 @@
-"use client"
-
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { useEffect } from "react";
+
 interface AuthState {
   isAuthenticated: boolean;
-  authToken: string | null; // Store the token
+  authToken: string | null;
   setIsAuthenticated: (auth: boolean) => void;
   setAuthToken: (token: string) => void;
   Logout: () => void;
   checkAuth: () => void;
 }
 
-// Create the Zustand store
+// Create the Zustand store with persistence
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      isAuthenticated:
-        typeof window !== "undefined" && !!localStorage.getItem("authToken"),
-      authToken: localStorage.getItem("authToken"), // Store the token here
+      isAuthenticated: false, // Initialize as false
+      authToken: null, // Initialize as null
       setIsAuthenticated: (auth) => set({ isAuthenticated: auth }),
       setAuthToken: (token) => {
-        localStorage.setItem("authToken", token); // Store the token in localStorage
-        set({ authToken: token });
+        localStorage.setItem("authToken", token); // Save token to localStorage
+        set({ authToken: token, isAuthenticated: true }); // Set both authToken and isAuthenticated
       },
       Logout: () => {
         localStorage.removeItem("authToken");
@@ -40,18 +37,3 @@ export const useAuthStore = create<AuthState>()(
     { name: "auth-storage" } // Persist the state in localStorage
   )
 );
-
-// Custom hook to initialize authentication state on app load
-export const useAuthInit = () => {
-  const { setIsAuthenticated } = useAuthStore();
-
-  useEffect(() => {
-    // Check if token is available on load
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, [setIsAuthenticated]);
-};

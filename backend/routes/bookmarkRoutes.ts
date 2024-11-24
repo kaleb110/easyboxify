@@ -7,12 +7,12 @@ import {
   removeBookmark,
   addTags,
 } from "../controller/bookmarkController";
-
+import { authenticate } from "../middleware/authMiddleware";
 const router = Router();
 
 router.get("/", getAllBookmarks);
 router.get("/:id", getBookmark);
-router.post("/", createNewBookmark);
+router.post("/", authenticate, createNewBookmark);
 router.put("/:id", updateExistingBookmark);
 router.delete("/:id", removeBookmark);
 router.post("/tags", addTags); // Endpoint to add tags to a bookmark

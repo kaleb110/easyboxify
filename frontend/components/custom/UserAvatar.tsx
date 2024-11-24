@@ -20,12 +20,12 @@ import {
 import { User, Settings, HelpCircle, LogOut, Moon, Sun, Laptop } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
 const UserAvatar = () => {
   const { Logout } = useAuthStore();
   const router = useRouter();
   const { theme, setTheme } = useTheme()
 
+  
   const handleLogout = () => {
     Logout(); // This will clear the authentication state and token
     router.replace('/auth/login'); // Redirect to login page after logout

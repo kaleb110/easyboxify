@@ -1,7 +1,22 @@
-import React from 'react'
+"use client"
+import React, {useEffect} from 'react'
 import { Suspense } from 'react'
 import LoginPreview from '@/components/auth/login'
-const page = () => {
+import axiosClient from '@/util/axiosClient'
+
+const LogIn = () => {
+
+  useEffect(() => {
+    const performLogout = async () => {
+      try {
+        await axiosClient.post("/auth/logout"); // API call to clear the cookie
+      } catch (error) {
+        console.error("Error during logout:", error);
+      }
+    };
+
+    performLogout();
+  }, [])
   return (
     <Suspense>
       <LoginPreview />
@@ -9,4 +24,4 @@ const page = () => {
   )
 }
 
-export default page
+export default LogIn

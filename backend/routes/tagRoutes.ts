@@ -6,12 +6,12 @@ import {
   updateExistingTag,
   removeTag,
 } from "../controller/tagsController";
-
+import { authenticate } from "../middleware/authMiddleware";
 const router = Router();
 
 router.get("/", getAllTags);
 router.get("/:id", getTag);
-router.post("/", createNewTag);
+router.post("/", authenticate, createNewTag);
 router.put("/:id", updateExistingTag);
 router.delete("/:id", removeTag);
 
