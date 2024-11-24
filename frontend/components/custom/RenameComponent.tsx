@@ -32,17 +32,17 @@ const RenameComponent: React.FC<RenameProps> = ({ renameFormRef, itemToDelete, s
     {
       isRenameDialogOpen, setIsRenameDialogOpen, selectedContent, setEditingName, isDeleteDialogOpen, setIsDeleteDialogOpen, editingName, deleteFolder, deleteTag, setSelectedContent, renameFolder, renameTag, folders, tags
     } = useBookmarkStore()
-  
-  const handleRename = (e: React.FormEvent) => {
+
+  const handleRename = async (e: React.FormEvent) => {
     e.preventDefault()
     if (editingName.trim() && editingName.trim() !== selectedContent) {
       const folder = folders.find(f => f.name === selectedContent)
       if (folder) {
-        renameFolder(folder.id, editingName.trim())
+        await renameFolder(folder.id, editingName.trim())
       } else {
         const tag = tags.find(t => t.name === selectedContent)
         if (tag) {
-          renameTag(tag.id, editingName.trim())
+          await renameTag(tag.id, editingName.trim())
         }
       }
       setSelectedContent(editingName.trim())

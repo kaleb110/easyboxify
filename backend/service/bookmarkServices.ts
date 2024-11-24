@@ -1,8 +1,8 @@
 import { db } from "../db/index";
 import { Bookmark, BookmarkTag, Tag } from "../db/schema";
-import { eq, inArray } from "drizzle-orm"; // Use inArray for "whereIn" functionality
+import { eq, inArray } from "drizzle-orm";
 
-// Utility to get all columns from the Bookmark table
+// Utility: Columns for returning from queries
 const allBookmarkColumns = {
   id: Bookmark.id,
   title: Bookmark.title,
@@ -13,59 +13,114 @@ const allBookmarkColumns = {
   folderId: Bookmark.folderId,
 };
 
-const allBookmarkTagColumns = {
-  bookmarkId: BookmarkTag.bookmarkId,
-  tagId: BookmarkTag.tagId,
+export const getBookmarks = async () => {
+  // Fetch bookmarks with their associated tags
+  const bookmarksWithTags = await db
+    .select({
+      bookmark: Bookmark,
+      tag: Tag,
+    })
+    .from(Bookmark)
+    .leftJoin(BookmarkTag, eq(Bookmark.id, BookmarkTag.bookmarkId))
+    .leftJoin(Tag, eq(BookmarkTag.tagId, Tag.id));
+
+  // Organize bookmarks and their tags
+  const bookmarksMap = new Map<number, any>();
+
+  for (const { bookmark, tag } of bookmarksWithTags) {
+    if (!bookmarksMap.has(bookmark.id)) {
+      bookmarksMap.set(bookmark.id, { ...bookmark, tags: [] });
+    }
+    if (tag) {
+      bookmarksMap.get(bookmark.id).tags.push(tag);
+    }
+  }
+
+  // Convert map to array
+  return Array.from(bookmarksMap.values());
 };
 
-export const getBookmarks = async () => db.select().from(Bookmark);
+export const getBookmarkById = async (id: number) => {
+  const result = await db
+    .select()
+    .from(Bookmark)
+    .leftJoin(BookmarkTag, eq(Bookmark.id, BookmarkTag.bookmarkId))
+    .leftJoin(Tag, eq(BookmarkTag.tagId, Tag.id))
+    .where(eq(Bookmark.id, id))
+    .limit(1);
 
-export const getBookmarkById = async (id: number) =>
-  db.select().from(Bookmark).where(eq(Bookmark.id, id)).limit(1);
+  if (result.length === 0) return null;
 
-export const createBookmark = async (bookmarkData: any) =>
-  db.insert(Bookmark).values(bookmarkData).returning(allBookmarkColumns);
+  // Extract bookmark and associated tags
+  const bookmark = result[0].bookmark;
+  const tags = result.map(({ tag }) => tag).filter((tag) => tag !== null);
+  return { ...bookmark, tags };
+};
 
-export const updateBookmark = async (id: number, bookmarkData: any) =>
-  db
+// Updated createBookmark function to handle the tags sent from the frontend
+export const createBookmark = async (bookmarkData: any) => {
+  const { tags, ...restBookmarkData } = bookmarkData;
+
+  // Step 1: Create the bookmark without tags first
+  const [createdBookmark] = await db
+    .insert(Bookmark)
+    .values(restBookmarkData)
+    .returning(allBookmarkColumns);
+
+  // Step 2: Associate tags if provided
+  if (tags && tags.length) {
+    const validTags = await db.select().from(Tag).where(inArray(Tag.id, tags));
+
+    if (validTags.length === tags.length) {
+      // Add tag associations to BookmarkTag join table
+      const bookmarkTags = tags.map((tagId: number) => ({
+        bookmarkId: createdBookmark.id,
+        tagId,
+      }));
+      await db.insert(BookmarkTag).values(bookmarkTags);
+    } else {
+      throw new Error("One or more tags not found");
+    }
+  }
+
+  // Fetch the created bookmark with associated tags for confirmation
+  return await getBookmarkById(createdBookmark.id);
+};
+
+export const updateBookmark = async (id: number, bookmarkData: any) => {
+  const { tags, ...restBookmarkData } = bookmarkData;
+
+  // Step 1: Update the bookmark data without tags
+  const [updatedBookmark] = await db
     .update(Bookmark)
-    .set(bookmarkData)
+    .set(restBookmarkData)
     .where(eq(Bookmark.id, id))
     .returning(allBookmarkColumns);
 
-export const deleteBookmark = async (id: number) =>
-  db.delete(Bookmark).where(eq(Bookmark.id, id)).returning(allBookmarkColumns);
+  // Step 2: Update associated tags if provided
+  if (tags && tags.length) {
+    // Remove existing tags for the bookmark
+    await db.delete(BookmarkTag).where(eq(BookmarkTag.bookmarkId, id));
 
-// Service to add tags to a bookmark
-export const addTagsToBookmark = async (
-  bookmarkId: number,
-  tagIds: number[]
-) => {
-  // Ensure bookmarkId exists before proceeding
-  const bookmark = await db
-    .select()
-    .from(Bookmark)
-    .where(eq(Bookmark.id, bookmarkId))
-    .limit(1);
-  if (bookmark.length === 0) {
-    throw new Error(`Bookmark with ID ${bookmarkId} not found`);
+    // Re-associate tags
+    const bookmarkTags = tags.map((tagId: number) => ({
+      bookmarkId: updatedBookmark.id,
+      tagId,
+    }));
+    await db.insert(BookmarkTag).values(bookmarkTags);
   }
 
-  // Ensure tagIds exist before proceeding
-  const tags = await db.select().from(Tag).where(inArray(Tag.id, tagIds)); // Using inArray for "whereIn" functionality
-  if (tags.length !== tagIds.length) {
-    throw new Error("One or more tags not found");
-  }
+  // Fetch the updated bookmark with associated tags
+  return await getBookmarkById(updatedBookmark.id);
+};
 
-  // Insert into BookmarkTag join table
-  const bookmarkTags = tagIds.map((tagId) => ({
-    bookmarkId,
-    tagId,
-  }));
+export const deleteBookmark = async (id: number) => {
+  // Delete associated tags first
+  await db.delete(BookmarkTag).where(eq(BookmarkTag.bookmarkId, id));
 
-  // Insert and return the created entries in BookmarkTag
+  // Delete the bookmark
   return db
-    .insert(BookmarkTag)
-    .values(bookmarkTags)
-    .returning(allBookmarkTagColumns); // Returning the bookmarkId and tagId inserted into the join table
+    .delete(Bookmark)
+    .where(eq(Bookmark.id, id))
+    .returning(allBookmarkColumns);
 };

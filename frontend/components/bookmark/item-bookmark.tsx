@@ -1,5 +1,5 @@
-import React from 'react'
-import { Edit2, Trash2, MoreHorizontal, Globe, FileText } from 'lucide-react'
+import React, { useState } from 'react'
+import { Edit2, Trash2, MoreHorizontal, Globe, FileText, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useBookmarkStore } from '@/store/bookmarkStore'
@@ -20,6 +20,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
 interface BookmarkItemProps {
   bookmark: Bookmark
@@ -29,7 +36,8 @@ interface BookmarkItemProps {
 
 export function BookmarkItem({ bookmark, onEdit, onDelete }: BookmarkItemProps) {
   const { tags } = useBookmarkStore()
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
 
   return (
     <>
@@ -48,10 +56,10 @@ export function BookmarkItem({ bookmark, onEdit, onDelete }: BookmarkItemProps) 
               </a>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.url}</p>
-            {bookmark.notes && (
+            {bookmark.description && (
               <div className="flex items-center space-x-2">
                 <FileText className="h-4 w-4 text-gray-400" />
-                <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.notes}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.description}</p>
               </div>
             )}
             <div className="flex flex-wrap gap-2">
@@ -74,9 +82,14 @@ export function BookmarkItem({ bookmark, onEdit, onDelete }: BookmarkItemProps) 
                   className="ml-2"
                 >
                   <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Open menu</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onEdit(bookmark)}>
                   <Edit2 className="mr-2 h-4 w-4" />
                   Edit
@@ -90,6 +103,7 @@ export function BookmarkItem({ bookmark, onEdit, onDelete }: BookmarkItemProps) 
           </div>
         </div>
       </div>
+
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -109,6 +123,30 @@ export function BookmarkItem({ bookmark, onEdit, onDelete }: BookmarkItemProps) 
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{bookmark.title}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium">URL</h4>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                <a href={bookmark.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  {bookmark.url}
+                </a>
+              </p>
+            </div>
+            {bookmark.description && (
+              <div>
+                <h4 className="text-sm font-medium">Description</h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{bookmark.description}</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

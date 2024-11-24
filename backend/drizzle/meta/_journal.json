@@ -43,6 +43,13 @@
       "when": 1732085286604,
       "tag": "0005_true_revanche",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1732106224308,
+      "tag": "0006_lucky_odin",
+      "breakpoints": true
     }
   ]
 }

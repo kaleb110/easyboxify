@@ -6,8 +6,8 @@ import {
   updateExistingFolder,
   removeFolder,
 } from "../controller/foldersController";
-
 const router = Router();
+
 
 router.get("/", getAllFolders);
 router.get("/:id", getFolder);

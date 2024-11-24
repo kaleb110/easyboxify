@@ -1,11 +1,13 @@
 "use client"
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useEffect } from "react";
-
 interface AuthState {
   isAuthenticated: boolean;
+  authToken: string | null; // Store the token
   setIsAuthenticated: (auth: boolean) => void;
+  setAuthToken: (token: string) => void;
   Logout: () => void;
   checkAuth: () => void;
 }
@@ -16,18 +18,22 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       isAuthenticated:
         typeof window !== "undefined" && !!localStorage.getItem("authToken"),
+      authToken: localStorage.getItem("authToken"), // Store the token here
       setIsAuthenticated: (auth) => set({ isAuthenticated: auth }),
+      setAuthToken: (token) => {
+        localStorage.setItem("authToken", token); // Store the token in localStorage
+        set({ authToken: token });
+      },
       Logout: () => {
         localStorage.removeItem("authToken");
-        set({ isAuthenticated: false });
+        set({ isAuthenticated: false, authToken: null });
       },
       checkAuth: () => {
-        // Check if there's a token in localStorage
         const token = localStorage.getItem("authToken");
         if (token) {
-          set({ isAuthenticated: true });
+          set({ isAuthenticated: true, authToken: token });
         } else {
-          set({ isAuthenticated: false });
+          set({ isAuthenticated: false, authToken: null });
         }
       },
     }),

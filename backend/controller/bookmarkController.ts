@@ -21,6 +21,7 @@ export const getBookmark = async (req: Request, res: Response) => {
 
 export const createNewBookmark = async (req: Request, res: Response) => {
   const bookmark = await createBookmark(req.body);
+  console.log(bookmark);
   res.status(201).json(bookmark);
 };
 
