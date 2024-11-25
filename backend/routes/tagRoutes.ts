@@ -7,11 +7,12 @@ import {
   removeTag,
 } from "../controller/tagsController";
 import { authenticate } from "../middleware/authMiddleware";
+import { enforceTagLimit } from "../middleware/enforceFreeUsersLimit";
 const router = Router();
 
 router.get("/", getAllTags);
 router.get("/:id", getTag);
-router.post("/", authenticate, createNewTag);
+router.post("/", authenticate, enforceTagLimit, createNewTag);
 router.put("/:id", updateExistingTag);
 router.delete("/:id", removeTag);
 

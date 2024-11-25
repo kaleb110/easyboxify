@@ -20,9 +20,11 @@
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.1",
     "express": "^4.21.0",
+    "express-rate-limit": "^7.4.1",
     "express-validator": "^7.2.0",
     "google-auth-library": "^9.15.0",
     "googleapis": "^144.0.0",
+    "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.16",
     "pg": "^8.13.1"

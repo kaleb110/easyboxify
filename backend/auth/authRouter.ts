@@ -1,3 +1,4 @@
+import { limiter } from './../middleware/rateLimiter';
 import { logoutHandler } from './logout';
 import { refreshTokenHandler } from './refreshTokenHandler';
 import express from "express";
@@ -12,6 +13,9 @@ import { authMiddleware } from "./middleware/authMiddleware";
 import { checkRole } from "./middleware/roleMiddleware";
 const authRouter = express.Router();
 
+// rate limiter
+
+authRouter.use(limiter)
 // Auth routes
 authRouter.post("/register", registerHandler);
 authRouter.post("/login", loginHandler);

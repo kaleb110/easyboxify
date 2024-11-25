@@ -51,7 +51,7 @@ const loginHandler = async (req: Request, res: Response) => {
 
     res.send({ token: accessToken });
   } catch (error) {
-    res.status(500).send("An error occurred during login");
+    res.status(500).json({message: "An error occurred during login", error});
   }
 };
 

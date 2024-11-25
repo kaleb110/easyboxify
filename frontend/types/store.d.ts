@@ -31,13 +31,17 @@ interface BookmarkStore {
   editingName: string;
   isRenameDialogOpen: boolean;
   isDeleteDialogOpen: boolean;
+  userName: string;
+  userEmail: string;
 
+  // State setters
+  setUserInfo: () => Promise<void>
   setIsMobile: (isMobile: boolean) => void;
   setSearchTerm: (term: string) => void;
   setEditingName: (name: string) => void;
   setIsRenameDialogOpen: (isOpen: boolean) => void;
   setIsDeleteDialogOpen: (isOpen: boolean) => void;
-  
+
   addFolder: (name: string) => void;
   renameFolder: (id: string, newName: string) => void;
   deleteFolder: (id: string) => void;

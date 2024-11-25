@@ -16,6 +16,7 @@ export const User = pgTable("User", {
   verified: boolean().default(false),
   resetToken: varchar({ length: 255 }),
   resetTokenExpiry: timestamp(),
+  plan: varchar({ length: 10 }).notNull().default("free"),
 });
 
 // Define the relationship for the 'User' table
