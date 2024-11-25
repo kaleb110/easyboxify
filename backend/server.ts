@@ -1,6 +1,8 @@
+import { errorHandler } from "./middleware/errorHandler";
 import express from "express";
 import { PORT } from "./config/config";
 import cors from "cors";
+import helmet from "helmet";
 import dotenv from "dotenv";
 import authRouter from "./auth/authRouter";
 const cookieParser = require("cookie-parser");
@@ -9,8 +11,7 @@ import userRoutes from "./routes/userRoutes";
 import folderRoutes from "./routes/folderRoutes";
 import tagRoutes from "./routes/tagRoutes";
 import bookmarkRoutes from "./routes/bookmarkRoutes";
-import verifyToken from "./middleware/verifyToken"
-
+import verifyToken from "./middleware/verifyToken";
 dotenv.config();
 const app: Application = express();
 app.use(express.json());
@@ -23,6 +24,12 @@ app.use(
   })
 );
 
+// security with helmet
+app.use(helmet());
+
+// global error handler
+app.use(errorHandler);
+
 // authentication routes
 app.use("/auth", authRouter);
 
@@ -31,9 +38,9 @@ app.use("/api/users", userRoutes);
 // verify this routes with token
 app.use(verifyToken);
 
-app.use("/api/folders", folderRoutes);
-app.use("/api/tags", tagRoutes);
-app.use("/api/bookmarks", bookmarkRoutes);
+app.use("/api/folders",  folderRoutes);
+app.use("/api/tags",  tagRoutes);
+app.use("/api/bookmarks",  bookmarkRoutes);
 
 // role based routes
 

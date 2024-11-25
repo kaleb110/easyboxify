@@ -14,10 +14,6 @@ import SidebarComponent from '../custom/SidebarComponent'
 import FilteredBookmark from '../custom/FilteredBookmark'
 
 export const BookmarkingAppContent = () => {
-  // Log to check component rerenders
-  console.log('BookmarkingAppContent rerendered');
-
-
   const {
     isMobile,
     searchTerm,

@@ -22,8 +22,6 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
     }
   }, []);
 
-  console.log('SearchComponent rerendered'); // Debug to check rerender
-
   return (
     <>
       <div className="relative flex-1 max-w-sm">

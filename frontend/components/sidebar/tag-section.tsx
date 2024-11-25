@@ -41,24 +41,37 @@ export function TagSection({ onItemClick }: TagSectionProps) {
     fetchData()
   }, [])
 
-  const handleAddTag = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const form = e.currentTarget
-    const nameInput = form.elements.namedItem('tagName') as HTMLInputElement
+  const handleAddTag = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const nameInput = form.elements.namedItem('tagName') as HTMLInputElement;
 
-    if (tags.some(tag => tag.name.toLowerCase() === nameInput.value.trim().toLowerCase())) {
-      nameInput.setCustomValidity('Tag name already exists')
-      form.reportValidity()
-      return
+    // Check if the tag name is already taken
+    if (tags.some((tag) => tag.name.toLowerCase() === nameInput.value.trim().toLowerCase())) {
+      nameInput.setCustomValidity('Tag name already exists');
+      form.reportValidity();
+      return;
     }
 
-    nameInput.setCustomValidity('')
-    addTag(nameInput.value.trim())
-    setNewTagName('')
-    setIsAddingTag(false)
-    setSelectedContent(nameInput.value.trim())
-    onItemClick()
-  }
+    nameInput.setCustomValidity(''); // Clear any validation errors
+
+    // Add the tag and wait for the result
+    const success = await addTag(nameInput.value.trim()); // Wait for tag to be added
+
+    // Only update the UI if the tag was successfully added
+    if (success) {
+      // Update selected tag only if the tag is added
+      setSelectedContent(nameInput.value.trim());
+      setNewTagName(''); // Clear the tag name input
+      setIsAddingTag(false); // Close the add tag modal/form
+      onItemClick(); // Trigger any additional UI updates or logic
+    }
+
+    setIsAddingTag(false); // Close the tag input modal
+    setNewTagName(''); // Clear the tag name input
+  };
+
+
 
   const handleAddButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();

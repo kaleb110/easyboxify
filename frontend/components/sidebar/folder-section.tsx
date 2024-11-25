@@ -43,25 +43,36 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
     
   }, [])
   
-  console.log(folders);
-  const handleAddFolder = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const form = e.currentTarget
-    const nameInput = form.elements.namedItem('folderName') as HTMLInputElement
+  const handleAddFolder = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const nameInput = form.elements.namedItem('folderName') as HTMLInputElement;
 
-    if (folders.some(folder => folder.name.toLowerCase() === nameInput.value.trim().toLowerCase())) {
-      nameInput.setCustomValidity('Folder name already exists')
-      form.reportValidity()
-      return
+    // Check if the folder name is already taken
+    if (folders.some((folder) => folder.name.toLowerCase() === nameInput.value.trim().toLowerCase())) {
+      nameInput.setCustomValidity('Folder name already exists');
+      form.reportValidity();
+      return;
     }
 
-    nameInput.setCustomValidity('')
-    addFolder(nameInput.value.trim())
-    setNewFolderName('')
-    setIsAddingFolder(false)
-    setSelectedContent(nameInput.value.trim())
-    onItemClick()
-  }
+    nameInput.setCustomValidity('');
+
+    // Add the folder first and wait for the result
+    const success = await addFolder(nameInput.value.trim()); // Wait for folder to be added
+
+    // Only update the UI if the folder was successfully added
+    if (success) {
+      // Update selected folder only if folder is added
+      setSelectedContent(nameInput.value.trim());
+      setNewFolderName(''); // Clear the folder name input
+      setIsAddingFolder(false); // Close the add folder modal/form
+      onItemClick(); // Trigger your item click logic (optional, based on your app flow)
+    }
+
+    setIsAddingFolder(false); // Close the folder input modal
+    setNewFolderName(''); // Clear the folder name input
+  };
+
 
   const handleAddButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();

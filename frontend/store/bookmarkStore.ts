@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axiosClient from "@/util/axiosClient";
 import { BookmarkStore } from "../types/store";
+import { useUIStore } from "./useUiStore";
 
 export const useBookmarkStore = create<BookmarkStore>((set) => ({
   folders: [],
@@ -14,8 +15,30 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
   editingName: "",
   isRenameDialogOpen: false,
   isDeleteDialogOpen: false,
+  userName: "",
+  userEmail: "",
 
   // State setters
+  setUserInfo: async () => {
+    try {
+      const response = await axiosClient.get("/api/users");
+      
+      if (response.status >= 200 && response.status <= 300) {
+        const { name, email } = response.data[0];
+        
+
+        // Set the state using Zustand's set function
+        set({
+          userName: name,
+          userEmail: email,
+        });
+      } else {
+        throw new Error("Failed to fetch user info");
+      }
+    } catch (error) {
+      console.error("Failed to load user info!", error);
+    }
+  },
   setIsMobile: (isMobile) => set({ isMobile }),
   setSearchTerm: (term) => set({ searchTerm: term }),
   setIsRenameDialogOpen: (isOpen) => set({ isRenameDialogOpen: isOpen }),
@@ -87,22 +110,33 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
     }
   },
 
-  addFolder: async (name) => {
-    try {
-      const response = await axiosClient.post("/api/folders", { name });
-      if (response.status >= 200 && response.status < 300) {
-        const newFolder = response.data[0]; // Assuming the backend returns the full folder object
+  // AddFolder function with better error handling
+addFolder: async (name: string): Promise<boolean> => {
+  try {
+    const response = await axiosClient.post("/api/folders", { name });
 
-        set((state) => ({
-          folders: [...state.folders, newFolder],
-        }));
-      } else {
-        throw new Error("Failed to add folder");
-      }
-    } catch (error) {
-      console.error("Error adding folder: ", error);
+    if (response.status >= 200 && response.status < 300) {
+      const newFolder = response.data[0]; // Assuming the backend returns the folder object
+      // Only update the UI when the folder is successfully added
+      set((state) => ({
+        folders: [...state.folders, newFolder],
+      }));
+      return true;
+    } else {
+      throw new Error("Failed to add folder");
     }
-  },
+  } catch (error: any) {
+    // If there is an error (folder limit reached or any backend issue), show error message
+    if (error.response && error.response.data && error.response.data.error) {
+      const errorMessage = error.response.data.error;
+      useUIStore.getState().setErrorMessage(errorMessage); // Set the error message in the store
+      useUIStore.getState().setShowUpgradeModal(true); // Show the upgrade modal
+    } else {
+      console.error("An error occurred:", error);
+    }
+    return false; // Return false on error, so UI doesn't update
+  }
+},
 
   deleteFolder: async (id) => {
     try {
@@ -132,21 +166,32 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
       ),
     })),
 
-  addTag: async (name) => {
-    try {
-      const response = await axiosClient.post("/api/tags", { name });
-      if (response.status >= 200 && response.status < 300) {
-        const newTag = response.data[0]; // Assuming the backend returns the full tag object
-        set((state) => ({
-          tags: [...state.tags, newTag],
-        }));
-      } else {
-        throw new Error("Failed to add tag");
-      }
-    } catch (error) {
-      console.error("Error adding tag: ", error);
+  addTag: async (name: string): Promise<boolean> => {
+  try {
+    const response = await axiosClient.post("/api/tags", { name });
+
+    if (response.status >= 200 && response.status < 300) {
+      const newTag = response.data[0]; // Assuming the backend returns the tag object
+      // Only update the UI when the tag is successfully added
+      set((state) => ({
+        tags: [...state.tags, newTag],
+      }));
+      return true; // Return true to indicate success
+    } else {
+      throw new Error("Failed to add tag");
     }
-  },
+  } catch (error: any) {
+    // If there is an error (tag limit reached or any backend issue), show error message
+    if (error.response && error.response.data && error.response.data.error) {
+      const errorMessage = error.response.data.error;
+      useUIStore.getState().setErrorMessage(errorMessage); // Set the error message in the store
+      useUIStore.getState().setShowUpgradeModal(true); // Show the upgrade modal
+    } else {
+      console.error("An error occurred:", error);
+    }
+    return false; // Return false on error, so UI doesn't update
+  }
+},
 
   renameTag: async (id, newName) => {
     try {
@@ -199,7 +244,6 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
 
       if (response.status >= 200 && response.status <= 300) {
         const bookmarkList = response.data; // Ensure folderList is an array
-        console.log(bookmarkList);
         
         set(() => ({
           bookmarks: bookmarkList, // Replace the old state with the fetched data

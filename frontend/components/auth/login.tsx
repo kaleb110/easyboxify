@@ -55,26 +55,18 @@ export default function LoginPreview() {
     setIsLoading(true);
     try {
       const { email, password } = values;
-      console.log('Submitting login form...', values);
-
-      // Log before API call
-      console.log('Sending login request...');
 
       const response = await axiosClient.post("/auth/login", {
         email,
         password,
       });
 
-      console.log('Login response received:', response);
-
       const { token } = response.data;
 
       // Set token in localStorage
-      console.log('Setting authToken in localStorage...');
       localStorage.setItem("authToken", token);
 
       // Set authenticated state
-      console.log('Updating isAuthenticated state...');
       setIsAuthenticated(true);
 
       toast({
@@ -84,7 +76,6 @@ export default function LoginPreview() {
       });
 
       // Now redirect to the home page
-      console.log('Redirecting to /...');
       router.push("/");
     } catch (error) {
       toast({
