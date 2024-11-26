@@ -15,7 +15,9 @@ import verifyToken from "./middleware/verifyToken";
 import paymentRouter from "./routes/stripe/payment";
 import webhookRouter from "./routes/stripe/stripeWebhook";
 import checkoutRouter from "./routes/stripe/checkout";
-
+import planRouter from "./routes/stripe/planRouter"
+import exportRouter from "./routes/exportRouter"
+import importRouter from "./routes/importRouter"
 dotenv.config();
 const app: Application = express();
 
@@ -53,6 +55,14 @@ app.use(verifyToken);
 app.use("/api/folders", folderRoutes);
 app.use("/api/tags", tagRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
+
+// plan status
+
+app.use("/user/plan", planRouter)
+
+// import export
+app.use("/import", importRouter);
+app.use("/export", exportRouter)
 
 // role based routes
 

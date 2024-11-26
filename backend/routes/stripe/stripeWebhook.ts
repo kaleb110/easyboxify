@@ -1,10 +1,8 @@
-// webhook.ts (Express route)
+// webhook.ts (Extended)
 import express from "express";
 import stripe from "../../util/stripe";
 import Stripe from "stripe";
-import { db } from "../../db";
-import { User } from "../../db/schema";
-import { eq } from "drizzle-orm";
+import {handleCheckoutSessionCompleted, handleInvoicePaymentFailed, handleInvoicePaymentSucceeded, handleSubscriptionCreated, handleSubscriptionDeleted, handleSubscriptionUpdated} from "./webhookUtils"
 const webhookRouter = express.Router();
 
 webhookRouter.post(
@@ -29,38 +27,52 @@ webhookRouter.post(
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    // Your event handling logic here
-    console.log("Webhook event received:", event);
+    // Handle the event based on its type
+    switch (event.type) {
+      case "checkout.session.completed":
+        const session = event.data.object as Stripe.Checkout.Session;
+        // Handle checkout session completion (initial payment)
+        await handleCheckoutSessionCompleted(session);
+        break;
 
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const userId = session.metadata?.userId;
+      case "invoice.payment_succeeded":
+        const invoice = event.data.object as Stripe.Invoice;
+        // Handle successful payment (renewal or initial payment)
+        await handleInvoicePaymentSucceeded(invoice);
+        break;
 
-      if (!userId) {
-        console.error("No userId found in session metadata.");
-        return res.status(400).send("Missing userId in session metadata.");
-      }
+      case "invoice.payment_failed":
+        const failedInvoice = event.data.object as Stripe.Invoice;
+        // Handle failed payment
+        await handleInvoicePaymentFailed(failedInvoice);
+        break;
 
-      try {
-        // Update the user's plan in the database
-        const updated = await db
-          .update(User)
-          .set({ plan: "pro" })
-          .where(eq(User.id, Number(userId)));
+      case "customer.subscription.created":
+        const subscriptionCreated = event.data.object as Stripe.Subscription;
+        // Handle new subscription creation
+        await handleSubscriptionCreated(subscriptionCreated);
+        break;
 
-        if (updated) {
-          console.log(`User ${userId} successfully upgraded to Pro.`);
-        } else {
-          console.error(`Failed to update user ${userId} plan.`);
-        }
-      } catch (dbError) {
-        console.error("Database update error:", dbError);
-        return res.status(500).send("Database error.");
-      }
+      case "customer.subscription.updated":
+        const subscriptionUpdated = event.data.object as Stripe.Subscription;
+        // Handle subscription updates (e.g., plan changes)
+        await handleSubscriptionUpdated(subscriptionUpdated);
+        break;
+
+      case "customer.subscription.deleted":
+        const subscriptionDeleted = event.data.object as Stripe.Subscription;
+        // Handle subscription cancellation
+        await handleSubscriptionDeleted(subscriptionDeleted);
+        break;
+
+      default:
+        console.log(`Unhandled event type ${event.type}`);
     }
 
+    // Acknowledge receipt of the webhook event
     res.json({ received: true });
   }
 );
+
 
 export default webhookRouter;
