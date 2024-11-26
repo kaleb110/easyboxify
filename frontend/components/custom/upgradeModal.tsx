@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, {useState} from 'react'
 import { Sparkles, CheckCircle2, XCircle } from 'lucide-react'
 import { useUIStore } from '@/store/useUiStore'
 import { Button } from "@/components/ui/button"
@@ -13,17 +13,31 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import axiosClient from '@/util/axiosClient'
 
 export function UpgradeModal() {
   const { showUpgradeModal, setShowUpgradeModal, errorMessage } = useUIStore()
-
+  const [isLoading, setIsLoading] = useState(false);
   const handleClose = () => {
     setShowUpgradeModal(false)
   }
 
-  const handleUpgrade = () => {
-    window.location.href = '/upgrade'
-  }
+  const handleCheckout = async () => {
+    setIsLoading(true);
+    try {
+      const { data } = await axiosClient.post("/create-checkout-session", {
+        userId: 18, 
+      });
+
+      // Redirect to the Stripe Checkout page
+      window.location.href = data.url;
+    } catch (error) {
+      console.error("Error redirecting to Stripe Checkout:", error);
+      alert("Failed to initiate payment. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const plans = [
     {
@@ -98,9 +112,9 @@ export function UpgradeModal() {
           <Button variant="outline" onClick={handleClose}>
             Maybe later
           </Button>
-          <Button onClick={handleUpgrade} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+          <Button onClick={handleCheckout} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
             <Sparkles className="mr-2 h-4 w-4" />
-            Upgrade to Pro
+            {isLoading ? "Processing..." : "Upgrade to Pro"}
           </Button>
         </DialogFooter>
       </DialogContent>
