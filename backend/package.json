@@ -15,6 +15,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
+    "cheerio": "^1.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -22,10 +23,13 @@
     "express": "^4.21.0",
     "express-rate-limit": "^7.4.1",
     "express-validator": "^7.2.0",
+    "formidable": "^3.5.2",
     "google-auth-library": "^9.15.0",
     "googleapis": "^144.0.0",
     "helmet": "^8.0.0",
+    "htmlparser2": "^9.1.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
     "pg": "^8.13.1",
     "stripe": "^17.4.0"

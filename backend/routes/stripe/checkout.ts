@@ -1,25 +1,27 @@
+// checkout.ts
 import Router from "express";
 import stripe from "../../util/stripe";
+import dotenv from "dotenv";
+dotenv.config();
 
 const checkoutRouter = Router();
 
 checkoutRouter.post("/", async (req, res) => {
-  const { userId } = req.body; // Assuming the user ID is sent in the request
+  const { userId, planType } = req.body; // Assuming the user ID is sent in the request
+
+  // Use the correct price ID based on the selected plan type
+  const priceId =
+    planType === "yearly"
+      ? process.env.STRIPE_YEARLY_PRICE_ID // Use the yearly price ID
+      : process.env.STRIPE_MONTHLY_PRICE_ID; // Use the monthly price ID
 
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      mode: "payment",
+      mode: "subscription",
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: "Pro Plan",
-              description: "Upgrade to the Pro plan for unlimited features.",
-            },
-            unit_amount: 1000, // $10.00 in cents
-          },
+          price: priceId, // Use the correct Stripe price ID
           quantity: 1,
         },
       ],
