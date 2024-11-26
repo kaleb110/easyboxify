@@ -12,8 +12,16 @@ import folderRoutes from "./routes/folderRoutes";
 import tagRoutes from "./routes/tagRoutes";
 import bookmarkRoutes from "./routes/bookmarkRoutes";
 import verifyToken from "./middleware/verifyToken";
+import paymentRouter from "./routes/stripe/payment";
+import webhookRouter from "./routes/stripe/stripeWebhook";
+import checkoutRouter from "./routes/stripe/checkout";
+
 dotenv.config();
 const app: Application = express();
+
+// payment webhook
+app.use("/webhook", webhookRouter);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -35,12 +43,16 @@ app.use("/auth", authRouter);
 
 app.use("/api/users", userRoutes);
 
+// payment route
+app.use("/create-payment-intent", paymentRouter);
+app.use("/create-checkout-session", checkoutRouter);
+
 // verify this routes with token
 app.use(verifyToken);
 
-app.use("/api/folders",  folderRoutes);
-app.use("/api/tags",  tagRoutes);
-app.use("/api/bookmarks",  bookmarkRoutes);
+app.use("/api/folders", folderRoutes);
+app.use("/api/tags", tagRoutes);
+app.use("/api/bookmarks", bookmarkRoutes);
 
 // role based routes
 

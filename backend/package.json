@@ -27,7 +27,8 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.16",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "stripe": "^17.4.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
