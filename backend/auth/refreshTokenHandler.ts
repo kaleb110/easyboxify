@@ -12,7 +12,7 @@ export const refreshTokenHandler = (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken; // Retrieve from HttpOnly cookie
 
   if (!refreshToken) {
-    return res.status(401).send("Refresh token not provided");
+    return res.status(401).send("Refresh token not provided!");
   }
 
   try {
