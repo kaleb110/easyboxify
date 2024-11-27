@@ -1,6 +1,8 @@
 // refreshTokenHandler.ts
 import { Request, Response } from "express";
 const jwt = require("jsonwebtoken");
+import dotenv from "dotenv";
+dotenv.config();
 
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN;
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
@@ -24,9 +26,25 @@ export const refreshTokenHandler = (req: Request, res: Response) => {
       { expiresIn: TOKEN_EXPIRATION }
     );
 
+    // Generate a new refresh token with a fresh payload and expiration
+    const newRefreshToken = jwt.sign(
+      { userId: decoded.userId, role: decoded.role }, // Fresh payload without exp property
+      REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" } // Specify the expiration for the refresh token
+    );
+
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    });
+
     // Send the new access token to the client
     res.send({ accessToken: newAccessToken });
   } catch (error) {
+    console.log(error);
     return res.status(403).send("Invalid or expired refresh token");
   }
 };
+

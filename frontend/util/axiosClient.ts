@@ -1,11 +1,13 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
+import { log } from "node:console";
 
 const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000", // API base URL
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Ensure cookies are sent with requests
 });
 
 // Request interceptor to include token in headers
@@ -57,7 +59,10 @@ axiosClient.interceptors.response.use(
           {},
           { withCredentials: true }
         );
+        console.log(response);
+        
         const newAccessToken = response.data.accessToken;
+
 
         // Update the access token in your Zustand store
         const { setAuthToken } = useAuthStore.getState();

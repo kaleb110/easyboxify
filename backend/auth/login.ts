@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const ACCESS_TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION;
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN;
 const REFRESH_TOKEN_EXPIRATION = process.env.REFRESH_TOKEN_EXPIRATION;
 
 const loginHandler = async (req: Request, res: Response) => {
@@ -49,9 +49,16 @@ const loginHandler = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
     });
 
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.send({ token: accessToken });
   } catch (error) {
-    res.status(500).json({message: "An error occurred during login", error});
+    res.status(500).json({ message: "An error occurred during login", error });
   }
 };
 
