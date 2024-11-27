@@ -17,6 +17,8 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
   isDeleteDialogOpen: false,
   userName: "",
   userEmail: "",
+  userPlan: "",
+  userStatus: "",
 
   // State setters
   setUserInfo: async () => {
@@ -24,13 +26,15 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
       const response = await axiosClient.get("/api/users");
       
       if (response.status >= 200 && response.status <= 300) {
-        const { name, email } = response.data[0];
+        const { name, email, plan, status } = response.data[0];
         
 
         // Set the state using Zustand's set function
         set({
           userName: name,
           userEmail: email,
+          userPlan: plan,
+          userStatus: status
         });
       } else {
         throw new Error("Failed to fetch user info");
