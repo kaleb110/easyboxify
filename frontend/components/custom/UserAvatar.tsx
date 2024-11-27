@@ -26,7 +26,7 @@ import { useBookmarkStore } from '@/store/bookmarkStore';
 const UserAvatar = () => {
   
   const { Logout } = useAuthStore();
-  const { userName, userEmail, setUserInfo } = useBookmarkStore()
+  const { userName, userEmail, userPlan, setUserInfo } = useBookmarkStore()
   const router = useRouter();
   const { theme, setTheme } = useTheme()
 
@@ -49,6 +49,7 @@ const UserAvatar = () => {
 
   const Name = userName; // Replace with actual user name
   const Email = userEmail; // Replace with actual user email
+  const Plan = userPlan
 
   return (
     <>
@@ -85,7 +86,9 @@ const UserAvatar = () => {
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleUpgradeClick}>
             <Sparkles className="mr-2 h-4 w-4 text-yellow-500" />
-            <span className="font-medium text-yellow-500">Upgrade to Pro</span>
+            {
+              Plan === "free" ? <span className="font-medium text-yellow-500">Upgrade to Pro</span> : <span className="font-medium text-yellow-500">Pro Version</span>
+            }
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuSub>

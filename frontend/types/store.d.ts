@@ -33,9 +33,11 @@ interface BookmarkStore {
   isDeleteDialogOpen: boolean;
   userName: string;
   userEmail: string;
+  userPlan: string;
+  userStatus: string;
 
   // State setters
-  setUserInfo: () => Promise<void>
+  setUserInfo: () => Promise<void>;
   setIsMobile: (isMobile: boolean) => void;
   setSearchTerm: (term: string) => void;
   setEditingName: (name: string) => void;
