@@ -35,6 +35,7 @@ interface BookmarkStore {
   userEmail: string;
   userPlan: string;
   userStatus: string;
+  subscriptionStatus: string;
 
   // State setters
   setUserInfo: () => Promise<void>;

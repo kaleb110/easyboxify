@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Sparkles, CheckCircle2, Zap } from 'lucide-react'
+import { Sparkles, CheckCircle2, Zap, AlertCircle } from 'lucide-react'
 import { useUIStore } from '@/store/useUiStore'
 import { Button } from "@/components/ui/button"
 import {
@@ -18,12 +18,36 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import axiosClient from '@/util/axiosClient'
 import { useBookmarkStore } from '@/store/bookmarkStore'
+import { useToast } from '@/hooks/use-toast'
+
+const plans = [
+  {
+    name: 'Free',
+    features: [
+      'Up to 3 folders',
+      'Up to 3 tags',
+      'Up to 100 bookmarks',
+    ],
+  },
+  {
+    name: 'Pro',
+    features: [
+      'Unlimited folders',
+      'Unlimited tags',
+      'Unlimited bookmarks',
+      'Priority support',
+      'Early access to new features',
+    ],
+  },
+]
 
 export function UpgradeModal() {
+  const { toast } = useToast()
   const { showUpgradeModal, setShowUpgradeModal, errorMessage } = useUIStore()
-  const {userPlan} = useBookmarkStore()
+  const { userPlan, subscriptionStatus } = useBookmarkStore()
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedPlanType, setSelectedPlanType] = useState('monthly') // 'monthly' or 'yearly'
+  const [isCanceling, setIsCanceling] = useState(false)
+  const [selectedPlanType, setSelectedPlanType] = useState('monthly')
 
   const handleClose = () => {
     setShowUpgradeModal(false)
@@ -39,36 +63,99 @@ export function UpgradeModal() {
       window.location.href = data.url
     } catch (error) {
       console.error("Error redirecting to Stripe Checkout:", error)
+      toast({
+        title: "Error",
+        description: "Failed to start checkout process. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleCancelSubscription = async () => {
-    // Implement subscription cancellation logic here
-    alert("Subscription cancellation not implemented yet.")
+    setIsCanceling(true)
+    try {
+      const response = await axiosClient.post("/cancel-subscription", {
+        userId: 18,
+      })
+
+      if (response.data.success) {
+        toast({
+          title: "Subscription Canceled",
+          description: "Your subscription will be canceled at the end of the billing period",
+          variant: "default",
+          duration: 5000,
+        })
+        useBookmarkStore.setState({ subscriptionStatus: 'canceling' })
+        handleClose()
+      } else {
+        throw new Error(response.data.message)
+      }
+    } catch (error) {
+      console.error("Error canceling subscription:", error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to cancel subscription",
+        variant: "destructive",
+        duration: 4000,
+      })
+    } finally {
+      setIsCanceling(false)
+    }
   }
 
-  const plans = [
-    {
-      name: 'Free',
-      features: [
-        'Up to 3 folders',
-        'Up to 3 tags',
-        'Up to 100 bookmarks',
-      ],
-    },
-    {
-      name: 'Pro',
-      features: [
-        'Unlimited folders',
-        'Unlimited tags',
-        'Unlimited bookmarks',
-        'Priority support',
-        'Early access to new features',
-      ],
-    },
-  ]
+  const renderSubscriptionStatus = () => {
+    if (subscriptionStatus === 'canceling') {
+      return (
+        <div className="flex items-center gap-2 text-yellow-500 text-sm mt-4 mb-2">
+          <AlertCircle className="h-4 w-4" />
+          <span>Your subscription will be canceled at the end of the billing period</span>
+        </div>
+      )
+    }
+    return null
+  }
+
+  const renderActionButton = () => {
+    if (userPlan === 'free') {
+      return (
+        <Button
+          onClick={handleCheckout}
+          className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+          disabled={isLoading}
+        >
+          <Sparkles className="mr-2 h-4 w-4" />
+          {isLoading ? "Processing..." : `Upgrade to Pro (${selectedPlanType})`}
+        </Button>
+      )
+    }
+
+    if (subscriptionStatus === 'canceling') {
+      return (
+        <Button
+          variant="outline"
+          className="w-full sm:w-auto"
+          disabled
+        >
+          <AlertCircle className="mr-2 h-4 w-4" />
+          Cancellation Pending
+        </Button>
+      )
+    }
+
+    return (
+      <Button
+        onClick={handleCancelSubscription}
+        variant="destructive"
+        className="w-full sm:w-auto"
+        disabled={isCanceling}
+      >
+        <Zap className="mr-2 h-4 w-4" />
+        {isCanceling ? "Canceling..." : "Cancel Subscription"}
+      </Button>
+    )
+  }
 
   return (
     <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
@@ -81,13 +168,18 @@ export function UpgradeModal() {
           <DialogDescription className="text-sm">
             {userPlan === 'free'
               ? 'Unlock premium features to enhance your experience.'
-              : 'You are currently enjoying all the benefits of our Pro Plan.'}
+              : subscriptionStatus === 'canceling'
+                ? 'Your subscription will remain active until the end of the billing period.'
+                : 'You are currently enjoying all the benefits of our Pro Plan.'}
           </DialogDescription>
         </DialogHeader>
+
         <div className="py-4">
           {errorMessage && (
             <p className="text-red-500 dark:text-red-400 text-sm mb-4">{errorMessage}</p>
           )}
+          {renderSubscriptionStatus()}
+
           <Tabs defaultValue={userPlan === "free" ? "free" : "pro"} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="free">Free Plan</TabsTrigger>
@@ -95,7 +187,11 @@ export function UpgradeModal() {
             </TabsList>
             <div className="md:flex md:space-x-4">
               {plans.map((plan) => (
-                <TabsContent key={plan.name.toLowerCase()} value={plan.name.toLowerCase()} className="mt-0 md:flex-1">
+                <TabsContent
+                  key={plan.name.toLowerCase()}
+                  value={plan.name.toLowerCase()}
+                  className="mt-0 md:flex-1"
+                >
                   <Card>
                     <CardContent className="pt-6">
                       <h3 className={`text-lg font-bold mb-2 ${plan.name === 'Pro' ? 'text-purple-500' : ''}`}>
@@ -118,31 +214,25 @@ export function UpgradeModal() {
               ))}
             </div>
           </Tabs>
-          <div className="flex items-center justify-center space-x-2 mt-6">
-            <Label htmlFor="plan-toggle" className="text-sm font-medium">Monthly</Label>
-            <Switch
-              id="plan-toggle"
-              checked={selectedPlanType === 'yearly'}
-              onCheckedChange={(checked) => setSelectedPlanType(checked ? 'yearly' : 'monthly')}
-            />
-            <Label htmlFor="plan-toggle" className="text-sm font-medium">Yearly (Save 20%)</Label>
-          </div>
+
+          {userPlan === 'free' && (
+            <div className="flex items-center justify-center space-x-2 mt-6">
+              <Label htmlFor="plan-toggle" className="text-sm font-medium">Monthly</Label>
+              <Switch
+                id="plan-toggle"
+                checked={selectedPlanType === 'yearly'}
+                onCheckedChange={(checked) => setSelectedPlanType(checked ? 'yearly' : 'monthly')}
+              />
+              <Label htmlFor="plan-toggle" className="text-sm font-medium">Yearly (Save 20%)</Label>
+            </div>
+          )}
         </div>
+
         <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-end">
           <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
             {userPlan === 'free' ? 'Maybe later' : 'Close'}
           </Button>
-          {userPlan === 'free' ? (
-            <Button onClick={handleCheckout} className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-              <Sparkles className="mr-2 h-4 w-4" />
-              {isLoading ? "Processing..." : `Upgrade to Pro (${selectedPlanType})`}
-            </Button>
-          ) : (
-            <Button onClick={handleCancelSubscription} variant="destructive" className="w-full sm:w-auto">
-              <Zap className="mr-2 h-4 w-4" />
-              Cancel Subscription
-            </Button>
-          )}
+          {renderActionButton()}
         </DialogFooter>
       </DialogContent>
     </Dialog>

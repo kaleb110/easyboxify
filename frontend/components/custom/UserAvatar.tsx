@@ -43,6 +43,10 @@ const UserAvatar = () => {
     router.replace('/auth/login'); // Redirect to login page after logout
   };
 
+  const handleSetting = () => {
+    router.push("/setting")
+  };
+
   const handleUpgradeClick = () => {
     useUIStore.getState().setShowUpgradeModal(true); // Show the upgrade modal
   };
@@ -75,7 +79,7 @@ const UserAvatar = () => {
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={handleSetting}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>

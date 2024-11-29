@@ -1,15 +1,23 @@
-// webhook.ts (Extended)
 import express from "express";
 import stripe from "../../util/stripe";
 import Stripe from "stripe";
-import {handleCheckoutSessionCompleted, handleInvoicePaymentFailed, handleInvoicePaymentSucceeded, handleSubscriptionCreated, handleSubscriptionDeleted, handleSubscriptionUpdated} from "./webhookUtils"
+import {
+  handleCheckoutSessionCompleted,
+  handleInvoicePaymentFailed,
+  handleInvoicePaymentSucceeded,
+  handleSubscriptionCreated,
+  handleSubscriptionDeleted,
+  handleSubscriptionUpdated,
+  handleCustomerCreated,
+} from "./webhookUtils";
+
 const webhookRouter = express.Router();
 
 webhookRouter.post(
   "/",
-  express.raw({ type: "application/json" }), // This is critical for Stripe webhooks
+  express.raw({ type: "application/json" }),
   async (req, res) => {
-    const sig = req.headers["stripe-signature"]; // This is the token header from Stripe
+    const sig = req.headers["stripe-signature"];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
     let event: Stripe.Event;
@@ -20,59 +28,72 @@ webhookRouter.post(
     }
 
     try {
-      // Verify webhook signature using the raw body
       event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
     } catch (err) {
       console.error("Webhook signature verification failed:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    // Handle the event based on its type
-    switch (event.type) {
-      case "checkout.session.completed":
-        const session = event.data.object as Stripe.Checkout.Session;
-        // Handle checkout session completion (initial payment)
-        await handleCheckoutSessionCompleted(session);
-        break;
+    try {
+      let response;
 
-      case "invoice.payment_succeeded":
-        const invoice = event.data.object as Stripe.Invoice;
-        // Handle successful payment (renewal or initial payment)
-        await handleInvoicePaymentSucceeded(invoice);
-        break;
+      switch (event.type) {
+        case "customer.created":
+          response = await handleCustomerCreated(
+            event.data.object as Stripe.Customer
+          );
+          break;
 
-      case "invoice.payment_failed":
-        const failedInvoice = event.data.object as Stripe.Invoice;
-        // Handle failed payment
-        await handleInvoicePaymentFailed(failedInvoice);
-        break;
+        case "checkout.session.completed":
+          const session = event.data.object as Stripe.Checkout.Session;
+          response = await handleCheckoutSessionCompleted(session);
+          break;
 
-      case "customer.subscription.created":
-        const subscriptionCreated = event.data.object as Stripe.Subscription;
-        // Handle new subscription creation
-        await handleSubscriptionCreated(subscriptionCreated);
-        break;
+        case "customer.subscription.created":
+          response = await handleSubscriptionCreated(
+            event.data.object as Stripe.Subscription
+          );
+          break;
 
-      case "customer.subscription.updated":
-        const subscriptionUpdated = event.data.object as Stripe.Subscription;
-        // Handle subscription updates (e.g., plan changes)
-        await handleSubscriptionUpdated(subscriptionUpdated);
-        break;
+        case "customer.subscription.updated":
+          response = await handleSubscriptionUpdated(
+            event.data.object as Stripe.Subscription
+          );
+          break;
 
-      case "customer.subscription.deleted":
-        const subscriptionDeleted = event.data.object as Stripe.Subscription;
-        // Handle subscription cancellation
-        await handleSubscriptionDeleted(subscriptionDeleted);
-        break;
+        case "customer.subscription.deleted":
+          response = await handleSubscriptionDeleted(
+            event.data.object as Stripe.Subscription
+          );
+          break;
 
-      default:
-        console.log(`Unhandled event type ${event.type}`);
+        case "invoice.payment_succeeded":
+          response = await handleInvoicePaymentSucceeded(
+            event.data.object as Stripe.Invoice
+          );
+          break;
+
+        case "invoice.payment_failed":
+          response = await handleInvoicePaymentFailed(
+            event.data.object as Stripe.Invoice
+          );
+          break;
+
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+          return res.json({ received: true, message: "Unhandled event type" });
+      }
+
+      if (!response?.success) {
+        console.error(`Error processing ${event.type}:`, response?.error);
+      }
+
+      res.json({ received: true, success: response?.success });
+    } catch (error) {
+      console.error("Webhook processing error:", error);
+      res.status(200).json({ received: true, success: false });
     }
-
-    // Acknowledge receipt of the webhook event
-    res.json({ received: true });
   }
 );
-
 
 export default webhookRouter;

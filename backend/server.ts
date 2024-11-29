@@ -18,6 +18,7 @@ import checkoutRouter from "./routes/stripe/checkout";
 import planRouter from "./routes/stripe/planRouter"
 import exportRouter from "./routes/exportRouter"
 import importRouter from "./routes/importRouter"
+import cancelSubscriptionRouter from "./routes/stripe/cancelSubscription"
 dotenv.config();
 
 const app: Application = express();
@@ -44,12 +45,12 @@ app.use(errorHandler);
 // authentication routes
 app.use("/auth", authRouter);
 
-app.use("/api/users", userRoutes);
+app.use("/api/user", userRoutes);
 
 // payment route
 app.use("/create-payment-intent", paymentRouter);
 app.use("/create-checkout-session", checkoutRouter);
-
+app.use("/cancel-subscription", cancelSubscriptionRouter);
 // verify this routes with token
 app.use(verifyToken);
 

@@ -5,6 +5,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  changeUserPassword,
 } from "../service/userServices";
 
 // export const getAllUsers = async (req: Request, res: Response) => {
@@ -25,10 +26,18 @@ export const createNewUser = async (req: Request, res: Response) => {
 };
 
 export const updateExistingUser = async (req: Request, res: Response) => {
-  const user = await updateUser(Number(req.params.id), req.body);
+  const userId = req.userId
+  const user = await updateUser(Number(userId), req.body);
   if (!user) return res.status(404).send("User not found");
   res.json(user);
 };
+
+export const changePassword = async (req: Request, res: Response) => {
+  const userId = req.userId
+  const user = await changeUserPassword(Number(userId), req.body);
+  if (!user) return res.status(404).send("Can not change password!");
+  res.json("Password changed successfully!");
+}
 
 export const removeUser = async (req: Request, res: Response) => {
   const user = await deleteUser(Number(req.params.id));
