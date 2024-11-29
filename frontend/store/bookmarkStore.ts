@@ -2,6 +2,7 @@ import { create } from "zustand";
 import axiosClient from "@/util/axiosClient";
 import { BookmarkStore } from "../types/store";
 import { useUIStore } from "./useUiStore";
+import { log } from "node:console";
 
 export const useBookmarkStore = create<BookmarkStore>((set) => ({
   folders: [],
@@ -19,14 +20,18 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
   userEmail: "",
   userPlan: "",
   userStatus: "",
+  subscriptionStatus: "",
 
   // State setters
   setUserInfo: async () => {
     try {
-      const response = await axiosClient.get("/api/users");
+      const response = await axiosClient.get("/api/user");
       
       if (response.status >= 200 && response.status <= 300) {
-        const { name, email, plan, status } = response.data[0];
+        const { name, email, plan, status, subscriptionStatus } =
+          response.data[0];
+        // console.log(response.data[0]);
+        
         
 
         // Set the state using Zustand's set function
@@ -34,7 +39,8 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
           userName: name,
           userEmail: email,
           userPlan: plan,
-          userStatus: status
+          userStatus: status,
+          subscriptionStatus: subscriptionStatus,
         });
       } else {
         throw new Error("Failed to fetch user info");

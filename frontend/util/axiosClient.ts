@@ -1,7 +1,5 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
-import { log } from "node:console";
-
 const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000", // API base URL
   headers: {
