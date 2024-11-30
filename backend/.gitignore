@@ -9,3 +9,4 @@ node_modules/
 /prisma/generated/
 .vercel
 uploads/
+config/service-account.json

@@ -1,6 +1,6 @@
 import Stripe from "stripe";
-import { db } from "../../db";
-import { User } from "../../db/schema";
+import { db } from "../db";
+import { User } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 interface WebhookResponse {

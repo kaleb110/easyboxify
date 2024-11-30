@@ -1,12 +1,10 @@
 // checkout.ts
-import Router from "express";
-import stripe from "../../util/stripe";
+import stripe from "../../config/stripe";
 import dotenv from "dotenv";
+import { Request, Response } from "express";
 dotenv.config();
 
-const checkoutRouter = Router();
-
-checkoutRouter.post("/", async (req, res) => {
+const checkoutController = async (req: Request, res: Response) => {
   const { userId, planType } = req.body; // Assuming the user ID is sent in the request
 
   // Use the correct price ID based on the selected plan type
@@ -35,6 +33,6 @@ checkoutRouter.post("/", async (req, res) => {
     console.error("Error creating checkout session:", error);
     res.status(500).send("Internal Server Error");
   }
-});
+};
 
-export default checkoutRouter;
+export default checkoutController;

@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-import { db } from "../db";
-import { User } from "../db/schema";
+import { db } from "../../db";
+import { User } from "../../db/schema";
 import { eq } from "drizzle-orm";
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;

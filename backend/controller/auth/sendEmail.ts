@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer");
 import { google } from "googleapis";
 import dotenv from "dotenv";
 dotenv.config();

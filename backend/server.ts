@@ -4,7 +4,7 @@ import { PORT } from "./config/config";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import authRouter from "./auth/authRouter";
+import authRouter from "./routes/authRouter";
 const cookieParser = require("cookie-parser");
 import { Application } from "express";
 import userRoutes from "./routes/userRoutes";
@@ -12,13 +12,10 @@ import folderRoutes from "./routes/folderRoutes";
 import tagRoutes from "./routes/tagRoutes";
 import bookmarkRoutes from "./routes/bookmarkRoutes";
 import verifyToken from "./middleware/verifyToken";
-import paymentRouter from "./routes/stripe/payment";
-import webhookRouter from "./routes/stripe/stripeWebhook";
-import checkoutRouter from "./routes/stripe/checkout";
-import planRouter from "./routes/stripe/planRouter"
-import exportRouter from "./routes/exportRouter"
-import importRouter from "./routes/importRouter"
-import cancelSubscriptionRouter from "./routes/stripe/cancelSubscription"
+import webhookRouter from "./routes/stripe/webhookRouter";
+import exportRouter from "./routes/exportRouter";
+import importRouter from "./routes/importRouter";
+import stripeRouter from "./routes/stripe/stripeRouter";
 dotenv.config();
 
 const app: Application = express();
@@ -45,12 +42,12 @@ app.use(errorHandler);
 // authentication routes
 app.use("/auth", authRouter);
 
+// user routes
 app.use("/api/user", userRoutes);
 
 // payment route
-app.use("/create-payment-intent", paymentRouter);
-app.use("/create-checkout-session", checkoutRouter);
-app.use("/cancel-subscription", cancelSubscriptionRouter);
+app.use("/", stripeRouter);
+
 // verify this routes with token
 app.use(verifyToken);
 
@@ -58,13 +55,9 @@ app.use("/api/folders", folderRoutes);
 app.use("/api/tags", tagRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
 
-// plan status
-
-app.use("/user/plan", planRouter)
-
 // import export
 app.use("/import", importRouter);
-app.use("/export", exportRouter)
+app.use("/export", exportRouter);
 
 // role based routes
 

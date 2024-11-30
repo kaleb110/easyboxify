@@ -1,12 +1,11 @@
-import { Router } from "express";
-import stripe from "../../util/stripe";
+import {  Request, Response } from "express";
+import stripe from "../../config/stripe";
 import { db } from "../../db";
 import { User } from "../../db/schema";
 import { eq } from "drizzle-orm";
 
-const cancelSubscriptionRouter = Router();
 
-cancelSubscriptionRouter.post("/", async (req, res) => {
+const cancelSubscriptionController = async (req: Request, res: Response) => {
   const { userId } = req.body;
 
   try {
@@ -51,13 +50,13 @@ cancelSubscriptionRouter.post("/", async (req, res) => {
       cancelAt: subscription.cancel_at,
       subscriptionStatus: updatedUser[0].subscriptionStatus,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error canceling subscription:", error);
     res.status(500).json({
       error: "Failed to cancel subscription",
       message: error.message,
     });
   }
-});
+};
 
-export default cancelSubscriptionRouter;
+export default cancelSubscriptionController;

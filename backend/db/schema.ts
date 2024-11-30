@@ -17,7 +17,6 @@ export const User = pgTable("User", {
   resetToken: varchar({ length: 255 }),
   resetTokenExpiry: timestamp(),
   plan: varchar({ length: 10 }).notNull().default("free"),
-  status: varchar({ length: 25 }),
   stripeCustomerId: varchar({ length: 255 }),
   subscriptionId: varchar({ length: 255 }),
   subscriptionStatus: varchar({ length: 25 }),
