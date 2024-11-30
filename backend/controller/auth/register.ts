@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken")
-import { db } from "../db";
-import { User } from "../db/schema";
+const jwt = require("jsonwebtoken");
+import { db } from "../../db";
+import { User } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { sendVerificationEmail } from "./sendEmail";
 
@@ -11,7 +11,9 @@ const registerHandler = async (req: Request, res: Response) => {
     const { name, email, password, role } = req.body;
 
     if (!name || !email || !password || !role) {
-      return res.status(400).send("Name, Email, password, and role are required");
+      return res
+        .status(400)
+        .send("Name, Email, password, and role are required");
     }
 
     const existingUserResult = await db

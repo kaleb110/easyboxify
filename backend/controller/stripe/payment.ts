@@ -1,10 +1,8 @@
 // payment.ts (Express route)
-import stripe from "../../util/stripe";
-import { Router } from "express";
+import stripe from "../../config/stripe";
+import { Request, Response } from "express";
 
-const paymentRouter = Router();
-
-paymentRouter.post("/", async (req, res) => {
+const paymentController = async (req: Request, res: Response) => {
   const { userId, amount } = req.body; // User ID and payment amount (e.g., for a Pro subscription)
 
   try {
@@ -18,9 +16,9 @@ paymentRouter.post("/", async (req, res) => {
     res.status(200).send({
       clientSecret: paymentIntent.client_secret, // Return the client secret to the frontend
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
-});
+};
 
-export default paymentRouter;
+export default paymentController;

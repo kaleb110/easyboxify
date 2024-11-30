@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 const jwt = require("jsonwebtoken");
-import { db } from "../db";
-import { User } from "../db/schema";
+import { db } from "../../db";
+import { User } from "../../db/schema";
 import { eq } from "drizzle-orm";
 
 const verifyEmailHandler = async (req: Request, res: Response) => {
