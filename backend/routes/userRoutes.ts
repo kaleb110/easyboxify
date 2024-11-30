@@ -6,7 +6,7 @@ import {
   removeUser,
   changePassword,
 } from "../controller/userController";
-import verifyToken from "../middleware/verifyToken";
+import {verifyToken} from "../middleware/authMiddleware";
 const router = Router();
 
 // router.get("/", getAllUsers);

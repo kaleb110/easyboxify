@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 const jwt = require("jsonwebtoken")
+import dotenv from "dotenv"
+dotenv.config()
 
 // Middleware to verify JWT and extract user information
 export const authenticate = (
@@ -19,33 +21,35 @@ export const authenticate = (
   }
 };
 
-// Middleware to check user role
-export const authorizeRole = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).send("Access Denied: Insufficient Role");
+export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers["authorization"]?.split(" ")[1]; // "Bearer <token>"
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err: any, decoded: string) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid or expired token" });
     }
+
+    req.userId = decoded.userId; // Extract userId from the token and attach to the request
     next();
-  };
+  });
+};
+ /**
+ * Generates a secure JWT token with expiration
+ * @param payload - The payload to encode in the token
+ * @param expiresIn - Token expiration time
+ */
+export const generateToken = (payload: object, expiresIn: string | number) => {
+  return jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn });
 };
 
-// Middleware to check user permissions
-export const authorizePermission = (permission: string) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const userPermissions = getUserPermissions(req.user.role);
-    if (!userPermissions.includes(permission)) {
-      return res.status(403).send("Access Denied: Insufficient Permissions");
-    }
-    next();
-  };
+/**
+ * Verifies the JWT token
+ * @param token - The token to verify
+ */
+export const verifyJwtToken = (token: string) => {
+  return jwt.verify(token, process.env.JWT_SECRET_KEY);
 };
-
-// Sample function to get permissions based on role
-function getUserPermissions(role: string): string[] {
-  const rolePermissions = {
-    admin: ["view_dashboard", "manage_users", "create_post", "delete_post"],
-    user: ["view_dashboard", "create_post"],
-    editor: ["view_dashboard", "edit_post", "create_post"],
-  };
-  return rolePermissions[role] || [];
-}

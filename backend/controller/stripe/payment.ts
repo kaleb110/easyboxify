@@ -2,7 +2,7 @@
 import stripe from "../../config/stripe";
 import { Request, Response } from "express";
 
-const paymentController = async (req: Request, res: Response) => {
+const paymentIntentController = async (req: Request, res: Response) => {
   const { userId, amount } = req.body; // User ID and payment amount (e.g., for a Pro subscription)
 
   try {
@@ -21,4 +21,4 @@ const paymentController = async (req: Request, res: Response) => {
   }
 };
 
-export default paymentController;
+export default paymentIntentController;

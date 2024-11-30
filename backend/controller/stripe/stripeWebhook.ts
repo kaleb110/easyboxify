@@ -9,7 +9,7 @@ import {
   handleSubscriptionDeleted,
   handleSubscriptionUpdated,
   handleCustomerCreated,
-} from "../../util/webhookUtils";
+} from "./webhookHandlers";
 
 const webhookController = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"];

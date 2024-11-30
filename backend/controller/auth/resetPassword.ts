@@ -1,4 +1,4 @@
-import { generateToken, verifyToken } from "./../../util/authUtils";
+import { generateToken, verifyJwtToken } from "../../middleware/authMiddleware";
 import { Request, Response } from "express";
 const bcrypt = require("bcryptjs");
 import { db } from "../../db";
@@ -51,7 +51,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
 
   try {
     // Verify the token using the utility function
-    const decoded: any = verifyToken(token);
+    const decoded: any = verifyJwtToken(token);
     const userResult = await db
       .select()
       .from(User)
