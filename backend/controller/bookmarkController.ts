@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+// TODO: check on the import addTagsToBookmark
 import {
   getBookmarks,
   getBookmarkById,

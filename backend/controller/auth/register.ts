@@ -43,7 +43,7 @@ const registerHandler = async (req: Request, res: Response) => {
     res.send(
       "Registration successful. Check your email to verify your account."
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error during registration:", error.message);
     res.status(500).send("An error occurred during registration");
   }

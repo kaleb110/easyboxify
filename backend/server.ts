@@ -11,7 +11,7 @@ import userRoutes from "./routes/userRoutes";
 import folderRoutes from "./routes/folderRoutes";
 import tagRoutes from "./routes/tagRoutes";
 import bookmarkRoutes from "./routes/bookmarkRoutes";
-import verifyToken from "./middleware/verifyToken";
+import { verifyToken } from "./middleware/authMiddleware";
 import webhookRouter from "./routes/stripe/webhookRouter";
 import exportRouter from "./routes/exportRouter";
 import importRouter from "./routes/importRouter";
@@ -20,7 +20,7 @@ dotenv.config();
 
 const app: Application = express();
 
-// payment webhook
+// payment webhook: does not be parsed
 app.use("/webhook", webhookRouter);
 
 app.use(express.json());
@@ -55,12 +55,13 @@ app.use("/api/folders", folderRoutes);
 app.use("/api/tags", tagRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
 
-// import export
+// import export bookmarks
 app.use("/import", importRouter);
 app.use("/export", exportRouter);
 
-// role based routes
+// TODO: add role based routes here...
 
+// server listening on port 5000
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}/api`);
 });

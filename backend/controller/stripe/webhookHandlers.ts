@@ -1,6 +1,6 @@
 import Stripe from "stripe";
-import { db } from "../db";
-import { User } from "../db/schema";
+import { db } from "../../db";
+import { User } from "../../db/schema";
 import { eq } from "drizzle-orm";
 
 interface WebhookResponse {
@@ -283,6 +283,7 @@ export async function handleInvoicePaymentSucceeded(
   }
 }
 
+// TODO: check on this function
 // Function to handle failed payments
 export async function handleInvoicePaymentFailed(
   invoice: Stripe.Invoice
