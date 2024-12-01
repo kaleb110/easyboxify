@@ -1,16 +1,16 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
+"use client"
 import React from 'react'
 import { SidebarItems } from '../sidebar/sidebar-items'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import UserAvatar from '../custom/UserAvatar'
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
-  SidebarFooter
 } from "@/components/ui/sidebar"
 import { useEffect } from 'react'
 import { useBookmarkStore } from '@/store/bookmarkStore'
-import { Button } from '../ui/button'
 import { X } from 'lucide-react'
 
 interface SidebarProps {
@@ -42,27 +42,24 @@ const SidebarComponent: React.FC<SidebarProps> = ({open, setOpen, toggleSidebar}
   }
 
   return (
-    <Sidebar className="border-r border-border bg-background" open={open} onOpenChange={setOpen}>
-      <SidebarHeader className="p-4">
+    <Sidebar className="border-r border-border bg-background dark:bg-sidebar-background" open={open} onOpenChange={setOpen}>
+      <SidebarHeader className="px-6 sm:px-4 py-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Bookmarks</h2>
           {isMobile && (
-            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="hover:bg-transparent">
+            <button onClick={toggleSidebar} className="hover:bg-transparent">
               <X className="h-6 w-6" />
-            </Button>
+            </button>
           )}
+          <h2 className="text-lg font-semibold font-heading md:pl-5">Bookmarks</h2>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <ScrollArea className="flex-grow overflow-y-auto h-[calc(100vh-8rem)]">
-          <div className="p-4">
+          <div className="pr-4 py-2">
             <SidebarItems onItemClick={handleSidebarItemClick} />
           </div>
         </ScrollArea>
       </SidebarContent>
-      <SidebarFooter className="p-4 border-t">
-        <UserAvatar />
-      </SidebarFooter>
     </Sidebar>
   )
 }

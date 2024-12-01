@@ -3,13 +3,17 @@ import { db } from "../db";
 import { Folder, Tag, Bookmark, User } from "../db/schema";
 import { eq, count } from "drizzle-orm";
 
+interface AuthenticatedRequest extends Request {
+  userId?: string;
+}
+
 // Middleware to enforce folder limit for free users
 export const enforceFolderLimit = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.userId; // Assuming userId is extracted from the token
+  const userId = Number(req.userId); // Assuming userId is extracted from the token
   const userResult = await db
     .select()
     .from(User)
@@ -38,11 +42,11 @@ export const enforceFolderLimit = async (
 
 // Middleware to enforce tag limit for free users
 export const enforceTagLimit = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.userId; // Assuming userId is extracted from the token
+  const userId = Number(req.userId); // Assuming userId is extracted from the token
   const userResult = await db
     .select()
     .from(User)
@@ -71,11 +75,11 @@ export const enforceTagLimit = async (
 
 // Middleware to enforce bookmark limit for free users
 export const enforceBookmarkLimit = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.userId; // Assuming userId is extracted from the token
+  const userId = Number(req.userId); // Assuming userId is extracted from the token
   const userResult = await db
     .select()
     .from(User)

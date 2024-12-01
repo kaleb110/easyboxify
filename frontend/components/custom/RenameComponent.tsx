@@ -42,7 +42,7 @@ const RenameComponent: React.FC<RenameProps> = ({ renameFormRef, itemToDelete, s
       } else {
         const tag = tags.find(t => t.name === selectedContent)
         if (tag) {
-          await renameTag(tag.id, editingName.trim())
+          await renameTag(tag.id.toString(), editingName.trim())
         }
       }
       setSelectedContent(editingName.trim())

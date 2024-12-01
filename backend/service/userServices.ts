@@ -55,3 +55,21 @@ export const changeUserPassword = async (id: number, data: any) => {
 
 export const deleteUser = async (id: number) =>
   db.delete(User).where(eq(User.id, id)).returning(allUserColumns);
+
+export const getSortPreferenceService = async (id: number) => {
+  const sortPreference = await db.select().from(User).where(eq(User.id, id));
+  return sortPreference[0].sortPreference;
+};
+
+export const setSortPreferenceService = async (id: number, sortPreference: string) => {
+  await db.update(User).set({ sortPreference }).where(eq(User.id, id));
+};
+
+export const getLayoutPreferenceService = async (id: number) => {
+  const layoutPreference = await db.select().from(User).where(eq(User.id, id));
+  return layoutPreference[0].layoutPreference;
+};
+
+export const setLayoutPreferenceService = async (id: number, layoutPreference: string) => {
+  await db.update(User).set({ layoutPreference }).where(eq(User.id, id));
+};

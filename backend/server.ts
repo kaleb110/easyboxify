@@ -16,6 +16,7 @@ import webhookRouter from "./routes/stripe/webhookRouter";
 import exportRouter from "./routes/exportRouter";
 import importRouter from "./routes/importRouter";
 import stripeRouter from "./routes/stripe/stripeRouter";
+import deleteDataRoutes from "./routes/deleteDataRouter";
 dotenv.config();
 
 const app: Application = express();
@@ -54,6 +55,7 @@ app.use(verifyToken);
 app.use("/api/folders", folderRoutes);
 app.use("/api/tags", tagRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
+app.use("/api/delete-data", deleteDataRoutes);
 
 // import export bookmarks
 app.use("/import", importRouter);

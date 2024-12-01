@@ -29,6 +29,7 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
     addFolder,
     setSelectedContent,
     toggleFolderCollapse,
+    selectedContent
   } = useBookmarkStore()
   const [newFolderName, setNewFolderName] = useState('')
   const [isAddingFolder, setIsAddingFolder] = useState(false)
@@ -56,21 +57,15 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
     }
 
     nameInput.setCustomValidity('');
-
-    // Add the folder first and wait for the result
-    const success = await addFolder(nameInput.value.trim()); // Wait for folder to be added
-
-    // Only update the UI if the folder was successfully added
-    if (success) {
-      // Update selected folder only if folder is added
+    try {
+      await addFolder(nameInput.value.trim());
       setSelectedContent(nameInput.value.trim());
-      setNewFolderName(''); // Clear the folder name input
-      setIsAddingFolder(false); // Close the add folder modal/form
-      onItemClick(); // Trigger your item click logic (optional, based on your app flow)
+      setNewFolderName('');
+      setIsAddingFolder(false);
+      onItemClick();
+    } catch (error) {
+      console.error('Failed to add folder:', error);
     }
-
-    setIsAddingFolder(false); // Close the folder input modal
-    setNewFolderName(''); // Clear the folder name input
   };
 
 
@@ -93,8 +88,8 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
           <CollapsibleTrigger asChild>
             <Button variant="ghost" className="w-full justify-start p-2 hover:bg-accent hover:text-accent-foreground">
               <ChevronRight className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`} />
-              <FolderClosed className="mr-2 h-5 w-5 text-indigo-500" />
-              <span className="text-lg font-semibold">Folders</span>
+              <FolderClosed className="mr-2 h-5 w-5 text-indigo-500 font-body" />
+              <span className="text-lg font-semibold font-body">Folders</span>
             </Button>
           </CollapsibleTrigger>
           <Button variant="ghost" size="icon" onClick={handleAddButtonClick} className="hover:bg-accent hover:text-accent-foreground">
@@ -108,7 +103,7 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
                 <CollapsibleTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start py-1 px-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                    className={`w-full justify-start py-1 px-2 text-sm hover:bg-accent hover:text-accent-foreground font-body ${selectedContent === folder.name ? 'bg-accent' : ''}`}
                     onClick={() => {
                       toggleFolderCollapse(folder.id)
                       setSelectedContent(folder.name)

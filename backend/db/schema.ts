@@ -13,6 +13,8 @@ export const User = pgTable("User", {
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar().notNull(),
   role: varchar().notNull().default("user"),
+  sortPreference: varchar({ length: 10 }).default("nameAZ"),
+  layoutPreference: varchar({ length: 10 }).default("card"),
   verified: boolean().default(false),
   resetToken: varchar({ length: 255 }),
   resetTokenExpiry: timestamp(),

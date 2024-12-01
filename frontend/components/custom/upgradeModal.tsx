@@ -19,6 +19,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import axiosClient from '@/util/axiosClient'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useToast } from '@/hooks/use-toast'
+import { AxiosError } from 'axios'
+
+interface ErrorResponse {
+  error: string;
+}
 
 const plans = [
   {
@@ -92,11 +97,12 @@ export function UpgradeModal() {
       } else {
         throw new Error(response.data.message)
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<ErrorResponse>;
       console.error("Error canceling subscription:", error)
       toast({
         title: "Error",
-        description: error.message || "Failed to cancel subscription",
+        description: axiosError.message || "Failed to cancel subscription",
         variant: "destructive",
         duration: 4000,
       })

@@ -3,7 +3,6 @@
 import React, { useState, useRef } from 'react'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { AddBookmarkModal } from './add-bookmark-modal'
-import { Button } from '@/components/ui/button'
 import { Menu } from 'lucide-react'
 import {
   useSidebar
@@ -34,11 +33,11 @@ export const BookmarkingAppContent = () => {
       <SidebarComponent toggleSidebar={toggleSidebar} open={open} setOpen={setOpen} />
 
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between p-4 border-b border-border">
+        <header className="flex items-center justify-between pl-4 pr-2 py-1 border-b border-border">
           {isMobile && (
-            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
+            <button onClick={toggleSidebar} className="mr-2">
               <Menu className="h-6 w-6" />
-            </Button>
+            </button>
           )}
           <div className="flex justify-between items-center w-full">
             {/* search component */}

@@ -63,6 +63,7 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
     if (
       !user ||
       user.resetToken !== token ||
+      !user.resetTokenExpiry ||
       new Date() > new Date(user.resetTokenExpiry)
     ) {
       return res.status(400).send("Invalid or expired reset token");
