@@ -18,7 +18,7 @@ interface SidebarItemsProps {
 }
 
 export function SidebarItems({ onItemClick }: SidebarItemsProps) {
-  const { setSelectedContent } = useBookmarkStore()
+  const { setSelectedContent, selectedContent } = useBookmarkStore()
 
   const handleItemClick = (content: string) => {
     setSelectedContent(content)
@@ -33,9 +33,12 @@ export function SidebarItems({ onItemClick }: SidebarItemsProps) {
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => handleItemClick('All Bookmarks')}
+                className={`${selectedContent === 'All Bookmarks' ? 'bg-accent' : ''}`}
               >
-                <BookOpen className="mr-2 h-5 w-5 text-blue-500" />
-                All Bookmarks
+                <div className="flex items-center pl-4">
+                  <BookOpen className="mr-2 h-5 w-5 text-blue-500 font-body" />
+                  <span>All Bookmarks</span>
+                </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

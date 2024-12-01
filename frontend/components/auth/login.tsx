@@ -120,7 +120,7 @@ export default function LoginPreview() {
   }, [searchParams, toast])
 
   return (
-    <div className="flex flex-col min-h-[50vh] h-full w-full items-center justify-center px-4">
+    <div className="flex flex-col min-h-screen w-full items-center justify-center px-4">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
@@ -130,7 +130,7 @@ export default function LoginPreview() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" autoComplete='on'>
               <div className="grid gap-4">
                 <FormField
                   control={form.control}
@@ -143,7 +143,7 @@ export default function LoginPreview() {
                           id="email"
                           placeholder="johndoe@mail.com"
                           type="email"
-                          autoComplete="email"
+                          autoComplete="email" 
                           {...field}
                         />
                       </FormControl>

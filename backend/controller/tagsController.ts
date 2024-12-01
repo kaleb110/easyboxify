@@ -7,7 +7,11 @@ import {
   deleteTagById,
 } from "../service/tagServices";
 
-export const getAllTags = async (req: Request, res: Response) => {
+interface AuthenticatedRequest extends Request {
+  userId?: string;
+}
+
+export const getAllTags = async (req: AuthenticatedRequest, res: Response) => {
   const tags = await getTags();
   res.json(tags);
 };
@@ -18,7 +22,7 @@ export const getTag = async (req: Request, res: Response) => {
   res.json(tag);
 };
 
-export const createNewTag = async (req: Request, res: Response) => {
+export const createNewTag = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.userId;
   const { name } = req.body;
 

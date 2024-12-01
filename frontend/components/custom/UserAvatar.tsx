@@ -18,7 +18,6 @@ import {
   DropdownMenuRadioItem,
 } from '@/components/ui/dropdown-menu';
 import { User, Settings, HelpCircle, LogOut, Moon, Sun, Laptop, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUIStore } from '@/store/useUiStore';
 import { useBookmarkStore } from '@/store/bookmarkStore';
@@ -26,7 +25,7 @@ import { useBookmarkStore } from '@/store/bookmarkStore';
 const UserAvatar = () => {
   
   const { Logout } = useAuthStore();
-  const { userName, userEmail, userPlan, setUserInfo } = useBookmarkStore()
+  const { userName, userPlan, setUserInfo } = useBookmarkStore()
   const router = useRouter();
   const { theme, setTheme } = useTheme()
 
@@ -52,31 +51,22 @@ const UserAvatar = () => {
   };
 
   const Name = userName; // Replace with actual user name
-  const Email = userEmail; // Replace with actual user email
   const Plan = userPlan
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="w-full justify-start p-2 hover:bg-accent hover:text-accent-foreground">
-            <div className="flex items-center w-full">
-              <Avatar className="h-10 w-10 mr-3">
-                <AvatarImage src="/placeholder-avatar.jpg" alt={Name} />
-                <AvatarFallback>{Name?.split(' ').map(n => n[0]).join('').toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col items-start">
-                <span className="text-sm font-medium">{Name}</span>
-                <span className="text-xs text-muted-foreground">{Email}</span>
-              </div>
-            </div>
-          </Button>
+          <Avatar className="h-10 w-10 mr-3 hover:cursor-pointer">
+            <AvatarImage src="/placeholder-avatar.jpg" alt={Name} />
+            <AvatarFallback>{Name?.split(' ').map(n => n[0]).join('').toUpperCase()}</AvatarFallback>
+          </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
+            <User className="mr-2 h-3.5 w-3.5" />
             <span>Profile</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleSetting}>

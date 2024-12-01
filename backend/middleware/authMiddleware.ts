@@ -2,10 +2,17 @@ import { NextFunction, Request, Response } from "express";
 const jwt = require("jsonwebtoken")
 import dotenv from "dotenv"
 dotenv.config()
+interface AuthenticatedRequest extends Request {
+  userId?: string;
+}
+
+interface JwtPayload {
+  userId: string;
+}
 
 // Middleware to verify JWT and extract user information
 export const authenticate = (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -13,7 +20,7 @@ export const authenticate = (
   if (!token) return res.status(401).send("Access Denied: No Token Provided");
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY) as JwtPayload;
     req.userId = decoded.userId; // Attach user information to the request object
     next();
   } catch (err) {
@@ -21,14 +28,14 @@ export const authenticate = (
   }
 };
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+export const verifyToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const token = req.headers["authorization"]?.split(" ")[1]; // "Bearer <token>"
 
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET_KEY, (err: any, decoded: string) => {
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err: any, decoded: JwtPayload) => {
     if (err) {
       return res.status(403).json({ message: "Invalid or expired token" });
     }

@@ -5,7 +5,7 @@ export interface Folder {
 }
 
 export interface Tag {
-  id: string;
+  id: number;
   name: string;
 }
 
@@ -14,8 +14,9 @@ export interface Bookmark {
   title: string;
   url: string;
   folderId: string | null;
-  tags: string[];
-  notes: string;
+  tags: Tag[];
+  description: string;
+  createdAt: string;
 }
 
 interface BookmarkStore {
@@ -38,6 +39,10 @@ interface BookmarkStore {
   subscriptionStatus: string;
 
   // State setters
+  getSortPreference: () => Promise<string>;
+  setSortPreference: (sortPreference: string) => Promise<void>;
+  getLayoutPreference: () => Promise<string>;
+  setLayoutPreference: (layoutPreference: string) => Promise<void>;
   setUserInfo: () => Promise<void>;
   setIsMobile: (isMobile: boolean) => void;
   setSearchTerm: (term: string) => void;
@@ -45,6 +50,9 @@ interface BookmarkStore {
   setIsRenameDialogOpen: (isOpen: boolean) => void;
   setIsDeleteDialogOpen: (isOpen: boolean) => void;
 
+  fetchFolders: () => Promise<void>;
+  fetchBookmark: () => Promise<void>;
+  fetchTags: () => Promise<void>;
   addFolder: (name: string) => void;
   renameFolder: (id: string, newName: string) => void;
   deleteFolder: (id: string) => void;

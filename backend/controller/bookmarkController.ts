@@ -6,8 +6,12 @@ import {
   createBookmark,
   updateBookmark,
   deleteBookmark,
-  addTagsToBookmark,
+  // addTagsToBookmark,
 } from "../service/bookmarkServices";
+
+interface AuthenticatedRequest extends Request {
+  userId?: string;
+}
 
 export const getAllBookmarks = async (req: Request, res: Response) => {
   const bookmarks = await getBookmarks();
@@ -20,7 +24,7 @@ export const getBookmark = async (req: Request, res: Response) => {
   res.json(bookmark);
 };
 
-export const createNewBookmark = async (req: Request, res: Response) => {
+export const createNewBookmark = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.userId;
 
   if (!userId) {
@@ -28,8 +32,8 @@ export const createNewBookmark = async (req: Request, res: Response) => {
   }
 
   try {
-    const bookmark = await createBookmark({ userId, ...req.body }); 
-    res.status(201).json(bookmark); 
+    const bookmark = await createBookmark({ userId, ...req.body });
+    res.status(201).json(bookmark);
   } catch (error) {
     res.status(500).send("Error creating folder");
   }
@@ -47,8 +51,8 @@ export const removeBookmark = async (req: Request, res: Response) => {
   res.json(bookmark);
 };
 
-export const addTags = async (req: Request, res: Response) => {
-  const { bookmarkId, tagIds } = req.body;
-  const result = await addTagsToBookmark(bookmarkId, tagIds);
-  res.json(result);
-};
+// export const addTags = async (req: Request, res: Response) => {
+//   const { bookmarkId, tagIds } = req.body;
+//   const result = await addTagsToBookmark(bookmarkId, tagIds);
+//   res.json(result);
+// };

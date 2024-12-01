@@ -2,7 +2,11 @@ import { create } from "zustand";
 import axiosClient from "@/util/axiosClient";
 import { BookmarkStore } from "../types/store";
 import { useUIStore } from "./useUiStore";
-import { log } from "node:console";
+import { AxiosError } from "axios";
+
+interface ErrorResponse {
+  error: string;
+}
 
 export const useBookmarkStore = create<BookmarkStore>((set) => ({
   folders: [],
@@ -22,17 +26,54 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
   userStatus: "",
   subscriptionStatus: "",
 
+  getSortPreference: async () => {
+    try {
+      const response = await axiosClient.get("/api/user/sort-preference");
+      console.log(response.data.sortPreference);
+      return response.data.sortPreference;
+    } catch (error) {
+      console.error("Error fetching sort preference:", error);
+      return "nameAZ"; // Default sort preference
+    }
+  },
+
+  setSortPreference: async (sortPreference: string) => {
+    try {
+      await axiosClient.post("/api/user/sort-preference", { sortPreference });
+    } catch (error) {
+      console.error("Error setting sort preference:", error);
+    }
+  },
+
+  getLayoutPreference: async () => {
+    try {
+      const response = await axiosClient.get("/api/user/layout-preference");
+      return response.data.layoutPreference;
+    } catch (error) {
+      console.error("Error fetching layout preference:", error);
+      return "card"; // Default layout preference
+    }
+  },
+
+  setLayoutPreference: async (layoutPreference: string) => {
+    try {
+      await axiosClient.post("/api/user/layout-preference", {
+        layoutPreference,
+      });
+    } catch (error) {
+      console.error("Error setting layout preference:", error);
+    }
+  },
+
   // State setters
   setUserInfo: async () => {
     try {
       const response = await axiosClient.get("/api/user");
-      
+
       if (response.status >= 200 && response.status <= 300) {
         const { name, email, plan, status, subscriptionStatus } =
           response.data[0];
         // console.log(response.data[0]);
-        
-        
 
         // Set the state using Zustand's set function
         set({
@@ -121,32 +162,33 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
   },
 
   // AddFolder function with better error handling
-addFolder: async (name: string): Promise<boolean> => {
-  try {
-    const response = await axiosClient.post("/api/folders", { name });
+  addFolder: async (name: string): Promise<boolean> => {
+    try {
+      const response = await axiosClient.post("/api/folders", { name });
 
-    if (response.status >= 200 && response.status < 300) {
-      const newFolder = response.data[0]; // Assuming the backend returns the folder object
-      // Only update the UI when the folder is successfully added
-      set((state) => ({
-        folders: [...state.folders, newFolder],
-      }));
-      return true;
-    } else {
-      throw new Error("Failed to add folder");
+      if (response.status >= 200 && response.status < 300) {
+        const newFolder = response.data[0]; // Assuming the backend returns the folder object
+        // Only update the UI when the folder is successfully added
+        set((state) => ({
+          folders: [...state.folders, newFolder],
+        }));
+        return true;
+      } else {
+        throw new Error("Failed to add folder");
+      }
+    } catch (error: unknown) {
+      // If there is an error (folder limit reached or any backend issue), show error message
+      const axiosError = error as AxiosError<ErrorResponse>;
+      if (axiosError.response && axiosError.response.data && axiosError.response.data.error) {
+        const errorMessage = axiosError.response.data.error;
+        useUIStore.getState().setErrorMessage(errorMessage); // Set the error message in the store
+        useUIStore.getState().setShowUpgradeModal(true); // Show the upgrade modal
+      } else {
+        console.error("An error occurred:", error);
+      }
+      return false; // Return false on error, so UI doesn't update
     }
-  } catch (error: any) {
-    // If there is an error (folder limit reached or any backend issue), show error message
-    if (error.response && error.response.data && error.response.data.error) {
-      const errorMessage = error.response.data.error;
-      useUIStore.getState().setErrorMessage(errorMessage); // Set the error message in the store
-      useUIStore.getState().setShowUpgradeModal(true); // Show the upgrade modal
-    } else {
-      console.error("An error occurred:", error);
-    }
-    return false; // Return false on error, so UI doesn't update
-  }
-},
+  },
 
   deleteFolder: async (id) => {
     try {
@@ -177,31 +219,32 @@ addFolder: async (name: string): Promise<boolean> => {
     })),
 
   addTag: async (name: string): Promise<boolean> => {
-  try {
-    const response = await axiosClient.post("/api/tags", { name });
+    try {
+      const response = await axiosClient.post("/api/tags", { name });
 
-    if (response.status >= 200 && response.status < 300) {
-      const newTag = response.data[0]; // Assuming the backend returns the tag object
-      // Only update the UI when the tag is successfully added
-      set((state) => ({
-        tags: [...state.tags, newTag],
-      }));
-      return true; // Return true to indicate success
-    } else {
-      throw new Error("Failed to add tag");
+      if (response.status >= 200 && response.status < 300) {
+        const newTag = response.data[0]; // Assuming the backend returns the tag object
+        // Only update the UI when the tag is successfully added
+        set((state) => ({
+          tags: [...state.tags, newTag],
+        }));
+        return true; // Return true to indicate success
+      } else {
+        throw new Error("Failed to add tag");
+      }
+    } catch (error: unknown) {
+      // If there is an error (tag limit reached or any backend issue), show error message
+      const axiosError = error as AxiosError<ErrorResponse>;
+      if (axiosError.response && axiosError.response.data && axiosError.response.data.error) {
+        const errorMessage = axiosError.response.data.error;
+        useUIStore.getState().setErrorMessage(errorMessage); // Set the error message in the store
+        useUIStore.getState().setShowUpgradeModal(true); // Show the upgrade modal
+      } else {
+        console.error("An error occurred:", error);
+      }
+      return false; // Return false on error, so UI doesn't update
     }
-  } catch (error: any) {
-    // If there is an error (tag limit reached or any backend issue), show error message
-    if (error.response && error.response.data && error.response.data.error) {
-      const errorMessage = error.response.data.error;
-      useUIStore.getState().setErrorMessage(errorMessage); // Set the error message in the store
-      useUIStore.getState().setShowUpgradeModal(true); // Show the upgrade modal
-    } else {
-      console.error("An error occurred:", error);
-    }
-    return false; // Return false on error, so UI doesn't update
-  }
-},
+  },
 
   renameTag: async (id, newName) => {
     try {
@@ -214,10 +257,10 @@ addFolder: async (name: string): Promise<boolean> => {
         // If the API call is successful, update the state
         set((state) => ({
           tags: state.tags.map((tag) =>
-            tag.id === id ? { ...tag, name: newName } : tag
+            tag.id === Number(id) ? { ...tag, name: newName } : tag
           ),
           selectedContent:
-            state.selectedContent === state.tags.find((t) => t.id === id)?.name
+            state.selectedContent === state.tags.find((t) => t.id === Number(id))?.name
               ? newName
               : state.selectedContent,
         }));
@@ -234,9 +277,9 @@ addFolder: async (name: string): Promise<boolean> => {
       const response = await axiosClient.delete(`/api/tags/${id}`);
       if (response.status >= 200 && response.status < 300) {
         set((state) => ({
-          tags: state.tags.filter((tag) => tag.id !== id),
+          tags: state.tags.filter((tag) => tag.id !== Number(id)),
           bookmarks: state.bookmarks.filter(
-            (bookmark) => !bookmark.tags.includes(id)
+            (bookmark) => !bookmark.tags.map((t) => t.id).includes(Number(id))
           ),
           selectedContent: "All Bookmarks",
         }));
@@ -254,7 +297,7 @@ addFolder: async (name: string): Promise<boolean> => {
 
       if (response.status >= 200 && response.status <= 300) {
         const bookmarkList = response.data; // Ensure folderList is an array
-        
+
         set(() => ({
           bookmarks: bookmarkList, // Replace the old state with the fetched data
         }));

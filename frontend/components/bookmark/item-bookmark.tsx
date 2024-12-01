@@ -29,79 +29,132 @@ import {
 
 interface BookmarkItemProps {
   bookmark: Bookmark
+  layout?: 'card' | 'list'
   onEdit: (bookmark: Bookmark) => void
   onDelete: (id: string) => void
 }
 
-export function BookmarkItem({ bookmark, onEdit, onDelete }: BookmarkItemProps) {
+export function BookmarkItem({ bookmark, layout, onEdit, onDelete }: BookmarkItemProps) {
   const { tags } = useBookmarkStore()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  console.log(bookmark);
+  
+
+  const renderCardLayout = () => (
+    <div className="group p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800">
+      <div className="flex items-start space-x-4">
+        <div className="flex-grow space-y-2">
+          {/* title */}
+          <div className="flex items-center space-x-2">
+            <Globe className="h-4 w-4 text-blue-500" />
+            <a
+              href={bookmark.url}
+              className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline bookmark-title"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {bookmark.title}
+            </a>
+          </div>
+          {/* url */}
+          <p className="font-mono text-sm text-muted-foreground bookmark-url break-all overflow-hidden text-ellipsis max-w-[calc(100%-1rem)]">
+            {bookmark.url}
+          </p>
+          {/* description */}
+          {bookmark.description && (
+            <div className="flex items-center space-x-2">
+              <div><FileText className="h-4 w-4 text-gray-400" /></div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.description.slice(0, 60)}</p>
+            </div>
+          )}
+          {/* tags */}
+          <div className="flex flex-wrap gap-2">
+            {bookmark.tags.map((tagId) => {
+              const tag = tags.find(t => t.id === tagId?.id)
+              
+              return tag ? (
+                <Badge key={tag.id} variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  {tag.name}
+                </Badge>
+              ) : null
+            })}
+          </div>
+        </div>
+
+        <div className="flex items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="ml-2"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+                <Eye className="mr-2 h-4 w-4" />
+                View
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(bookmark)}>
+                <Edit2 className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 dark:text-red-400">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderListLayout = () => (
+    <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+      <a
+        href={bookmark.url}
+        className="text-blue-600 dark:text-blue-400 hover:underline bookmark-title"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {bookmark.title}
+      </a>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+            <Eye className="mr-2 h-4 w-4" />
+            View
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onEdit(bookmark)}>
+            <Edit2 className="mr-2 h-4 w-4" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 dark:text-red-400">
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  )
 
   return (
     <>
-      <div className="group p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800">
-        <div className="flex items-start space-x-4">
-          <div className="flex-grow space-y-2">
-            <div className="flex items-center space-x-2">
-              <Globe className="h-4 w-4 text-blue-500" />
-              <a
-                href={bookmark.url}
-                className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {bookmark.title}
-              </a>
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.url}</p>
-            {bookmark.description && (
-              <div className="flex items-center space-x-2">
-                <div><FileText className="h-4 w-4 text-gray-400" /></div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.description.slice(0, 60)}</p>
-              </div>
-            )}
-            <div className="flex flex-wrap gap-2">
-              {bookmark.tags.map((tagId) => {
-                const tag = tags.find(t => t.id === tagId)
-                return tag ? (
-                  <Badge key={tagId} variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                    {tag.name}
-                  </Badge>
-                ) : null
-              })}
-            </div>
-          </div>
-          <div className="flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="ml-2"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  View
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit(bookmark)}>
-                  <Edit2 className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 dark:text-red-400">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </div>
+      {layout === 'card' ? renderCardLayout() : renderListLayout()}
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
@@ -143,9 +196,24 @@ export function BookmarkItem({ bookmark, onEdit, onDelete }: BookmarkItemProps) 
                 <p className="text-sm text-gray-500 dark:text-gray-400">{bookmark.description}</p>
               </div>
             )}
+            <h4 className="text-sm font-medium">Tags</h4>
+            <div className="flex flex-wrap gap-2">
+              {bookmark.tags.map((tagId) => {
+                const tag = tags.find(t => t.id === tagId?.id)
+                console.log(tag);
+
+                return tag ? (
+                  <Badge key={tag.id} variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    {tag.name}
+                  </Badge>
+                ) : null
+              })}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
     </>
   )
 }
+
+export default BookmarkItem

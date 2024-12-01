@@ -1,13 +1,17 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { db } from "../db";
 import { Bookmark, Folder } from "../db/schema";
 import { eq } from "drizzle-orm";
 
+interface AuthenticatedRequest extends Request {
+  userId?: string;
+}
+
 const exportRouter = express.Router();
 
 // Export endpoint to generate HTML file of bookmarks and folders
-exportRouter.get("/", async (req, res) => {
-  const userId = req.userId;
+exportRouter.get("/", async (req: AuthenticatedRequest, res: Response) => {
+  const userId = Number(req.userId);
 
   try {
     // Fetch folders and associated bookmarks from the database

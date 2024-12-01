@@ -19,9 +19,15 @@ import {
 } from "@/components/ui/dialog"
 import { useToast } from '@/hooks/use-toast';
 import axiosClient from '@/util/axiosClient';
+import UserAvatar from './UserAvatar';
+import { AxiosError } from 'axios';
 interface SearchProps {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
+}
+
+interface ErrorResponse {
+  error: string;
 }
 
 const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSearchTerm }) => {
@@ -54,7 +60,6 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
       return;
     }
 
-    // Validate file type
     if (!selectedFile.type.includes('html')) {
       toast({
         title: "Invalid file type",
@@ -64,7 +69,6 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
       return;
     }
 
-    // Validate file size (2MB limit)
     if (selectedFile.size > 2 * 1024 * 1024) {
       toast({
         title: "File too large",
@@ -79,29 +83,29 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await axiosClient.post("/import", formData, {
+      await axiosClient.post("/import", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      await fetchFolders()
-      await fetchBookmark()
+      await fetchFolders();
+      await fetchBookmark();
 
       toast({
         title: "Success",
         description: "Bookmarks imported successfully!",
       });
 
-      // Close dialog and reset file
       setIsDialogOpen(false);
       setSelectedFile(null);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<ErrorResponse>;
       console.error("Import error:", error);
       toast({
         title: "Import failed",
-        description: error.response?.data?.message || "An error occurred while importing bookmarks.",
+        description: axiosError.response?.data?.error || "An error occurred while importing bookmarks.",
         variant: "destructive",
       });
     } finally {
@@ -130,10 +134,11 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
         title: "Success",
         description: "Bookmarks exported successfully",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<ErrorResponse>;
       toast({
         title: "Export failed",
-        description: error.response?.data?.message || "Failed to export bookmarks",
+        description: axiosError.response?.data?.error || "Failed to export bookmarks",
         variant: "destructive",
       });
     } finally {
@@ -142,114 +147,136 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
   };
 
   return (
-    <>
-      <div className="flex items-center w-full max-w-3xl">
-        <div className="relative flex-1 max-w-sm">
+    <div className='w-full py-2'>
+      <div className="flex items-center justify-between gap-x-4 max-w-[1400px] mx-auto">
+        {/* Search Bar */}
+        <div className="relative w-full max-w-[400px] lg:max-w-[370px]">
           <Input
             ref={inputRef}
-            placeholder="Search bookmarks..."
+            placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full"
+            className="h-8 pl-8 pr-8 text-sm bg-background/60 backdrop-blur-sm"
           />
           <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={18}
+            className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+            size={16}
           />
           {searchTerm && (
             <Button
               variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              size="sm"
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 hover:bg-background/80"
               onClick={() => setSearchTerm('')}
             >
-              <X className="h-4 w-4" />
+              <X className="h-6 w-6" size={28} />
             </Button>
           )}
         </div>
 
-        <div className='flex gap-2 ml-4'>
-          <Button
-            onClick={() => {
-              setEditingBookmark(null);
-              setIsAddBookmarkModalOpen(true);
-            }}
-            size="icon"
-            variant="outline"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
+        {/* Actions Group */}
+        <div className='flex items-center gap-x-2'>
+          {/* Add Button Group */}
+          <div className="flex items-center">
+            <Button
+              onClick={() => {
+                setEditingBookmark(null);
+                setIsAddBookmarkModalOpen(true);
+              }}
+              size="sm"
+              className="rounded-r-none px-2.5 h-8 text-sm"
+            >
+              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              <span className="hidden sm:inline">Add</span>
+            </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                size="icon"
-                variant="outline"
-                disabled={isLoading}
-              >
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  className="rounded-l-none border-l border-border/50 px-1.5 h-8"
+                  disabled={isLoading}
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem
-                onClick={() => setIsDialogOpen(true)}
-                className="flex items-center p-2"
-                disabled={isLoading}
-              >
-                <Import className="mr-2 h-4 w-4" />
-                <span className="flex-1">Import Bookmarks</span>
-              </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem
+                  onClick={() => setIsDialogOpen(true)}
+                  className="flex items-center py-1.5 px-2.5 cursor-pointer text-sm"
+                  disabled={isLoading}
+                >
+                  <Import className="mr-2 h-3.5 w-3.5" />
+                  <span>Import</span>
+                </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onClick={handleExport}
-                disabled={isLoading}
-                className="flex items-center p-2"
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                <span className="flex-1">Export Bookmarks</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <DropdownMenuItem
+                  onClick={handleExport}
+                  disabled={isLoading}
+                  className="flex items-center py-1.5 px-2.5 cursor-pointer text-sm"
+                >
+                  <Upload className="mr-2 h-3.5 w-3.5" />
+                  <span>Export</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* User Avatar */}
+          <UserAvatar  />
         </div>
       </div>
 
+      {/* Import Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Import Bookmarks</DialogTitle>
+            <DialogTitle className="text-lg font-semibold">
+              Import Bookmarks
+            </DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="flex flex-col gap-4">
-              <Button
-                onClick={() => document.getElementById('file-upload')?.click()}
-                variant="outline"
-              >
-                Choose File
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept=".html"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </Button>
-              {selectedFile && (
-                <p className="text-sm text-muted-foreground">
-                  Selected: {selectedFile.name}
-                </p>
+
+          <div className="flex flex-col gap-4 py-4">
+            <Button
+              onClick={() => document.getElementById('file-upload')?.click()}
+              variant="outline"
+              className="w-full h-20 flex flex-col gap-1"
+            >
+              <Upload className="h-5 w-5 mb-1" />
+              <span>Choose File</span>
+              <input
+                id="file-upload"
+                type="file"
+                accept=".html"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </Button>
+
+            {selectedFile && (
+              <p className="text-sm text-muted-foreground text-center">
+                Selected: {selectedFile.name}
+              </p>
+            )}
+
+            <Button
+              onClick={handleFileUpload}
+              disabled={isLoading || !selectedFile}
+              className="w-full"
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="animate-spin">⏳</span> Uploading...
+                </span>
+              ) : (
+                "Upload"
               )}
-              <Button
-                onClick={handleFileUpload}
-                disabled={isLoading || !selectedFile}
-              >
-                {isLoading ? "Uploading..." : "Upload"}
-              </Button>
-            </div>
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 });
 

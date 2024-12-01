@@ -28,6 +28,7 @@ export function TagSection({ onItemClick }: TagSectionProps) {
     addTag,
     fetchTags,
     setSelectedContent,
+    selectedContent
   } = useBookmarkStore()
   const [newTagName, setNewTagName] = useState('')
   const [isAddingTag, setIsAddingTag] = useState(false)
@@ -55,20 +56,15 @@ export function TagSection({ onItemClick }: TagSectionProps) {
 
     nameInput.setCustomValidity(''); // Clear any validation errors
 
-    // Add the tag and wait for the result
-    const success = await addTag(nameInput.value.trim()); // Wait for tag to be added
-
-    // Only update the UI if the tag was successfully added
-    if (success) {
-      // Update selected tag only if the tag is added
+    try {
+      await addTag(nameInput.value.trim());
       setSelectedContent(nameInput.value.trim());
-      setNewTagName(''); // Clear the tag name input
-      setIsAddingTag(false); // Close the add tag modal/form
-      onItemClick(); // Trigger any additional UI updates or logic
+      setNewTagName('');
+      setIsAddingTag(false);
+      onItemClick();
+    } catch (error) {
+      console.error('Failed to add tag:', error);
     }
-
-    setIsAddingTag(false); // Close the tag input modal
-    setNewTagName(''); // Clear the tag name input
   };
 
 
@@ -105,7 +101,7 @@ export function TagSection({ onItemClick }: TagSectionProps) {
             <div key={tag.id} className="flex items-center">
               <Button
                 variant="ghost"
-                className="w-full justify-start py-1 px-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                className={`w-full justify-start py-1 px-2 text-sm hover:bg-accent hover:text-accent-foreground font-body ${selectedContent === tag.name ? 'bg-accent' : ''}`}
                 onClick={() => {
                   setSelectedContent(tag.name)
                   onItemClick()

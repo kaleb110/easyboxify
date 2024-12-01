@@ -43,7 +43,10 @@ export const getBookmarks = async () => {
 
 export const getBookmarkById = async (id: number) => {
   const result = await db
-    .select()
+    .select({
+      bookmark: Bookmark, 
+      tag: Tag,
+    })
     .from(Bookmark)
     .leftJoin(BookmarkTag, eq(Bookmark.id, BookmarkTag.bookmarkId))
     .leftJoin(Tag, eq(BookmarkTag.tagId, Tag.id))

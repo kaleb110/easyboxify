@@ -7,7 +7,11 @@ import {
   deleteFolderById,
 } from "../service/folderServices";
 
-export const getAllFolders = async (req: Request, res: Response) => {
+interface AuthenticatedRequest extends Request {
+  userId?: string;
+}
+
+export const getAllFolders = async (req: AuthenticatedRequest, res: Response) => {
   const folders = await getFolders();
   res.json(folders);
 };
@@ -18,8 +22,8 @@ export const getFolder = async (req: Request, res: Response) => {
   res.json(folder);
 };
 
-export const createNewFolder = async (req: Request, res: Response) => {
-  const  userId  = req.userId;
+export const createNewFolder = async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.userId;
   const { name } = req.body;
 
   if (!userId) {

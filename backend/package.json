@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/multer": "^1.4.12",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0",
     "cookie-parser": "^1.4.7",
