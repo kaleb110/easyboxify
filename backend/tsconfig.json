@@ -13,6 +13,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "baseUrl": ".",
+    "types": ["node", "express"],
     "paths": {
       "*": ["node_modules/*"]
     }
