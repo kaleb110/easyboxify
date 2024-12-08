@@ -16,8 +16,7 @@
     "typeRoots": ["node_modules/@types"],
     "types": [
       "node",
-      "express",
-      "cors",
+      "express"
     ],
     "paths": {
       "*": ["node_modules/*"]
