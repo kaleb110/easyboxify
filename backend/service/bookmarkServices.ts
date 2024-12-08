@@ -12,6 +12,16 @@ const allBookmarkColumns = {
   userId: Bookmark.userId,
   folderId: Bookmark.folderId,
 };
+
+const parseDate = (dateString?: string): Date | undefined => {
+  if (!dateString) return undefined;
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid date format: ${dateString}`);
+  }
+  return date;
+};
+
 // Fetch bookmarks with associated tags, sorted by creation date
 export const getBookmarks = async () => {
   // Fetch bookmarks with their associated tags, ordered by createdAt (descending)
@@ -44,7 +54,7 @@ export const getBookmarks = async () => {
 export const getBookmarkById = async (id: number) => {
   const result = await db
     .select({
-      bookmark: Bookmark, 
+      bookmark: Bookmark,
       tag: Tag,
     })
     .from(Bookmark)
@@ -65,10 +75,16 @@ export const getBookmarkById = async (id: number) => {
 export const createBookmark = async (bookmarkData: any) => {
   const { tags, ...restBookmarkData } = bookmarkData;
 
+  // Parse timestamp fields
+  const bookmarkWithTimestamp = {
+    ...restBookmarkData,
+    createdAt: parseDate(bookmarkData.createdAt) || new Date(), // Default to current date if not provided
+  };
+
   // Step 1: Create the bookmark without tags first
   const [createdBookmark] = await db
     .insert(Bookmark)
-    .values(restBookmarkData)
+    .values(bookmarkWithTimestamp)
     .returning(allBookmarkColumns);
 
   // Step 2: Associate tags if provided
@@ -94,10 +110,16 @@ export const createBookmark = async (bookmarkData: any) => {
 export const updateBookmark = async (id: number, bookmarkData: any) => {
   const { tags, ...restBookmarkData } = bookmarkData;
 
+  // Parse timestamp fields
+  const bookmarkWithTimestamp = {
+    ...restBookmarkData,
+    createdAt: parseDate(bookmarkData.createdAt) || new Date(), // Default to current date if not provided
+  };
+
   // Step 1: Update the bookmark data without tags
   const [updatedBookmark] = await db
     .update(Bookmark)
-    .set(restBookmarkData)
+    .set(bookmarkWithTimestamp)
     .where(eq(Bookmark.id, id))
     .returning(allBookmarkColumns);
 

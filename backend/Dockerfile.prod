@@ -1,0 +1,37 @@
+# Stage 1: Dependencies
+FROM node:18-alpine AS deps
+WORKDIR /app
+
+# Install all dependencies (including devDependencies)
+COPY package*.json ./
+RUN apk add --no-cache python3 make g++ \
+    && npm install \
+    && npm cache clean --force
+
+# Stage 2: Builder
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Copy dependencies and source
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Stage 3: Runner
+FROM node:18-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV production
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nodeapp
+
+# Copy production dependencies and built files
+COPY --from=deps /app/package*.json ./
+RUN npm ci --only=production
+
+COPY --from=builder --chown=nodeapp:nodejs /app/dist ./dist
+
+USER nodeapp
+EXPOSE 5000
+
+CMD ["node", "dist/server.js"]

@@ -57,6 +57,13 @@
       "when": 1733043728311,
       "tag": "0007_curvy_harpoon",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1733676883536,
+      "tag": "0008_strong_zzzax",
+      "breakpoints": true
     }
   ]
 }
