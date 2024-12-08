@@ -22,7 +22,7 @@ dotenv.config();
 const app: Application = express();
 
 // TODO:security in header
-app.set("trust proxy", "loopback");
+app.set("trust proxy", 1);
 
 // payment webhook: does not be parsed
 app.use("/webhook", webhookRouter);
