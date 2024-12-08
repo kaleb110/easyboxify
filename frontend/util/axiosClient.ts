@@ -60,7 +60,7 @@ axiosClient.interceptors.response.use(
       try {
         // Request a new access token using the refresh token
         const response = await axios.post(
-          "/auth/refresh",
+          "https://bookmark-manager-jc74.onrender.com/auth/refresh",
           {},
           { withCredentials: true }
         );
