@@ -4,7 +4,10 @@ const jwt = require("jsonwebtoken");
 import { db } from "../../db";
 import { User } from "../../db/schema";
 import { eq } from "drizzle-orm";
+import dotenv from "dotenv"
+dotenv.config()
 
+const isProd = process.env.NODE_ENV === "production"
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const ACCESS_TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN;
@@ -44,15 +47,15 @@ const loginHandler = async (req: Request, res: Response) => {
     // Store refresh token in HttpOnly cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Secure in production
-      sameSite: "strict",
+      secure: isProd, // Secure in production
+      sameSite: isProd ? "strict" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: isProd,
+      sameSite: isProd ? "strict" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

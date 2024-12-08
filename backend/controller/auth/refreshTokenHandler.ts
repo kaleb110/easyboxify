@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 import dotenv from "dotenv";
 dotenv.config();
 
+const isProd = process.env.NODE_ENV === "production"
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN;
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION;
@@ -35,8 +36,8 @@ export const refreshTokenHandler = (req: Request, res: Response) => {
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: isProd,
+      sameSite: isProd ? "strict" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
     });
 

@@ -13,7 +13,12 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "types": ["node", "express", "cors", "drizzle-kit", "dotenv", "express-validator", "pg"],
+    "typeRoots": ["node_modules/@types"],
+    "types": [
+      "node",
+      "express",
+      "cors",
+    ],
     "paths": {
       "*": ["node_modules/*"]
     }

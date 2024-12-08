@@ -1,9 +1,14 @@
+"use client"
+
 import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
+
+const isProd = process.env.NODE_ENV === "production"
+
 const axiosClient = axios.create({
-  baseURL:
+  baseURL: isProd ?
     process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://bookmark-manager-jc74.onrender.com", // API base URL
+    "https://bookmark-manager-jc74.onrender.com" : "http://localhost:5000", // API base URL
   headers: {
     "Content-Type": "application/json",
   },
