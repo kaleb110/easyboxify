@@ -24,7 +24,10 @@ export const getBookmark = async (req: Request, res: Response) => {
   res.json(bookmark);
 };
 
-export const createNewBookmark = async (req: AuthenticatedRequest, res: Response) => {
+export const createNewBookmark = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
   const userId = req.userId;
 
   if (!userId) {
@@ -35,7 +38,8 @@ export const createNewBookmark = async (req: AuthenticatedRequest, res: Response
     const bookmark = await createBookmark({ userId, ...req.body });
     res.status(201).json(bookmark);
   } catch (error) {
-    res.status(500).send("Error creating folder");
+    res.status(500).send("Error creating bookmark");
+    console.error(error);
   }
 };
 

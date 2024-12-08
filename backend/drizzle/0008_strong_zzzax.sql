@@ -1,0 +1,1 @@
+ALTER TABLE "User" ADD COLUMN "layoutPreference" varchar(10) DEFAULT 'card';
