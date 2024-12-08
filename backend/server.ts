@@ -21,14 +21,24 @@ dotenv.config();
 
 const app: Application = express();
 
+// TODO:security in header
+app.set("trust proxy", true);
+
 // payment webhook: does not be parsed
 app.use("/webhook", webhookRouter);
 
 app.use(express.json());
 app.use(cookieParser());
+// app.use(
+//   cors({
+//     origin: "http://localhost:3000", // Allow requests from this origin
+//     methods: "GET,POST,PUT,DELETE", // Allow specific HTTP methods
+//     credentials: true, // If you need cookies/auth headers
+//   })
+// );
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow requests from this origin
+    origin: "https://bookmark-manager-liart.vercel.app", // Allow requests from this origin
     methods: "GET,POST,PUT,DELETE", // Allow specific HTTP methods
     credentials: true, // If you need cookies/auth headers
   })
