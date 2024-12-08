@@ -13,7 +13,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "typeRoots": ["node_modules/@types"],
+    "typeRoots": ["./types", "node_modules/@types"],
     "types": [
       "node",
       "express"
