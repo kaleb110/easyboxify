@@ -29,7 +29,6 @@ export const useBookmarkStore = create<BookmarkStore>((set) => ({
   getSortPreference: async () => {
     try {
       const response = await axiosClient.get("/api/user/sort-preference");
-      console.log(response.data.sortPreference);
       return response.data.sortPreference;
     } catch (error) {
       console.error("Error fetching sort preference:", error);
