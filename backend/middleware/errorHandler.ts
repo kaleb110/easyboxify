@@ -1,16 +1,23 @@
-// errorHandler.ts
 import { Request, Response, NextFunction } from "express";
 
-// Global error handling middleware
 export const errorHandler = (
   err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.error("Error:", err.message || err); // Log the error
+  // Ensure CORS headers are set even for errors
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
 
-  res.status(err.status || 500).json({
-    message: err.message || "An unexpected error occurred",
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).json({
+    success: false,
+    error: err.message || "Server Error",
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
   });
 };

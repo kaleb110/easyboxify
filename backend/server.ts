@@ -23,34 +23,37 @@ const app: Application = express();
 const isProd = process.env.NODE_ENV === "production";
 
 // Move CORS configuration to the top, right after app initialization
-const allowedOrigins = isProd 
-  ? ['https://bookmark-manager-liart.vercel.app', 'https://bookmark-manager-jc74.onrender.com']
-  : ['http://localhost:3000'];
+const allowedOrigins = isProd
+  ? [
+      "https://bookmark-manager-liart.vercel.app",
+      "https://bookmark-manager-jc74.onrender.com",
+    ]
+  : ["http://localhost:3000"];
 
-// app.use(
-//   cors({
-//     origin: "http://localhost:3000", // Allow requests from this origin
-//     methods: "GET,POST,PUT,DELETE", // Allow specific HTTP methods
-//     credentials: true, // If you need cookies/auth headers
-//   })
-// );
-app.use(
-  cors({
-    origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-      // allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
+  // 1. First, set security headers with helmet
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "unsafe-none" },
+}));
 
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
+// 2. Configure and apply CORS
+const corsOptions = {
+  origin: function (origin: any, callback: any) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // TODO:security in header
 app.set("trust proxy", 1);
@@ -60,10 +63,6 @@ app.use("/webhook", webhookRouter);
 
 app.use(express.json());
 app.use(cookieParser());
-
-
-// security with helmet
-app.use(helmet());
 
 // global error handler
 app.use(errorHandler);
