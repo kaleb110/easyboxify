@@ -44,7 +44,8 @@ export const createNewBookmark = async (
 };
 
 export const updateExistingBookmark = async (req: Request, res: Response) => {
-  const bookmark = await updateBookmark(Number(req.params.id), req.body);
+  const id = Number(req.params.id);
+  const bookmark = await updateBookmark(id, req.body);
   if (!bookmark) return res.status(404).send("Bookmark not found");
   res.json(bookmark);
 };

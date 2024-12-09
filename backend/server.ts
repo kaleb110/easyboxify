@@ -22,6 +22,7 @@ dotenv.config();
 const app: Application = express();
 const isProd = process.env.NODE_ENV === "production";
 
+
 // Move CORS configuration to the top, right after app initialization
 const allowedOrigins = isProd
   ? [
@@ -30,11 +31,13 @@ const allowedOrigins = isProd
     ]
   : ["http://localhost:3000"];
 
-  // 1. First, set security headers with helmet
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" },
-  crossOriginOpenerPolicy: { policy: "unsafe-none" },
-}));
+// 1. First, set security headers with helmet
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: "unsafe-none" },
+  })
+);
 
 // 2. Configure and apply CORS
 const corsOptions = {
@@ -42,14 +45,19 @@ const corsOptions = {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+  ],
   credentials: true,
   preflightContinue: false,
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
