@@ -110,6 +110,11 @@ export const createBookmark = async (bookmarkData: any) => {
 export const updateBookmark = async (id: number, bookmarkData: any) => {
   const { tags, ...restBookmarkData } = bookmarkData;
 
+  // Ensure tags are an array of integers
+  const tagIds = tags
+    ? tags.map((tag: any) => (typeof tag === "object" ? tag.id : tag))
+    : [];
+
   // Parse timestamp fields
   const bookmarkWithTimestamp = {
     ...restBookmarkData,
@@ -124,12 +129,12 @@ export const updateBookmark = async (id: number, bookmarkData: any) => {
     .returning(allBookmarkColumns);
 
   // Step 2: Update associated tags if provided
-  if (tags && tags.length) {
+  if (tagIds.length) {
     // Remove existing tags for the bookmark
     await db.delete(BookmarkTag).where(eq(BookmarkTag.bookmarkId, id));
 
     // Re-associate tags
-    const bookmarkTags = tags.map((tagId: number) => ({
+    const bookmarkTags = tagIds.map((tagId: number) => ({
       bookmarkId: updatedBookmark.id,
       tagId,
     }));
