@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -37,7 +37,7 @@ export function AddBookmarkModal() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [description, setDescription] = useState('')
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
-
+  const [isLoading, setIsLoading] = useState(false)
   // Fetch bookmarks when the component mounts
   useEffect(() => {
     const fetchData = async () => {
@@ -111,6 +111,7 @@ export function AddBookmarkModal() {
 
   // Form submission handler
   const handleSubmit = async (e: React.FormEvent) => {
+    setIsLoading(true)
     e.preventDefault()
     if (!validateForm()) return
 
@@ -139,6 +140,8 @@ export function AddBookmarkModal() {
       setIsAddBookmarkModalOpen(false)
     } catch (error) {
       console.error('Error handling bookmark submission:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -149,7 +152,7 @@ export function AddBookmarkModal() {
     <Dialog open={isAddBookmarkModalOpen} onOpenChange={setIsAddBookmarkModalOpen}>
       <DialogContent className="sm:max-w-[425px] font-body">
         <DialogHeader>
-          <DialogTitle className="font-heading text-xl text-primary">
+          <DialogTitle className="text-xl font-heading text-primary">
             {editingBookmark ? 'Edit Bookmark' : 'Add Bookmark'}
           </DialogTitle>
         </DialogHeader>
@@ -166,7 +169,7 @@ export function AddBookmarkModal() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-                className="border-0 border-b border-input bg-transparent px-0 focus-visible:ring-0 focus-visible:border-primary rounded-none font-body"
+                className="px-0 bg-transparent border-0 border-b rounded-none border-input focus-visible:ring-0 focus-visible:border-primary font-body"
                 aria-invalid={!!errors.title}
                 aria-describedby={errors.title ? "title-error" : undefined}
               />
@@ -188,7 +191,7 @@ export function AddBookmarkModal() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 required
-                className="border-0 border-b border-input bg-transparent px-0 focus-visible:ring-0 focus-visible:border-primary rounded-none font-mono text-sm"
+                className="px-0 font-mono text-sm bg-transparent border-0 border-b rounded-none border-input focus-visible:ring-0 focus-visible:border-primary"
                 aria-invalid={!!errors.url}
                 aria-describedby={errors.url ? "url-error" : undefined}
               />
@@ -206,7 +209,7 @@ export function AddBookmarkModal() {
                   Folder
                 </Label>
                 <Select value={folderId || ''} onValueChange={(value) => setFolderId(value || null)}>
-                  <SelectTrigger className="border-0 border-b border-input bg-transparent px-0 focus:ring-0 rounded-none">
+                  <SelectTrigger className="px-0 bg-transparent border-0 border-b rounded-none border-input focus:ring-0">
                     <SelectValue placeholder="Select a folder" />
                   </SelectTrigger>
                   <SelectContent className="font-body">
@@ -233,7 +236,7 @@ export function AddBookmarkModal() {
                   }
                 }}
               >
-                <SelectTrigger className="border-t-0 border-x-0 border-b-2 rounded-none focus:border-primary focus:ring-0 bg-background/50">
+                <SelectTrigger className="border-t-0 border-b-2 rounded-none border-x-0 focus:border-primary focus:ring-0 bg-background/50">
                   <SelectValue placeholder="Select tags" />
                 </SelectTrigger>
                 <SelectContent className="font-body">
@@ -249,21 +252,21 @@ export function AddBookmarkModal() {
                 </SelectContent>
               </Select>
 
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-2">
                 {selectedTags.map((tagId) => {
                   const tag = tags.find((t) => t.id.toString() === tagId);
                   return tag ? (
                     <Badge
                       key={tag.id}
                       variant="secondary"
-                      className="bg-primary/10 text-primary font-body text-sm px-2 py-1"
+                      className="px-2 py-1 text-sm bg-primary/10 text-primary font-body"
                     >
                       {tag.name}
                       <button
                         onClick={() => setSelectedTags(prev => prev.filter(id => id !== tagId))}
                         className="ml-2 text-primary/70 hover:text-primary"
                       >
-                        <X className="h-3 w-3" />
+                        <X className="w-3 h-3" />
                       </button>
                     </Badge>
                   ) : null;
@@ -287,7 +290,7 @@ export function AddBookmarkModal() {
         </ScrollArea>
 
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-3 mt-6">
+        <div className="flex justify-end mt-6 space-x-3">
           <Button
             type="button"
             variant="outline"
@@ -300,8 +303,9 @@ export function AddBookmarkModal() {
             type="submit"
             onClick={handleSubmit}
             className="bg-primary text-primary-foreground font-body"
+            disabled={isLoading}
           >
-            {editingBookmark ? 'Update' : 'Add'}
+            {isLoading ? <Loader2 className="w-6 h-6 mr-2 animate-spin" /> : editingBookmark ? 'Update' : 'Add'}
           </Button>
         </div>
       </DialogContent>

@@ -41,6 +41,7 @@ const plans = [
       'Unlimited tags',
       'Unlimited bookmarks',
       'Priority support',
+      'import/export chrome bookmarks',
       'Early access to new features',
     ],
   },
@@ -114,8 +115,8 @@ export function UpgradeModal() {
   const renderSubscriptionStatus = () => {
     if (subscriptionStatus === 'canceling') {
       return (
-        <div className="flex items-center gap-2 text-yellow-500 text-sm mt-4 mb-2">
-          <AlertCircle className="h-4 w-4" />
+        <div className="flex items-center gap-2 mt-4 mb-2 text-sm text-yellow-500">
+          <AlertCircle className="w-4 h-4" />
           <span>Your subscription will be canceled at the end of the billing period</span>
         </div>
       )
@@ -128,10 +129,10 @@ export function UpgradeModal() {
       return (
         <Button
           onClick={handleCheckout}
-          className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+          className="w-full text-white sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500"
           disabled={isLoading}
         >
-          <Sparkles className="mr-2 h-4 w-4" />
+          <Sparkles className="w-4 h-4 mr-2" />
           {isLoading ? "Processing..." : `Upgrade to Pro (${selectedPlanType})`}
         </Button>
       )
@@ -144,7 +145,7 @@ export function UpgradeModal() {
           className="w-full sm:w-auto"
           disabled
         >
-          <AlertCircle className="mr-2 h-4 w-4" />
+          <AlertCircle className="w-4 h-4 mr-2" />
           Cancellation Pending
         </Button>
       )
@@ -157,7 +158,7 @@ export function UpgradeModal() {
         className="w-full sm:w-auto"
         disabled={isCanceling}
       >
-        <Zap className="mr-2 h-4 w-4" />
+        <Zap className="w-4 h-4 mr-2" />
         {isCanceling ? "Canceling..." : "Cancel Subscription"}
       </Button>
     )
@@ -167,8 +168,8 @@ export function UpgradeModal() {
     <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
       <DialogContent className="sm:max-w-[500px] md:max-w-[700px] max-h-[90vh] md:max-h-none md:h-auto overflow-y-auto md:overflow-y-visible">
         <DialogHeader className="md:text-center">
-          <DialogTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2 md:justify-center">
-            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-500" />
+          <DialogTitle className="flex items-center gap-2 text-xl font-bold sm:text-2xl md:justify-center">
+            <Sparkles className="w-5 h-5 text-yellow-500 sm:h-6 sm:w-6" />
             {userPlan === 'free' ? 'Upgrade to Pro Plan' : 'Your Pro Plan'}
           </DialogTitle>
           <DialogDescription className="text-sm">
@@ -182,7 +183,7 @@ export function UpgradeModal() {
 
         <div className="py-4">
           {errorMessage && (
-            <p className="text-red-500 dark:text-red-400 text-sm mb-4">{errorMessage}</p>
+            <p className="mb-4 text-sm text-red-500 dark:text-red-400">{errorMessage}</p>
           )}
           {renderSubscriptionStatus()}
 
@@ -204,12 +205,12 @@ export function UpgradeModal() {
                         {plan.name} Plan
                       </h3>
                       {plan.name === 'Pro' && userPlan === 'pro' && (
-                        <p className="text-xs text-green-500 mb-2">Your current plan</p>
+                        <p className="mb-2 text-xs text-green-500">Your current plan</p>
                       )}
-                      <ul className="text-sm space-y-2">
+                      <ul className="space-y-2 text-sm">
                         {plan.features.map((feature, index) => (
                           <li key={index} className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <CheckCircle2 className="flex-shrink-0 w-4 h-4 text-green-500" />
                             <span>{feature}</span>
                           </li>
                         ))}
@@ -222,7 +223,7 @@ export function UpgradeModal() {
           </Tabs>
 
           {userPlan === 'free' && (
-            <div className="flex items-center justify-center space-x-2 mt-6">
+            <div className="flex items-center justify-center mt-6 space-x-2">
               <Label htmlFor="plan-toggle" className="text-sm font-medium">Monthly</Label>
               <Switch
                 id="plan-toggle"
@@ -234,7 +235,7 @@ export function UpgradeModal() {
           )}
         </div>
 
-        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-end">
+        <DialogFooter className="flex flex-col justify-end gap-2 sm:flex-row sm:gap-0">
           <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
             {userPlan === 'free' ? 'Maybe later' : 'Close'}
           </Button>
