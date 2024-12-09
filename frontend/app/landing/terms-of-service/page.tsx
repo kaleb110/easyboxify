@@ -1,53 +1,47 @@
-import { Button } from "@/components/ui/button"
-import Link from 'next/link'
+"use client"
+import React from 'react'
+import { ScrollArea } from "@/components/ui/scroll-area"
 
-export default function TermsOfServicePage() {
+export default function TermsOfService() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-6">Terms of Service</h1>
-      <div className="space-y-6">
-        <p>Last updated: {new Date().toLocaleDateString()}</p>
-        <p>
-          Welcome to BookmarkPro. By using our services, you agree to be bound by the following Terms of Service. Please read them carefully.
-        </p>
-        <h2 className="text-2xl font-semibold mt-8 mb-4">1. Acceptance of Terms</h2>
-        <p>
-          By accessing or using BookmarkPro, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any part of these terms, you may not use our services.
-        </p>
-        <h2 className="text-2xl font-semibold mt-8 mb-4">2. Description of Service</h2>
-        <p>
-          BookmarkPro provides a bookmark management service that allows users to save, organize, and access their bookmarks across multiple devices.
-        </p>
-        <h2 className="text-2xl font-semibold mt-8 mb-4">3. User Accounts</h2>
-        <p>
-          You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account.
-        </p>
-        <h2 className="text-2xl font-semibold mt-8 mb-4">4. User Content</h2>
-        <p>
-          You retain all rights to the content you add to BookmarkPro. By using our service, you grant us a license to use, store, and copy that content in connection with providing our service.
-        </p>
-        <h2 className="text-2xl font-semibold mt-8 mb-4">5. Prohibited Uses</h2>
-        <p>
-          You agree not to use BookmarkPro for any unlawful purpose or in any way that could damage, disable, overburden, or impair our service.
-        </p>
-        <h2 className="text-2xl font-semibold mt-8 mb-4">6. Termination</h2>
-        <p>
-          We reserve the right to terminate or suspend your account and access to our services at our sole discretion, without notice, for conduct that we believe violates these Terms of Service or is harmful to other users, us, or third parties, or for any other reason.
-        </p>
-        <h2 className="text-2xl font-semibold mt-8 mb-4">7. Changes to Terms</h2>
-        <p>
-          We reserve the right to modify these Terms of Service at any time. We will notify users of any significant changes by posting a notice on our website.
-        </p>
-        <h2 className="text-2xl font-semibold mt-8 mb-4">8. Contact</h2>
-        <p>
-          If you have any questions about these Terms of Service, please contact us at legal@bookmarkpro.com.
-        </p>
-        <div className="mt-8">
-          <Button asChild>
-            <Link href="/">Back to Home</Link>
-          </Button>
-        </div>
-      </div>
+    <div className="container px-4 py-8 mx-auto">
+      <ScrollArea className="h-[calc(100vh-4rem)] pr-4">
+        <h1 className="mb-6 text-3xl font-bold">Terms of Service for EasyBoxify</h1>
+        <p className="mb-6 text-sm text-gray-500">Last updated: {new Date().toLocaleDateString()}</p>
+
+        <section className="mb-8">
+          <h2 className="mb-4 text-2xl font-semibold">1. Acceptance of Terms</h2>
+          <p className="mb-4">
+            By accessing or using the EasyBoxify service, you agree to be bound by these Terms of Service (&quot;Terms&quot;).
+            If you do not agree to these Terms, you may not use the service.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="mb-4 text-2xl font-semibold">2. Description of Service</h2>
+          <p className="mb-4">
+            EasyBoxify provides a platform for users to save, organize, and sync bookmarks across devices (&quot;Service&quot;).
+            We reserve the right to modify, suspend, or discontinue the Service at any time without notice.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="mb-4 text-2xl font-semibold">3. User Accounts</h2>
+          <p className="mb-4">3.1. You must create an account to use certain features of the Service. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account.</p>
+          <p className="mb-4">3.2. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.</p>
+          <p className="mb-4">3.3. We reserve the right to suspend or terminate your account if any information provided proves to be inaccurate, not current, or incomplete.</p>
+        </section>
+
+        {/* Add more sections here for the rest of the terms of service content */}
+
+        {/* <section className="mb-8">
+          <h2 className="mb-4 text-2xl font-semibold">12. Contact Us</h2>
+          <p className="mb-4">If you have any questions about these Terms, please contact us at:</p>
+          <p>EasyBoxify</p>
+          <p>Email: legal@EasyBoxify.com</p>
+          <p>Address: [Your Company Address]</p>
+        </section> */}
+      </ScrollArea>
     </div>
   )
 }

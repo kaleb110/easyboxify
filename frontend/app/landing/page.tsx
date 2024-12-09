@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -11,33 +12,78 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { CheckCircle2, ArrowRight } from 'lucide-react'
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { CheckCircle2, ArrowRight, Menu } from 'lucide-react'
+import { Logo } from "@/components/custom/Logo"
 
 export default function LandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const navItems = [
+    { href: "#features", label: "Features" },
+    { href: "#pricing", label: "Pricing" },
+  ]
+
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-center px-4">
         <div className="container flex items-center justify-between h-16">
-          <Link className="flex items-center space-x-2" href="/">
-            <Image src="/placeholder.svg?height=32&width=32" alt="Logo" width={32} height={32} className="rounded-lg" />
-            <span className="hidden font-bold sm:inline-block">
-              BookmarkPro
+          <a className="flex items-center space-x-2" href="#">
+            <Logo className="w-6 h-6" />
+            <span className="font-bold">
+              EasyBoxify
             </span>
-          </Link>
+          </a>
           <nav className="items-center hidden space-x-6 text-sm font-medium md:flex">
-            <a className="transition-colors hover:text-primary" href="#features">Features</a>
-            <a className="transition-colors hover:text-primary" href="#pricing">Pricing</a>
-            <a className="transition-colors hover:text-primary" href="#about">About</a>
+            {navItems.map((item) => (
+              <a key={item.href} className="transition-colors hover:text-primary" href={item.href}>
+                {item.label}
+              </a>
+            ))}
           </nav>
           <div className="flex items-center space-x-2">
-            <Button variant="ghost">Log in</Button>
-            <Button>Sign up</Button>
+            <div className="hidden space-x-2 md:flex">
+              <Link href="/auth/login">
+                <Button variant="ghost">Log in</Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button>Sign up</Button>
+              </Link>
+            </div>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="w-8 h-8" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <nav className="flex flex-col space-y-4">
+                  {navItems.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="text-lg font-medium hover:text-primary"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                  <Link href="/auth/login">
+                    <Button variant="ghost">Log in</Button>
+                  </Link>
+                  <Link href="/auth/register">
+                    <Button>Sign up</Button>
+                  </Link>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-gray-800">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 mx-auto text-center md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
@@ -47,75 +93,85 @@ export default function LandingPage() {
                   Organize, access, and sync your bookmarks across all devices with ease.
                 </p>
               </div>
-              <div className="space-x-4">
+              <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+                <Link href="/auth/register">
                 <Button size="lg" className="rounded-full">Get Started</Button>
-                <Button variant="outline" size="lg" className="rounded-full">
+                </Link>
+                <Button variant="outline" size="lg" className="rounded-full" disabled={true}>
                   Learn More
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
+
             </div>
           </div>
         </section>
         <section id="features" className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 mx-auto text-center md:px-6">
             <h2 className="mb-12 text-3xl font-bold tracking-tighter text-center sm:text-5xl">Features</h2>
-            <div className="grid gap-12 lg:grid-cols-2">
-              <div className="flex flex-col justify-center space-y-4">
+            <div className="grid items-center justify-center gap-12">
+              {/* First Feature */}
+              <div className="flex flex-col justify-center order-1 space-y-4 text-center lg:text-left">
                 <h3 className="text-2xl font-bold">Minimalist Bookmark Manager</h3>
                 <p className="text-gray-500 dark:text-gray-400">
                   Clean and intuitive interface for effortless bookmark organization.
                 </p>
                 <ul className="grid gap-2">
-                  {['Simple drag-and-drop interface', 'Customizable categories and tags', 'Quick search functionality'].map((feature, index) => (
+                  {['Simple bookmark saving', 'Customizable folders and tags', 'Quick search functionality'].map((feature, index) => (
                     <li key={index} className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-primary" />
+                      <CheckCircle2 className="flex-shrink-0 w-5 h-5 text-primary" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="relative overflow-hidden rounded-lg shadow-xl">
+              <div className="relative order-2 overflow-hidden rounded-lg shadow-xl lg:order-1">
                 <Image
-                  src="/placeholder.svg?height=400&width=600"
+                  src="https://utfs.io/f/EwD0sHYT6rXki0XOSnWTZQibgIsBqt5Kwj1OYH2PvMA8Sl6k"
                   alt="Minimalist Bookmark Manager"
-                  width={600}
-                  height={400}
+                  width={1920}
+                  height={1280}
+                  quality={100}
+                  priority
+                  unoptimized
                   className="object-cover w-full h-full"
                 />
               </div>
-            </div>
-            <div className="grid gap-12 mt-12 lg:grid-cols-2">
-              <div className="relative order-last overflow-hidden rounded-lg shadow-xl lg:order-first">
-                <Image
-                  src="/placeholder.svg?height=400&width=600"
-                  alt="Sync Across Devices"
-                  width={600}
-                  height={400}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <div className="flex flex-col justify-center space-y-4">
+
+              {/* Second Feature */}
+              <div className="flex flex-col justify-center order-3 space-y-4 text-center lg:text-left">
                 <h3 className="text-2xl font-bold">Sync Across Devices</h3>
                 <p className="text-gray-500 dark:text-gray-400">
                   Access your bookmarks anywhere, anytime, on any device.
                 </p>
                 <ul className="grid gap-2">
-                  {['Real-time synchronization', 'Offline access to saved bookmarks', 'Secure cloud storage'].map((feature, index) => (
+                  {['Real-time synchronization across all devices', 'import bookmarks from chrome', 'Secure cloud storage'].map((feature, index) => (
                     <li key={index} className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-primary" />
+                      <CheckCircle2 className="flex-shrink-0 w-5 h-5 text-primary" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
               </div>
+              <div className="relative order-4 overflow-hidden rounded-lg shadow-xl">
+                <Image
+                  src="https://utfs.io/f/EwD0sHYT6rXkkixcimtJUR7hCz6n95EFcjlr4fqdHuywDLPv"
+                  alt="Sync Across Devices"
+                  width={1920}
+                  height={1280}
+                  quality={100}
+                  unoptimized
+                  priority
+                  className="object-cover w-full h-full"
+                />
+              </div>
             </div>
           </div>
         </section>
         <section id="pricing" className="w-full py-12 bg-gray-100 md:py-24 lg:py-32 dark:bg-gray-800">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 mx-auto text-center md:px-6">
             <h2 className="mb-12 text-3xl font-bold tracking-tighter text-center sm:text-5xl">Pricing Plans</h2>
-            <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+            <div className="grid max-w-4xl gap-8 mx-auto lg:grid-cols-2 lg:gap-12">
               {[
                 {
                   title: "Free Plan",
@@ -123,7 +179,7 @@ export default function LandingPage() {
                   price: "$0",
                   features: [
                     "Up to 100 bookmarks",
-                    "Basic folder organization",
+                    "Basic folder and tag organization",
                     "Access on 2 devices"
                   ],
                   buttonText: "Get Started"
@@ -131,13 +187,14 @@ export default function LandingPage() {
                 {
                   title: "Pro Plan",
                   description: "For power users and teams",
-                  price: "$9.99/mo",
+                  price: "$2.99/mo",
                   features: [
                     "Unlimited bookmarks",
-                    "Advanced folder and tag system",
+                    "unlimited folders and tags",
                     "Sync across unlimited devices",
                     "Import/Export Chrome bookmarks",
-                    "Priority support"
+                    "Priority support",
+                    "New features"
                   ],
                   buttonText: "Upgrade to Pro"
                 }
@@ -152,14 +209,21 @@ export default function LandingPage() {
                     <ul className="grid gap-2">
                       {plan.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-center gap-2">
-                          <CheckCircle2 className="w-5 h-5 text-primary" />
+                          <CheckCircle2 className="flex-shrink-0 w-5 h-5 text-primary" />
                           <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full rounded-full">{plan.buttonText}</Button>
+                    {plan.buttonText === "Upgrade to Pro" ?
+                      <Button
+                        disabled={true}
+                        className="w-full rounded-full">{plan.buttonText}
+                      </Button> :
+                      <Button className="w-full rounded-full">{plan.buttonText}
+                      </Button>}
+
                   </CardFooter>
                 </Card>
               ))}
@@ -168,24 +232,20 @@ export default function LandingPage() {
         </section>
       </main>
       <footer className="w-full py-6 bg-gray-100 dark:bg-gray-800">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+        <div className="container px-4 mx-auto text-center md:px-6">
+          <div className="flex flex-col items-center justify-center gap-4 text-center md:flex-row md:justify-between md:text-left">
             <div className="flex items-center gap-2">
-              <Image src="/placeholder.svg?height=24&width=24" alt="Logo" width={24} height={24} className="rounded" />
-              <span className="font-bold">BookmarkPro</span>
+              <Logo className="w-6 h-6" />
+              <span className="font-bold">EasyBoxify</span>
             </div>
-            <nav className="flex gap-4 text-sm">
-              <Link className="transition-colors hover:text-primary" href="#features">
-                Features
-              </Link>
-              <Link className="transition-colors hover:text-primary" href="#pricing">
-                Pricing
-              </Link>
-              <Link className="transition-colors hover:text-primary" href="/landing/about">
-                About
-              </Link>
+            <nav className="flex flex-wrap justify-center gap-4 text-sm">
+              {navItems.map((item) => (
+                <Link key={item.href} className="transition-colors hover:text-primary" href={item.href}>
+                  {item.label}
+                </Link>
+              ))}
             </nav>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               <Link className="text-sm text-gray-500 hover:text-primary" href="/landing/privacy-policy">
                 Privacy Policy
               </Link>
@@ -199,3 +259,4 @@ export default function LandingPage() {
     </div>
   )
 }
+

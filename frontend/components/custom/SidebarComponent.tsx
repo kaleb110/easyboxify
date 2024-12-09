@@ -43,11 +43,11 @@ const SidebarComponent: React.FC<SidebarProps> = ({open, setOpen, toggleSidebar}
 
   return (
     <Sidebar className="border-r border-border bg-background dark:bg-sidebar-background" open={open} onOpenChange={setOpen}>
-      <SidebarHeader className="px-6 sm:px-4 py-4">
-        <div className="flex justify-between items-center">
+      <SidebarHeader className="px-6 py-4 sm:px-4">
+        <div className="flex items-center justify-between">
           {isMobile && (
             <button onClick={toggleSidebar} className="hover:bg-transparent">
-              <X className="h-6 w-6" />
+              <X className="w-6 h-6" />
             </button>
           )}
           <h2 className="text-lg font-semibold font-heading md:pl-5">Bookmarks</h2>
@@ -55,7 +55,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({open, setOpen, toggleSidebar}
       </SidebarHeader>
       <SidebarContent>
         <ScrollArea className="flex-grow overflow-y-auto h-[calc(100vh-8rem)]">
-          <div className="pr-4 py-2">
+          <div className="py-2 pr-4">
             <SidebarItems onItemClick={handleSidebarItemClick} />
           </div>
         </ScrollArea>

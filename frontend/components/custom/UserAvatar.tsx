@@ -39,7 +39,7 @@ const UserAvatar = () => {
   
   const handleLogout = () => {
     Logout(); // This will clear the authentication state and token
-    router.replace('/auth/login'); // Redirect to login page after logout
+    router.replace('/landing'); // Redirect to login page after logout
   };
 
   const handleSetting = () => {

@@ -166,10 +166,10 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
             <Button
               variant="ghost"
               size="sm"
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 hover:bg-background/80"
+              className="absolute transform -translate-y-1/2 right-1 top-1/2 h-7 w-7 hover:bg-background/80"
               onClick={() => setSearchTerm('')}
             >
-              <X className="h-6 w-6" size={28} />
+              <X className="w-6 h-6" size={28} />
             </Button>
           )}
         </div>
@@ -205,7 +205,8 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
                 <DropdownMenuItem
                   onClick={() => setIsDialogOpen(true)}
                   className="flex items-center py-1.5 px-2.5 cursor-pointer text-sm"
-                  disabled={isLoading}
+                  // disabled={isLoading}
+                  disabled={true}
                 >
                   <Import className="mr-2 h-3.5 w-3.5" />
                   <span>Import</span>
@@ -241,9 +242,9 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
             <Button
               onClick={() => document.getElementById('file-upload')?.click()}
               variant="outline"
-              className="w-full h-20 flex flex-col gap-1"
+              className="flex flex-col w-full h-20 gap-1"
             >
-              <Upload className="h-5 w-5 mb-1" />
+              <Upload className="w-5 h-5 mb-1" />
               <span>Choose File</span>
               <input
                 id="file-upload"
@@ -255,7 +256,7 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
             </Button>
 
             {selectedFile && (
-              <p className="text-sm text-muted-foreground text-center">
+              <p className="text-sm text-center text-muted-foreground">
                 Selected: {selectedFile.name}
               </p>
             )}
