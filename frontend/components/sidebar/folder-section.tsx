@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { FolderClosed, Plus, ChevronRight } from 'lucide-react'
+import { FolderClosed, Plus, ChevronRight, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Collapsible,
@@ -34,6 +34,7 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
   const [newFolderName, setNewFolderName] = useState('')
   const [isAddingFolder, setIsAddingFolder] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +46,7 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
   }, [])
   
   const handleAddFolder = async (e: React.FormEvent<HTMLFormElement>) => {
+    setIsLoading(true)    
     e.preventDefault();
     const form = e.currentTarget;
     const nameInput = form.elements.namedItem('folderName') as HTMLInputElement;
@@ -65,6 +67,8 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
       onItemClick();
     } catch (error) {
       console.error('Failed to add folder:', error);
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -86,17 +90,17 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
       >
         <div className="flex items-center justify-between py-2">
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start p-2 hover:bg-accent hover:text-accent-foreground">
+            <Button variant="ghost" className="justify-start w-full p-2 hover:bg-accent hover:text-accent-foreground">
               <ChevronRight className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`} />
-              <FolderClosed className="mr-2 h-5 w-5 text-indigo-500 font-body" />
+              <FolderClosed className="w-5 h-5 mr-2 text-indigo-500 font-body" />
               <span className="text-lg font-semibold font-body">Folders</span>
             </Button>
           </CollapsibleTrigger>
           <Button variant="ghost" size="icon" onClick={handleAddButtonClick} className="hover:bg-accent hover:text-accent-foreground">
-            <Plus className="h-4 w-4" />
+            <Plus className="w-4 h-4" />
           </Button>
         </div>
-        <CollapsibleContent className="space-y-1 ml-6">
+        <CollapsibleContent className="ml-6 space-y-1">
           {folders.map((folder) => (
             <Collapsible key={folder.id} open={!folder.isCollapsed}>
               <div className="flex items-center">
@@ -110,7 +114,7 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
                       onItemClick()
                     }}
                   >
-                    <FolderClosed className="mr-2 h-4 w-4 text-indigo-400" />
+                    <FolderClosed className="w-4 h-4 mr-2 text-indigo-400" />
                     {folder.name}
                   </Button>
                 </CollapsibleTrigger>
@@ -141,7 +145,9 @@ export function FolderSection({ onItemClick }: FolderSectionProps) {
               <Button type="button" variant="outline" onClick={() => setIsAddingFolder(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Add Folder</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Add Folder'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

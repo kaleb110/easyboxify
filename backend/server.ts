@@ -20,16 +20,13 @@ import deleteDataRoutes from "./routes/deleteDataRouter";
 dotenv.config();
 
 const app: Application = express();
-const isProd = process.env.NODE_ENV === "production"
+const isProd = process.env.NODE_ENV === "production";
 
-// TODO:security in header
-app.set("trust proxy", 1);
+// Move CORS configuration to the top, right after app initialization
+const allowedOrigins = isProd 
+  ? ['https://bookmark-manager-liart.vercel.app', 'https://bookmark-manager-jc74.onrender.com']
+  : ['http://localhost:3000'];
 
-// payment webhook: does not be parsed
-app.use("/webhook", webhookRouter);
-
-app.use(express.json());
-app.use(cookieParser());
 // app.use(
 //   cors({
 //     origin: "http://localhost:3000", // Allow requests from this origin
@@ -39,11 +36,31 @@ app.use(cookieParser());
 // );
 app.use(
   cors({
-    origin: isProd ? "https://bookmark-manager-liart.vercel.app": "http://localhost:3000", // Allow requests from this origin
-    methods: "GET,POST,PUT,DELETE", // Allow specific HTTP methods
-    credentials: true, // If you need cookies/auth headers
+    origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+      // allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
   })
 );
+
+// TODO:security in header
+app.set("trust proxy", 1);
+
+// payment webhook: does not be parsed
+app.use("/webhook", webhookRouter);
+
+app.use(express.json());
+app.use(cookieParser());
+
 
 // security with helmet
 app.use(helmet());

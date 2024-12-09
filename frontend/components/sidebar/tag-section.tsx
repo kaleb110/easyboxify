@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { Tag, Plus, ChevronRight } from 'lucide-react'
+import { Tag, Plus, ChevronRight, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Collapsible,
@@ -33,7 +33,7 @@ export function TagSection({ onItemClick }: TagSectionProps) {
   const [newTagName, setNewTagName] = useState('')
   const [isAddingTag, setIsAddingTag] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
-
+  const [isLoading, setIsLoading] = useState(false)
   useEffect(() => {
     const fetchData = async () => {
       await fetchTags()
@@ -43,6 +43,7 @@ export function TagSection({ onItemClick }: TagSectionProps) {
   }, [])
 
   const handleAddTag = async (e: React.FormEvent<HTMLFormElement>) => {
+    setIsLoading(true)
     e.preventDefault();
     const form = e.currentTarget;
     const nameInput = form.elements.namedItem('tagName') as HTMLInputElement;
@@ -64,6 +65,8 @@ export function TagSection({ onItemClick }: TagSectionProps) {
       onItemClick();
     } catch (error) {
       console.error('Failed to add tag:', error);
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -86,17 +89,17 @@ export function TagSection({ onItemClick }: TagSectionProps) {
       >
         <div className="flex items-center justify-between py-2">
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start p-2 hover:bg-accent hover:text-accent-foreground">
+            <Button variant="ghost" className="justify-start w-full p-2 hover:bg-accent hover:text-accent-foreground">
               <ChevronRight className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`} />
-              <Tag className="mr-2 h-5 w-5 text-emerald-500" />
+              <Tag className="w-5 h-5 mr-2 text-emerald-500" />
               <span className="text-lg font-semibold">Tags</span>
             </Button>
           </CollapsibleTrigger>
           <Button variant="ghost" size="icon" onClick={handleAddButtonClick} className="hover:bg-accent hover:text-accent-foreground">
-            <Plus className="h-4 w-4" />
+            <Plus className="w-4 h-4" />
           </Button>
         </div>
-        <CollapsibleContent className="space-y-1 ml-6">
+        <CollapsibleContent className="ml-6 space-y-1">
           {tags.map((tag) => (
             <div key={tag.id} className="flex items-center">
               <Button
@@ -107,7 +110,7 @@ export function TagSection({ onItemClick }: TagSectionProps) {
                   onItemClick()
                 }}
               >
-                <Tag className="mr-2 h-4 w-4 text-emerald-400" />
+                <Tag className="w-4 h-4 mr-2 text-emerald-400" />
                 {tag.name}
               </Button>
             </div>
@@ -136,7 +139,9 @@ export function TagSection({ onItemClick }: TagSectionProps) {
               <Button type="button" variant="outline" onClick={() => setIsAddingTag(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Add Tag</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Add Tag'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

@@ -17,7 +17,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from '@/components/ui/dropdown-menu';
-import { User, Settings, HelpCircle, LogOut, Moon, Sun, Laptop, Sparkles } from 'lucide-react';
+import { Settings,  LogOut, Moon, Sun, Laptop, Sparkles } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUIStore } from '@/store/useUiStore';
 import { useBookmarkStore } from '@/store/bookmarkStore';
@@ -57,7 +57,7 @@ const UserAvatar = () => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar className="h-10 w-10 mr-3 hover:cursor-pointer">
+          <Avatar className="w-10 h-10 mr-3 hover:cursor-pointer">
             <AvatarImage src="/placeholder-avatar.jpg" alt={Name} />
             <AvatarFallback>{Name?.split(' ').map(n => n[0]).join('').toUpperCase()}</AvatarFallback>
           </Avatar>
@@ -65,21 +65,13 @@ const UserAvatar = () => {
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <User className="mr-2 h-3.5 w-3.5" />
-            <span>Profile</span>
-          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleSetting}>
-            <Settings className="mr-2 h-4 w-4" />
+            <Settings className="w-4 h-4 mr-2" />
             <span>Settings</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <HelpCircle className="mr-2 h-4 w-4" />
-            <span>Help & Support</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleUpgradeClick}>
-            <Sparkles className="mr-2 h-4 w-4 text-yellow-500" />
+            <Sparkles className="w-4 h-4 mr-2 text-yellow-500" />
             {
               Plan === "free" ? <span className="font-medium text-yellow-500">Upgrade to Pro</span> : <span className="font-medium text-yellow-500">Pro Version</span>
             }
@@ -88,26 +80,26 @@ const UserAvatar = () => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               {theme === 'dark' ? (
-                <Moon className="mr-2 h-4 w-4" />
+                <Moon className="w-4 h-4 mr-2" />
               ) : theme === 'light' ? (
-                <Sun className="mr-2 h-4 w-4" />
+                <Sun className="w-4 h-4 mr-2" />
               ) : (
-                <Laptop className="mr-2 h-4 w-4" />
+                <Laptop className="w-4 h-4 mr-2" />
               )}
               <span>Theme</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
                 <DropdownMenuRadioItem value="light">
-                  <Sun className="mr-2 h-4 w-4" />
+                  <Sun className="w-4 h-4 mr-2" />
                   Light
                 </DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="dark">
-                  <Moon className="mr-2 h-4 w-4" />
+                  <Moon className="w-4 h-4 mr-2" />
                   Dark
                 </DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="system">
-                  <Laptop className="mr-2 h-4 w-4" />
+                  <Laptop className="w-4 h-4 mr-2" />
                   System
                 </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
@@ -115,7 +107,7 @@ const UserAvatar = () => {
           </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="w-4 h-4 mr-2" />
             <span>Log out</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
