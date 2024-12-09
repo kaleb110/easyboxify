@@ -1,14 +1,16 @@
-"use client"
+"use client";
 
 import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
 
-const isProd = process.env.NODE_ENV === "production"
+const isProd = process.env.NODE_ENV === "production";
+console.log(isProd);
+
 
 const axiosClient = axios.create({
-  baseURL: isProd ?
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://bookmark-manager-jc74.onrender.com" : "http://localhost:5000", // API base URL
+  baseURL: isProd
+    ? process.env.NEXT_PUBLIC_API_BASE_URL!
+    : "http://localhost:5000", // API base URL
   headers: {
     "Content-Type": "application/json",
   },
@@ -20,7 +22,7 @@ axiosClient.interceptors.request.use(
   (config) => {
     const { authToken } = useAuthStore.getState(); // Get authToken from Zustand store
     console.log(authToken);
-    
+
     if (authToken) {
       config.headers["Authorization"] = `Bearer ${authToken}`; // Add token to request headers
     }
@@ -60,14 +62,13 @@ axiosClient.interceptors.response.use(
       try {
         // Request a new access token using the refresh token
         const response = await axios.post(
-          "https://bookmark-manager-jc74.onrender.com/auth/refresh",
+          "/auth/refresh",
           {},
           { withCredentials: true }
         );
         console.log(response);
-        
-        const newAccessToken = response.data.accessToken;
 
+        const newAccessToken = response.data.accessToken;
 
         // Update the access token in your Zustand store
         const { setAuthToken } = useAuthStore.getState();
