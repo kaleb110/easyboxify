@@ -41,8 +41,11 @@ app.use(
 
 // 2. Configure and apply CORS
 const corsOptions = {
-  origin: function (origin: any, callback: any) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+  origin: function (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -56,9 +59,8 @@ const corsOptions = {
     "Accept",
   ],
   credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
 };
+
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
