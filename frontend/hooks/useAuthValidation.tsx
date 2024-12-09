@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import axiosClient from '@/util/axiosClient';
 import { useAuthStore } from '@/store/useAuthStore';
-
+import { useRouter } from 'next/navigation';
 const useAuthValidation = () => {
+  const router = useRouter()
   const { authToken, setAuthToken, Logout } = useAuthStore();
 
   useEffect(() => {
@@ -16,6 +17,7 @@ const useAuthValidation = () => {
         } catch (error) {
           console.error("Token refresh failed:", error);
           Logout(); // Logout if refresh fails
+          router.replace("/landing")
         }
       }
     };

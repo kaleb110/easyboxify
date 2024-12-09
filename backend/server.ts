@@ -22,7 +22,6 @@ dotenv.config();
 const app: Application = express();
 const isProd = process.env.NODE_ENV === "production";
 
-
 // Move CORS configuration to the top, right after app initialization
 const allowedOrigins = isProd
   ? [
@@ -60,7 +59,6 @@ const corsOptions = {
   ],
   credentials: true,
 };
-
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));

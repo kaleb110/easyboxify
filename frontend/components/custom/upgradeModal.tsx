@@ -130,7 +130,8 @@ export function UpgradeModal() {
         <Button
           onClick={handleCheckout}
           className="w-full text-white sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500"
-          disabled={isLoading}
+          // disabled={isLoading}
+          disabled={true}
         >
           <Sparkles className="w-4 h-4 mr-2" />
           {isLoading ? "Processing..." : `Upgrade to Pro (${selectedPlanType})`}

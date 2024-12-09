@@ -28,24 +28,24 @@ export const BookmarkingAppContent = () => {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden w-full" style={{ touchAction: 'pan-y' }}>
+    <div className="fixed inset-0 flex w-full" style={{ touchAction: 'pan-y' }}>
       {/* sidebar component */}
       <SidebarComponent toggleSidebar={toggleSidebar} open={open} setOpen={setOpen} />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between pl-4 pr-2 py-1 border-b border-border">
+      <main className="flex flex-col flex-1">
+        <header className="flex items-center justify-between py-1 pl-4 pr-2 border-b border-border">
           {isMobile && (
             <button onClick={toggleSidebar} className="mr-2">
-              <Menu className="h-6 w-6" />
+              <Menu className="w-6 h-6" />
             </button>
           )}
-          <div className="flex justify-between items-center w-full">
+          <div className="flex items-center justify-between w-full">
             {/* search component */}
             <SearchComponent searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </div>
 
         </header>
-        <div className="flex-1 overflow-auto p-4">
+        <div className="flex-1 p-4 overflow-auto">
           {/* Filtered Bookmarks */}
           <FilteredBookmark setItemToDelete={setItemToDelete} />
         </div>

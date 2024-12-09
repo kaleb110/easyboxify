@@ -64,6 +64,9 @@ const Profile = () => {
   const { toast } = useToast()
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isProfileSaving, setIsProfileSaving] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isPasswordSaving, setIsPasswordSaving] = useState(false)
   const router = useRouter()
 
   const profileForm = useForm<ProfileFormValues>({
@@ -94,10 +97,10 @@ const Profile = () => {
   })
 
   const onProfileSubmit = async (data: ProfileFormValues) => {
-    setIsLoading(true)
+    setIsProfileSaving(true)
     // Implement profile update logic here
     const response = await axiosClient.put("/api/user", data)
-    setIsLoading(false)
+    setIsProfileSaving(false)
 
     console.log('Profile updated:', response)
 
@@ -108,10 +111,10 @@ const Profile = () => {
   }
 
   const onPasswordSubmit = async (data: PasswordFormValues) => {
-    setIsLoading(true)
+    setIsPasswordSaving(true)
     // Implement password change logic here
     const response = await axiosClient.put("/api/user/change-password", data)
-    setIsLoading(false)
+    setIsPasswordSaving(false)
 
     console.log('Password changed:', response)
 
@@ -123,9 +126,11 @@ const Profile = () => {
   }
 
   const handleLogout = () => {
+    setIsLoggingOut(true)
     Logout(); // This will clear the authentication state and token
-    router.replace('/auth/login'); 
-};
+    router.replace('/auth/login');
+    setIsLoggingOut(false)
+  };
 
   const handleDeleteBookmarks = async () => {
     try {
@@ -148,7 +153,7 @@ const Profile = () => {
     try {
       await axiosClient.delete('/api/user')
       Logout(); // This will clear the authentication state and token
-      router.replace('/auth/login');
+      router.replace('/landing');
     } catch (error) {
       console.error('Delete account failed:', error)
       toast({
@@ -236,19 +241,19 @@ const Profile = () => {
                           </FormItem>
                         )}
                       />
-                      <Button type="submit">Update Password</Button>
+                      <Button type="submit" disabled={isPasswordSaving}>{isPasswordSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Update Password"}</Button>
                     </form>
                   </Form>
                 </DialogContent>
               </Dialog>
               {/* save changes */}
-              <Button type="submit" disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save Profile Changes"}</Button>
+              <Button type="submit" disabled={isProfileSaving}>{isProfileSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Save Profile Changes"}</Button>
 
             </div>
             <div className='flex flex-col gap-2'>
               {/* logout */}
               <div>
-                <Button variant="outline" onClick={handleLogout} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Logout"}</Button>
+                <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut}>{isLoggingOut ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Logout"}</Button>
               </div>
               {/* delete bookmark */}
               <div>
@@ -265,7 +270,7 @@ const Profile = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteBookmarks} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Delete All Bookmarks"}</AlertDialogAction>
+                      <AlertDialogAction onClick={handleDeleteBookmarks} disabled={isLoading}>{isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Delete All Bookmarks"}</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -285,7 +290,7 @@ const Profile = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteAccount} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Delete Account"}</AlertDialogAction>
+                      <AlertDialogAction onClick={handleDeleteAccount} disabled={isLoading}>{isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Delete Account"}</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>

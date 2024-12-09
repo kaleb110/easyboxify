@@ -205,26 +205,27 @@ export function AddBookmarkModal() {
               )}
             </div>
 
-            {/* Folder Select */}
-            {folders.length > 0 && (!selectedContent || selectedContent === 'All Bookmarks') && (
-              <div className="space-y-2">
-                <Label htmlFor="folder" className="font-medium text-foreground">
-                  Folder
-                </Label>
-                <Select value={folderId || ''} onValueChange={(value) => setFolderId(value || null)}>
-                  <SelectTrigger className="px-0 border-t-0 border-b-2 rounded-none border-x-0 focus:border-primary focus:ring-0 bg-background/50">
-                    <SelectValue placeholder="Select a folder" />
-                  </SelectTrigger>
-                  <SelectContent className="font-body">
-                    {folders.map((folder) => (
-                      <SelectItem key={folder.id} value={folder.id.toString()}>
-                        {folder.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+
+{/* Folder Select */}
+{folders.length > 0 && (!selectedContent || selectedContent === 'All Bookmarks') && (
+  <div className="space-y-2">
+    <Label htmlFor="folder" className="font-medium text-foreground">
+      Folder
+    </Label>
+    <Select value={folderId || ''} onValueChange={(value) => setFolderId(value || null)}>
+      <SelectTrigger className="px-0 border-t-0 border-b-2 rounded-none border-x-0 focus:border-primary focus:ring-0 bg-background/50">
+        <SelectValue placeholder="Select a folder" />
+      </SelectTrigger>
+      <SelectContent className="font-body">
+        {folders.map((folder) => (
+          <SelectItem key={folder.id} value={folder.id.toString()}>
+            {folder.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+)}
 
             {/* Tags Select */}
             <div className="space-y-2">

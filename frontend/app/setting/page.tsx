@@ -10,7 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Menu, User, HelpCircle, Info, ArrowLeft } from 'lucide-react'
+import { Menu, User, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import Profile from './profile/page'
 import Help from './help/page'
@@ -22,25 +22,25 @@ export default function SettingsPage() {
 
   const menuItems = [
     { id: 'profile', label: 'Profile', icon: User },
-    { id: 'help', label: 'Help', icon: HelpCircle },
-    { id: 'about', label: 'About', icon: Info },
+    // { id: 'help', label: 'Help', icon: HelpCircle },
+    // { id: 'about', label: 'About', icon: Info },
   ]
 
   const SidebarContent = () => (
-    <div className="space-y-4 py-4">
+    <div className="py-4 space-y-4">
       <div className="px-3 py-2">
         <div className="space-y-1">
           {menuItems.map((item) => (
             <Button
               key={item.id}
               variant={activeSection === item.id ? "secondary" : "ghost"}
-              className="w-full justify-start font-medium text-sm"
+              className="justify-start w-full text-sm font-medium"
               onClick={() => {
                 setActiveSection(item.id)
                 setIsSidebarOpen(false)
               }}
             >
-              <item.icon className="mr-2 h-4 w-4" />
+              <item.icon className="w-4 h-4 mr-2" />
               {item.label}
             </Button>
           ))}
@@ -65,42 +65,42 @@ export default function SettingsPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar for large screens */}
-      <aside className="hidden md:flex md:flex-col md:w-64 border-r">
+      <aside className="hidden border-r md:flex md:flex-col md:w-64">
         <div className="p-4 space-y-4">
           <div className="flex items-center gap-2 px-3">
             <Link href="/">
               <Button variant="ghost" size="icon" className="hover:bg-accent">
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="w-5 h-5" />
                 <span className="sr-only">Back to home</span>
               </Button>
             </Link>
-            <h2 className="font-semibold text-lg">Settings</h2>
+            <h2 className="text-lg font-semibold">Settings</h2>
           </div>
           <SidebarContent />
         </div>
       </aside>
 
       {/* Main content area */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex flex-col flex-1 overflow-hidden">
         {/* Header for small screens */}
-        <header className="border-b p-4 md:hidden">
+        <header className="p-4 border-b md:hidden">
           <div className="flex items-center justify-between">
             <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
+                  <Menu className="w-5 h-5" />
                   <span className="sr-only">Toggle settings menu</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[240px] sm:w-[300px] p-0">
 
 
-                <SheetHeader className="px-4 py-2 border-b flex  items-start justify-between">
+                <SheetHeader className="flex items-start justify-between px-4 py-2 border-b">
 
-                  <SheetTitle className="font-semibold text-lg">
+                  <SheetTitle className="text-lg font-semibold">
                     <Link href="/">
                     <Button variant="ghost" size="icon" className="hover:bg-accent">
-                      <ArrowLeft className="h-5 w-5" />
+                      <ArrowLeft className="w-5 h-5" />
                       <span className="sr-only">Back to home</span>
                     </Button>
                   </Link>
