@@ -102,7 +102,9 @@ export function AddBookmarkModal() {
   // URL validation helper
   const isValidUrl = (url: string): boolean => {
     try {
-      new URL(url)
+      // Prepend "http://" if the URL starts with "www."
+      const formattedUrl = url.startsWith('www.') ? `http://${url}` : url
+      new URL(formattedUrl)
       return true
     } catch {
       return false
@@ -111,9 +113,10 @@ export function AddBookmarkModal() {
 
   // Form submission handler
   const handleSubmit = async (e: React.FormEvent) => {
-    setIsLoading(true)
     e.preventDefault()
     if (!validateForm()) return
+
+    setIsLoading(true)
 
     const bookmarkData = {
       title,
@@ -203,13 +206,13 @@ export function AddBookmarkModal() {
             </div>
 
             {/* Folder Select */}
-            {(!selectedContent || selectedContent === 'All Bookmarks') && (
+            {folders.length > 0 && (!selectedContent || selectedContent === 'All Bookmarks') && (
               <div className="space-y-2">
                 <Label htmlFor="folder" className="font-medium text-foreground">
                   Folder
                 </Label>
                 <Select value={folderId || ''} onValueChange={(value) => setFolderId(value || null)}>
-                  <SelectTrigger className="px-0 bg-transparent border-0 border-b rounded-none border-input focus:ring-0">
+                  <SelectTrigger className="px-0 border-t-0 border-b-2 rounded-none border-x-0 focus:border-primary focus:ring-0 bg-background/50">
                     <SelectValue placeholder="Select a folder" />
                   </SelectTrigger>
                   <SelectContent className="font-body">
@@ -236,7 +239,7 @@ export function AddBookmarkModal() {
                   }
                 }}
               >
-                <SelectTrigger className="border-t-0 border-b-2 rounded-none border-x-0 focus:border-primary focus:ring-0 bg-background/50">
+                <SelectTrigger className="px-0 border-t-0 border-b-2 rounded-none border-x-0 focus:border-primary focus:ring-0 bg-background/50">
                   <SelectValue placeholder="Select tags" />
                 </SelectTrigger>
                 <SelectContent className="font-body">
