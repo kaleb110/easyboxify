@@ -42,113 +42,125 @@ export function BookmarkItem({ bookmark, layout, onEdit, onDelete }: BookmarkIte
   
 
   const renderCardLayout = () => (
-    <div className="p-4 transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm group dark:border-gray-700 hover:shadow-md dark:bg-gray-800">
-      <div className="flex items-start space-x-4">
-        <div className="flex-grow space-y-2">
-          {/* title */}
-          <div className="flex items-center space-x-2">
-            <Globe className="w-4 h-4 text-blue-500" />
+    <div className="w-full max-w-full min-h-[200px] p-2 transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-4 group dark:border-gray-700 hover:shadow-md dark:bg-gray-800">
+      <div className="flex flex-col h-full space-y-2 break-words">
+        {/* Title and Menu Section */}
+        <div className="flex items-start gap-2">
+          <div className="flex items-center flex-1 min-w-0 gap-2">
+            <Globe className="flex-shrink-0 w-4 h-4 text-blue-500" />
             <a
               href={bookmark.url}
-              className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline bookmark-title"
+              className="text-base font-semibold text-blue-600 break-words sm:text-lg dark:text-blue-400 hover:underline bookmark-title"
               target="_blank"
               rel="noopener noreferrer"
             >
               {bookmark.title}
             </a>
           </div>
-          {/* url */}
-          <p className="font-mono text-sm text-muted-foreground bookmark-url break-all overflow-hidden text-ellipsis max-w-[calc(100%-1rem)]">
-            {bookmark.url}
-          </p>
-          {/* description */}
-          {bookmark.description && (
-            <div className="flex items-center space-x-2">
-              <div><FileText className="w-4 h-4 text-gray-400" /></div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{bookmark.description.slice(0, 60)}</p>
-            </div>
-          )}
-          {/* tags */}
-          <div className="flex flex-wrap gap-2">
-            {bookmark.tags.map((tagId) => {
-              const tag = tags.find(t => t.id === tagId?.id)
-              
-              return tag ? (
-                <Badge key={tag.id} variant="secondary" className="text-blue-800 bg-blue-100 dark:bg-blue-900 dark:text-blue-200">
-                  {tag.name}
-                </Badge>
-              ) : null
-            })}
+          <div className="flex-shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="flex-shrink-0 w-8 h-8"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  View
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onEdit(bookmark)}>
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 dark:text-red-400">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
-        <div className="flex items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="ml-2"
+        {/* URL Section */}
+        <p className="font-mono text-xs break-all sm:text-sm text-muted-foreground bookmark-url">
+          {bookmark.url}
+        </p>
+
+        {/* Description Section */}
+        {bookmark.description && (
+          <div className="flex min-w-0 gap-2">
+            <FileText className="flex-shrink-0 w-4 h-4 text-gray-400" />
+            <p className="text-xs text-gray-600 break-words sm:text-sm dark:text-gray-400">
+              {bookmark.description}
+            </p>
+          </div>
+        )}
+
+        {/* Tags Section */}
+        <div className="flex flex-wrap gap-1">
+          {bookmark.tags.map((tagId) => {
+            const tag = tags.find(t => t.id === tagId?.id)
+            return tag ? (
+              <Badge
+                key={tag.id}
+                variant="secondary"
+                className="px-2 py-0 text-xs text-blue-800 bg-blue-100 dark:bg-blue-900 dark:text-blue-200"
               >
-                <MoreHorizontal className="w-4 h-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
-                <Eye className="w-4 h-4 mr-2" />
-                View
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(bookmark)}>
-                <Edit2 className="w-4 h-4 mr-2" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 dark:text-red-400">
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {tag.name}
+              </Badge>
+            ) : null
+          })}
         </div>
       </div>
     </div>
   )
 
   const renderListLayout = () => (
-    <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-      <a
-        href={bookmark.url}
-        className="text-blue-600 dark:text-blue-400 hover:underline bookmark-title"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {bookmark.title}
-      </a>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
-            <Eye className="w-4 h-4 mr-2" />
-            View
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onEdit(bookmark)}>
-            <Edit2 className="w-4 h-4 mr-2" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 dark:text-red-400">
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex items-start justify-between w-full gap-2 p-2 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+      <div className="flex-1 min-w-0">
+        <a
+          href={bookmark.url}
+          className="text-sm text-blue-600 break-words sm:text-base dark:text-blue-400 hover:underline bookmark-title line-clamp-2"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {bookmark.title}
+        </a>
+      </div>
+      <div className="flex-shrink-0">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8"
+            >
+              <MoreHorizontal className="w-4 h-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+              <Eye className="w-4 h-4 mr-2" />
+              View
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(bookmark)}>
+              <Edit2 className="w-4 h-4 mr-2" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 dark:text-red-400">
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   )
 
