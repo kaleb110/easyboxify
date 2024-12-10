@@ -91,7 +91,7 @@ export default function LandingPage() {
                     </a>
                   ))}
                   <Link href="/auth/login">
-                    <Button variant="ghost" className="justify-start w-full">Log in</Button>
+                    <Button variant="ghost" className="w-full ">Log in</Button>
                   </Link>
                   <Link href="/auth/register">
                     <Button className="w-full">Sign up</Button>
