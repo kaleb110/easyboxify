@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 
 const useAuthValidation = () => {
   const router = useRouter()
-  const { authToken, setAuthToken, Logout, isLoading } = useAuthStore();
+  const { authToken, setAuthToken, Logout, isLoading, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     const validateToken = async () => {
-      if (!isLoading && !authToken) {
+      // Only try to refresh if we're not explicitly logged out
+      if (!isLoading && !authToken && isAuthenticated) {
         try {
           const response = await axiosClient.post("/auth/refresh", {}, { withCredentials: true });
           const newAccessToken = response.data.accessToken;
@@ -23,7 +24,7 @@ const useAuthValidation = () => {
     };
 
     validateToken();
-  }, [authToken, isLoading]);
+  }, [authToken, isLoading, isAuthenticated]);
 };
 
 export default useAuthValidation;
