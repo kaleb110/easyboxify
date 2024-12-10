@@ -1,4 +1,5 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+"use client"
+import React, { ReactNode, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 
@@ -7,22 +8,22 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isLoading } = useAuthStore();
   const router = useRouter();
-  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Delay checking until auth state is fully initialized
-    setIsInitialized(true);
-  }, []);
-
-  useEffect(() => {
-    if (isInitialized && !isAuthenticated) {
-      router.replace('/auth/login');
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/landing');
     }
-  }, [isAuthenticated, isInitialized, router]);
+  }, [isAuthenticated, isLoading, router]);
 
-  return <>{children}</>;
+  // Show nothing while loading
+  if (isLoading) {
+    return null;
+  }
+
+  // Show children only if authenticated
+  return isAuthenticated ? <>{children}</> : null;
 };
 
 export default ProtectedRoute;

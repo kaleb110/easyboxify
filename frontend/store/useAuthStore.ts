@@ -1,40 +1,44 @@
-"use client"
+"use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AuthState {
   isAuthenticated: boolean;
   authToken: string | null;
+  isLoading: boolean;
   setIsAuthenticated: (auth: boolean) => void;
   setAuthToken: (token: string) => void;
   Logout: () => void;
-  checkAuth: () => void;
+  checkAuth: () => Promise<boolean>;
+  setLoading: (loading: boolean) => void;
 }
 
-// Create the Zustand store with persistence
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      isAuthenticated: false, // Initialize as false
-      authToken: null, // Initialize as null
+      isAuthenticated: false,
+      authToken: null,
+      isLoading: true, // Start with loading true
+      setLoading: (loading) => set({ isLoading: loading }),
       setIsAuthenticated: (auth) => set({ isAuthenticated: auth }),
       setAuthToken: (token) => {
-        localStorage.setItem("authToken", token); // Save token to localStorage
-        set({ authToken: token, isAuthenticated: true }); // Set both authToken and isAuthenticated
+        localStorage.setItem("authToken", token);
+        set({ authToken: token, isAuthenticated: true });
       },
       Logout: () => {
         localStorage.removeItem("authToken");
         set({ isAuthenticated: false, authToken: null });
       },
-      checkAuth: () => {
+      checkAuth: async () => {
         const token = localStorage.getItem("authToken");
-        if (token) {
-          set({ isAuthenticated: true, authToken: token });
-        } else {
-          set({ isAuthenticated: false, authToken: null });
-        }
+        set({
+          isAuthenticated: !!token,
+          authToken: token,
+          isLoading: false,
+        });
+        return !!token;
       },
     }),
-    { name: "auth-storage" } // Persist the state in localStorage
+    { name: "auth-storage" }
   )
 );
