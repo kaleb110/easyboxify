@@ -24,10 +24,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 // Move CORS configuration to the top, right after app initialization
 const allowedOrigins = isProd
-  ? [
-      "https://bookmark-manager-liart.vercel.app",
-      "https://bookmark-manager-jc74.onrender.com",
-    ]
+  ? ["https://www.easyboxify.com", "https://bookmark-manager-jc74.onrender.com"]
   : ["http://localhost:3000"];
 
 // 1. First, set security headers with helmet
