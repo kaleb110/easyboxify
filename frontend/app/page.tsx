@@ -5,6 +5,7 @@ import { useAuthInit } from "@/hooks/useAuthInit";
 import { UpgradeModal } from "@/components/custom/upgradeModal";
 import useAuthValidation from "@/hooks/useAuthValidation";
 
+
 export default function Home() {
   useAuthInit()
   useAuthValidation()
