@@ -16,6 +16,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { CheckCircle2, ArrowRight, Menu, Play, Pause } from 'lucide-react'
 import { Logo } from "@/components/custom/Logo"
+import CookieBanner from '@/components/custom/CookieBanner'
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -298,6 +299,7 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      <CookieBanner />
     </div>
   )
 }
