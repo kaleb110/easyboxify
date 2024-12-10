@@ -23,7 +23,8 @@ interface FilterProps {
 
 type SortValue = "nameAZ" | "nameZA" | "date"
 type LayoutValue = "card" | "list"
-const FilteredBookmark: React.FC<FilterProps> = ({ setItemToDelete }) => {
+
+export default function FilteredBookmark({ setItemToDelete }: FilterProps) {
   const {
     selectedContent,
     bookmarks,
@@ -42,30 +43,30 @@ const FilteredBookmark: React.FC<FilterProps> = ({ setItemToDelete }) => {
     setLayoutPreference
   } = useBookmarkStore()
 
-  const [sortBy, setSortBy] = useState<'nameAZ' | 'nameZA' | 'date'>('nameAZ')
-  const [layout, setLayout] = useState<'card' | 'list'>('card')
-  const [isLoading, setIsLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<SortValue>('nameAZ')
+  const [layout, setLayout] = useState<LayoutValue>('card')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const loadPreferences = async () => {
       try {
-        setIsLoading(true);
-        const sortPreference = await getSortPreference();
-        setSortBy(sortPreference as 'nameAZ' | 'nameZA' | 'date');
-        const layoutPreference = await getLayoutPreference();
-        setLayout(layoutPreference as 'card' | 'list');
-        setIsLoading(false);
+        setIsLoading(true)
+        const sortPreference = await getSortPreference()
+        setSortBy(sortPreference as SortValue)
+        const layoutPreference = await getLayoutPreference()
+        setLayout(layoutPreference as LayoutValue)
+        setIsLoading(false)
       } catch (error) {
-        console.error('Failed to load preferences:', error);
-        setSortBy('nameAZ');
-        setLayout('card');
-        setIsLoading(false);
+        console.error('Failed to load preferences:', error)
+        setSortBy('nameAZ')
+        setLayout('card')
+        setIsLoading(false)
       }
-    };
-    loadPreferences();
-  }, [getSortPreference, getLayoutPreference]);
+    }
+    loadPreferences()
+  }, [getSortPreference, getLayoutPreference])
 
-  const handleSortChange = useCallback(async (value: 'nameAZ' | 'nameZA' | 'date') => {
+  const handleSortChange = useCallback(async (value: SortValue) => {
     setSortBy(value)
     try {
       await setSortPreference(value)
@@ -74,7 +75,7 @@ const FilteredBookmark: React.FC<FilterProps> = ({ setItemToDelete }) => {
     }
   }, [setSortPreference])
 
-  const handleLayoutChange = useCallback(async (value: 'card' | 'list') => {
+  const handleLayoutChange = useCallback(async (value: LayoutValue) => {
     setLayout(value)
     try {
       await setLayoutPreference(value)
@@ -84,38 +85,36 @@ const FilteredBookmark: React.FC<FilterProps> = ({ setItemToDelete }) => {
   }, [setLayoutPreference])
 
   const filteredBookmarks = useMemo(() => {
-    let filtered = bookmarks;
+    let filtered = bookmarks
     if (selectedContent !== 'All Bookmarks') {
-      const folder = folders.find((f) => f.name === selectedContent);
+      const folder = folders.find((f) => f.name === selectedContent)
       if (folder) {
-        filtered = bookmarks.filter((bookmark) => bookmark.folderId === folder.id);
+        filtered = bookmarks.filter((bookmark) => bookmark.folderId === folder.id)
       } else {
-        const tag = tags.find((t) => t.name === selectedContent);
+        const tag = tags.find((t) => t.name === selectedContent)
         if (tag) {
-          // Use `some` to check if any tag in the bookmark matches the selected tag
           filtered = bookmarks.filter((bookmark) =>
             bookmark.tags.some((bookmarkTag) => bookmarkTag?.id === tag?.id)
-          );
+          )
         }
       }
     }
 
     filtered = filtered.filter((bookmark) =>
       bookmark?.title?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    )
 
-    // Apply sorting
     switch (sortBy) {
       case 'nameAZ':
-        return filtered.sort((a, b) => a.title.localeCompare(b.title));
+        return filtered.sort((a, b) => a.title.localeCompare(b.title))
       case 'nameZA':
-        return filtered.sort((a, b) => b.title.localeCompare(a.title));
+        return filtered.sort((a, b) => b.title.localeCompare(a.title))
       case 'date':
-        return filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       default:
-        return filtered;
+        return filtered
     }
-  }, [selectedContent, bookmarks, folders, tags, searchTerm, sortBy]);
+  }, [selectedContent, bookmarks, folders, tags, searchTerm, sortBy])
 
   const startRenaming = () => {
     setEditingName(selectedContent)
@@ -137,75 +136,71 @@ const FilteredBookmark: React.FC<FilterProps> = ({ setItemToDelete }) => {
     }
   }
 
-  const SortDropDown = () => {
-    return (
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger>
-          <Edit className="mr-2 h-4 w-4" />
-          <span>Sort</span>
-        </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent>
-          <DropdownMenuRadioGroup value={sortBy} onValueChange={(value: string) => handleSortChange(value as SortValue)}>
-            <DropdownMenuRadioItem value="nameAZ">
-              <ArrowDownAZ className="mr-2 h-4 w-4" />
-              Name (A-Z)
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="nameZA">
-              <ArrowUpZA className="mr-2 h-4 w-4" />
-              Name (Z-A)
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="date">
-              <Calendar className="mr-2 h-4 w-4" />
-              Date
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuSubContent>
-      </DropdownMenuSub>
-    )
-  }
+  const SortDropDown = () => (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>
+        <Edit className="w-4 h-4 mr-2" />
+        <span>Sort</span>
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent>
+        <DropdownMenuRadioGroup value={sortBy} onValueChange={(value: string) => handleSortChange(value as SortValue)}>
+          <DropdownMenuRadioItem value="nameAZ">
+            <ArrowDownAZ className="w-4 h-4 mr-2" />
+            Name (A-Z)
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="nameZA">
+            <ArrowUpZA className="w-4 h-4 mr-2" />
+            Name (Z-A)
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="date">
+            <Calendar className="w-4 h-4 mr-2" />
+            Date
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  )
 
-  const LayoutDropDown = () => {
-    return (
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger>
-          {layout === 'card' ? <LayoutGrid className="mr-2 h-4 w-4" /> : <List className="mr-2 h-4 w-4" />}
-          <span>View</span>
-        </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent>
-          <DropdownMenuRadioGroup value={layout} onValueChange={(value: string) => handleLayoutChange(value as LayoutValue)}>
-            <DropdownMenuRadioItem value="card">
-              <LayoutGrid className="mr-2 h-4 w-4" />
-              Card
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="list">
-              <List className="mr-2 h-4 w-4" />
-              List
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuSubContent>
-      </DropdownMenuSub>
-    )
-  }
+  const LayoutDropDown = () => (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>
+        {layout === 'card' ? <LayoutGrid className="w-4 h-4 mr-2" /> : <List className="w-4 h-4 mr-2" />}
+        <span>View</span>
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent>
+        <DropdownMenuRadioGroup value={layout} onValueChange={(value: string) => handleLayoutChange(value as LayoutValue)}>
+          <DropdownMenuRadioItem value="card">
+            <LayoutGrid className="w-4 h-4 mr-2" />
+            Card
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="list">
+            <List className="w-4 h-4 mr-2" />
+            List
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  )
 
   return (
-    <>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{selectedContent}</h1>
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex items-center justify-between p-4 border-b shrink-0">
+        <h1 className="text-2xl font-bold truncate">{selectedContent}</h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <MoreHorizontal className="h-5 w-5" />
+              <MoreHorizontal className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {selectedContent !== 'All Bookmarks' ? (
               <>
                 <DropdownMenuItem onSelect={startRenaming}>
-                  <Edit className="mr-2 h-4 w-4" />
+                  <Edit className="w-4 h-4 mr-2" />
                   Rename
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={handleDelete} className="text-destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Delete
                 </DropdownMenuItem>
                 <SortDropDown />
@@ -220,34 +215,40 @@ const FilteredBookmark: React.FC<FilterProps> = ({ setItemToDelete }) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 bg-gray-100 dark:bg-gray-800">
-          {[...Array(6)].map((_, index) => (
-            <div key={index} className="h-32 bg-gray-200 rounded-lg animate-pulse"></div>
-          ))}
+      <div className="flex-1 overflow-x-hidden overflow-y-auto">
+        <div className="p-4">
+          {isLoading ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="h-32 bg-gray-200 rounded-lg animate-pulse"></div>
+              ))}
+            </div>
+          ) : (
+            <div className={
+              layout === 'card'
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-max"
+                : "flex flex-col space-y-4"
+            }>
+              {filteredBookmarks.map((bookmark) => (
+                <div key={bookmark.id} className={layout === 'card' ? "w-full " : "w-full"}>
+                  <BookmarkItem
+                    bookmark={bookmark}
+                    layout={layout}
+                    onEdit={(bookmark) => {
+                      setIsAddBookmarkModalOpen(true)
+                      setEditingBookmark(bookmark)
+                    }}
+                    onDelete={deleteBookmark}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {!isLoading && filteredBookmarks.length === 0 && (
+            <p className="mt-8 text-center text-gray-500">No bookmarks found.</p>
+          )}
         </div>
-      ) : (
-        <div className={layout === 'card' ? "grid grid-cols-1 lg:grid-cols-3 gap-4" : "space-y-2"}>
-          {filteredBookmarks.map((bookmark) => (
-            <BookmarkItem
-              key={bookmark.id}
-              bookmark={bookmark}
-              layout={layout}
-              onEdit={(bookmark) => {
-                setIsAddBookmarkModalOpen(true);
-                setEditingBookmark(bookmark);
-              }}
-              onDelete={deleteBookmark}
-            />
-          ))}
-        </div>
-      )}
-      {!isLoading && filteredBookmarks.length === 0 && (
-        <p className="text-center text-gray-500 mt-8">No bookmarks found.</p>
-      )}
-    </>
+      </div>
+    </div>
   )
 }
-
-export default FilteredBookmark
-
