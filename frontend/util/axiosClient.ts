@@ -8,7 +8,9 @@ console.log(isProd);
 
 
 const axiosClient = axios.create({
-  baseURL: isProd ? process.env.BASE_URL_PROD! : process.env.BASE_URL!, 
+  baseURL: isProd
+    ? process.env.NEXT_PUBLIC_BASE_URL_PROD!
+    : process.env.NEXT_PUBLIC_BASE_URL!,
   headers: {
     "Content-Type": "application/json",
   },
