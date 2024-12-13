@@ -205,8 +205,7 @@ const SearchComponent: React.FC<SearchProps> = React.memo(({ searchTerm, setSear
                 <DropdownMenuItem
                   onClick={() => setIsDialogOpen(true)}
                   className="flex items-center py-1.5 px-2.5 cursor-pointer text-sm"
-                  // disabled={isLoading}
-                  disabled={true}
+                  disabled={isLoading}
                 >
                   <Import className="mr-2 h-3.5 w-3.5" />
                   <span>Import</span>
