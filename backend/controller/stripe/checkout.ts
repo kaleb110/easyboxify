@@ -4,6 +4,9 @@ import dotenv from "dotenv";
 import { Request, Response } from "express";
 dotenv.config();
 
+const isProd = process.env.NODE_ENV === "production";
+
+
 const checkoutController = async (req: Request, res: Response) => {
   const { userId, planType } = req.body; // Assuming the user ID is sent in the request
 
@@ -24,8 +27,12 @@ const checkoutController = async (req: Request, res: Response) => {
         },
       ],
       metadata: { userId }, // Pass user ID for later use in webhook
-      success_url: `${process.env.BASE_URL}/success`,
-      cancel_url: `${process.env.BASE_URL}/cancel`,
+      success_url: isProd
+        ? `${process.env.BASE_URL_PROD}/success`
+        : `${process.env.BASE_URL}/success`,
+      cancel_url: isProd
+        ? `${process.env.BASE_URL_PROD}/cancel`
+        : `${process.env.BASE_URL}/cancel`,
     });
 
     res.json({ url: session.url });

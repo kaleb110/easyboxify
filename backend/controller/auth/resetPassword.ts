@@ -6,6 +6,9 @@ import { User } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { sendPasswordResetEmail } from "./sendEmail";
 
+const isProd = process.env.NODE_ENV === "production";
+
+
 // Request password reset handler
 export const requestPasswordResetHandler = async (
   req: Request,
@@ -35,7 +38,9 @@ export const requestPasswordResetHandler = async (
       .where(eq(User.id, user.id));
 
     // Send the password reset email with the generated link
-    const resetLink = `${process.env.BASE_URL}/auth/reset?token=${token}`;
+    const resetLink = isProd
+      ? `${process.env.BASE_URL_PROD}/auth/reset?token=${token}`
+      : `${process.env.BASE_URL}/auth/reset?token=${token}`;
     await sendPasswordResetEmail(email, resetLink);
 
     res.send("Password reset email sent. Check your email for instructions.");

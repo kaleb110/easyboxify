@@ -6,6 +6,9 @@ import { User } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { sendVerificationEmail } from "./sendEmail";
 
+const isProd = process.env.NODE_ENV === "production";
+
+
 const registerHandler = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
@@ -36,7 +39,9 @@ const registerHandler = async (req: Request, res: Response) => {
       process.env.JWT_SECRET_KEY,
       { expiresIn: "1h" }
     );
-    const verificationLink = `${process.env.BASE_URL}/auth/login?token=${token}`;
+    const verificationLink = isProd
+      ? `${process.env.BASE_URL_PROD}/auth/login?token=${token}`
+      : `${process.env.BASE_URL}/auth/login?token=${token}`;
 
     await sendVerificationEmail(email, verificationLink);
 
