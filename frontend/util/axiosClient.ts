@@ -9,8 +9,8 @@ console.log(isProd);
 
 const axiosClient = axios.create({
   baseURL: isProd
-    ? process.env.NEXT_PUBLIC_API_BASE_URL!
-    : "http://localhost:5000", // API base URL
+    ? process.env.BASE_URL_PROD!
+    : process.env.BASE_URL!, // API base URL
   headers: {
     "Content-Type": "application/json",
   },
