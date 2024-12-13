@@ -24,7 +24,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 // Move CORS configuration to the top, right after app initialization
 const allowedOrigins = isProd
-  ? ["https://www.easyboxify.com", "https://bookmark-manager-jc74.onrender.com"]
+  ? [`${process.env.BASE_URL_PROD}`]
   : ["http://localhost:3000"];
 
 // 1. First, set security headers with helmet
