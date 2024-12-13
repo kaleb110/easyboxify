@@ -6,7 +6,5 @@ node_modules/
 *.pnp.js
 .pnp/
 .vscode/
-/prisma/generated/
+/drizzle
 .vercel
-uploads/
-config/service-account.json
