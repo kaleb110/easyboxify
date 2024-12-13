@@ -15,6 +15,8 @@ const axiosClient = axios.create({
   withCredentials: true, // Ensure cookies are sent with requests
 });
 
+console.log("Base URL:", axiosClient.defaults.baseURL);
+
 // Request interceptor to include token in headers
 axiosClient.interceptors.request.use(
   (config) => {
