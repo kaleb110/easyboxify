@@ -49,7 +49,7 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-center">
         <div className="container flex items-center justify-between h-16 px-4">
           <a className="flex items-center space-x-2" href="#">
             <Logo className="w-6 h-6" />
@@ -133,7 +133,7 @@ export default function LandingPage() {
                     muted
                     loop
                   >
-                    <source src="/intro.mp4" type="video/mp4" />
+                    <source src="/cursorful.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                   <Button
